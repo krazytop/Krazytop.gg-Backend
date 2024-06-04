@@ -1,2 +1,25 @@
+name: Build and Push Docker Image
+
 on:
   workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Hub authentication
+        uses: docker/setup-qemu-action@v2
+
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: Dockerfile-Backend
+          push: true
+          tags: |
+            krazytop/krazytop.gg-backend:latest
