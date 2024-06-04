@@ -1,0 +1,22 @@
+server:
+  port: 8080
+spring:
+  security:
+    user:
+      name: krazytop
+      password: password
+  data:
+    mongodb:
+      tft:
+        uri: mongodb://localhost:27017/TeamfightTactics
+      lol:
+        uri: mongodb://localhost:27017/LeagueOfLegends
+      riot:
+        uri: mongodb://localhost:27017/Riot
+      clash-royal:
+        uri: mongodb://localhost:27017/ClashRoyal
+      destiny:
+        uri: mongodb://localhost:27017/Destiny
+    web:
+      pageable:
+        default-page-size: 5
