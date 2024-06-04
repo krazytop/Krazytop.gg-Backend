@@ -15,8 +15,12 @@ public class DestinyAuthController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DestinyAuthController.class);
 
+    private final DestinyAuthService destinyAuthService;
+
     @Autowired
-    private DestinyAuthService destinyAuthService;
+    public DestinyAuthController(DestinyAuthService destinyAuthService){
+        this.destinyAuthService = destinyAuthService;
+    }
 
     @GetMapping("/destiny/get/{code}")
     public ResponseEntity<String> getPlayerToken(@PathVariable String code) {
@@ -29,7 +33,7 @@ public class DestinyAuthController {
     @PostMapping("/destiny/update")
     public ResponseEntity<String> updatePlayerToken(@RequestBody Map<String, String> requestBody) {
         String refreshToken = requestBody.get("refreshToken");
-        LOGGER.info("Updating Destiny player token for refresh token : {}", refreshToken);
+        LOGGER.info("Updating Destiny player token for refresh token");
         String playerToken = destinyAuthService.updatePlayerToken(refreshToken);
         LOGGER.info("Destiny player token updated: {}", playerToken);
         return new ResponseEntity<>(playerToken, HttpStatus.OK);

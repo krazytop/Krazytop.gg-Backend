@@ -2,27 +2,23 @@ version: '3.8'
 services:
   backend:
     build:
-      context: ..
+      context: https://github.com/krazytop/Krazytop.gg-Backend
+      dockerfile: Dockerfile-Backend
     ports:
       - "8080:8080"
     container_name: krazytop-back
 
   frontend:
     build:
-      context: ../../krazytop-front
+      context: https://github.com/krazytop/Krazytop.gg-Frontend
+      dockerfile: Dockerfile-Frontend
     ports:
       - "4200:80"
     container_name: krazytop-front
 
-  mongodb:
-    image: mongo:7.0.2
-    ports:
-      - "27018:27017"
-    container_name: krazytop-mongodb
-
   nginx:
     build:
-      context: ../../krazytop-front
-      dockerfile: ../../krazytop-front/Dockerfile-nginx
+      context: ../krazytop-front
+      dockerfile: ../krazytop-front/Dockerfile-Nginx
     ports:
       - "80:80"
