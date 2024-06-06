@@ -26,5 +26,5 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: krazytop-back
-          path: target/krazytop-back-1.0-SNAPSHOT-shaded.jar
+          path: target/krazytop-back-1.0-SNAPSHOT.jar
           retention-days: 28
