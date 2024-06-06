@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y openjdk-11-jdk
 RUN javac src/*.java
 
 # Créez le fichier JAR
-RUN jar cfm my-app.jar manifest.txt src/*.class
+RUN jar cfm app.jar manifest.txt src/*.class
 
 # Exposez le port sur lequel votre application Java écoute
 EXPOSE 8080

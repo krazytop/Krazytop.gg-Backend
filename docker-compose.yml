@@ -18,7 +18,7 @@ services:
 
   nginx:
     build:
-      context: ../krazytop-front
-      dockerfile: ../krazytop-front/Dockerfile-Nginx
+      context: https://github.com/krazytop/Krazytop.gg-Frontend
+      dockerfile: Dockerfile-Nginx
     ports:
       - "80:80"
