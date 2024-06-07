@@ -29,4 +29,4 @@ jobs:
 
       - name: Deploy to App Engine
         id: deploy
-        run: gcloud app deploy ${{ github.workspace }}/target/krazytop-back-1.0-SNAPSHOT.jar --url https://krazytop.com
+        run: gcloud app deploy ${{ github.workspace }}/target/krazytop-back-1.0-SNAPSHOT.jar --runtime=nodejs16 --url https://krazytop.com
