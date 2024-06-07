@@ -29,4 +29,8 @@ jobs:
 
       - name: Deploy to App Engine
         id: deploy
-        run: gcloud app deploy ${{ github.workspace }}/target/krazytop-back-1.0-SNAPSHOT.jar --runtime=java20 --url https://krazytop.com
+        run: |  # Corrected command using shell syntax
+          gcloud app deploy target/krazytop-back-1.0-SNAPSHOT.jar \
+            --runtime java20
+            --project krazytop
+            --url https://krazytop.com
