@@ -1,4 +1,4 @@
-name: Build Java Project with Maven and Generate JAR
+name: Build and Deploy on App Engine
 
 on:
   push:
