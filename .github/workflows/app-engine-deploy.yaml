@@ -29,8 +29,5 @@ jobs:
 
       - name: Deploy to App Engine
         id: deploy
-        run: |  # Corrected command using shell syntax
-          gcloud app deploy target/krazytop-back-1.0-SNAPSHOT.jar \
-            --runtime java20
-            --project krazytop
-            --url https://krazytop.com
+        run: | 
+          gcloud app deploy target/krazytop-back-1.0-SNAPSHOT.jar
