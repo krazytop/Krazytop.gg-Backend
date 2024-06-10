@@ -1,2 +1,2 @@
-service: backend
+service: default
 runtime: java17
