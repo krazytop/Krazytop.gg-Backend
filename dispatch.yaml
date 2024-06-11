@@ -1,3 +1,5 @@
 dispatch:
     - url: "api.krazytop.com/*"
       service: default
+    - url: "krazytop.com/*"
+      service: frontend
