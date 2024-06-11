@@ -30,4 +30,4 @@ jobs:
       - name: Deploy to App Engine
         id: deploy
         run: | 
-          gcloud app deploy
+          gcloud app deploy dispatch.yaml
