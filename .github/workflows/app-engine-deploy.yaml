@@ -23,7 +23,7 @@ jobs:
         run: mvn clean package
 
       - name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v1'
+        uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.APP_ENGINE_DEPLOY_KEY }}'
 
