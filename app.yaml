@@ -2,3 +2,6 @@ service: default
 runtime: java17
 env: standard
 instance_class: F1
+
+env_variables:
+  MONGO_DATABASE_URL: ${env:MONGO_DATABASE_URL}
