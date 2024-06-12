@@ -8,15 +8,15 @@ spring:
   data:
     mongodb:
       tft:
-        uri: mongodb+srv://krazytop:QzbZDXfMzxDL1D9D@krazytop.qab5sau.mongodb.net/TeamfightTactics
+        uri: ${env:MONGO_DATABASE_URL}/TeamfightTactics
       lol:
-        uri: mongodb+srv://krazytop:QzbZDXfMzxDL1D9D@krazytop.qab5sau.mongodb.net/LeagueOfLegends
+        uri: ${env:MONGO_DATABASE_URL}/LeagueOfLegends
       riot:
-        uri: mongodb+srv://krazytop:QzbZDXfMzxDL1D9D@krazytop.qab5sau.mongodb.net/Riot
+        uri: ${env:MONGO_DATABASE_URL}/Riot
       clash-royal:
-        uri: mongodb+srv://krazytop:QzbZDXfMzxDL1D9D@krazytop.qab5sau.mongodb.net/ClashRoyal
+        uri: ${env:MONGO_DATABASE_URL}/ClashRoyal
       destiny:
-        uri: mongodb+srv://krazytop:QzbZDXfMzxDL1D9D@krazytop.qab5sau.mongodb.net/Destiny
+        uri: ${env:MONGO_DATABASE_URL}/Destiny
     web:
       pageable:
         default-page-size: 5

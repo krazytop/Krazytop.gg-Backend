@@ -30,7 +30,7 @@ public class DestinyNomenclatureManagement {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DestinyNomenclatureManagement.class);
 
-    private static final String FOLDER = "/krazytop-core/src/main/resources/data/destiny/";
+    private static final String FOLDER = "/src/main/resources/data/destiny/";
 
     private final DestinyClassNomenclatureRepository classNomenclatureRepository;
     private final DestinyRecordNomenclatureRepository recordNomenclatureRepository;
@@ -134,13 +134,15 @@ public class DestinyNomenclatureManagement {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<?,?> classData = objectMapper.readValue(classJson, Map.class);
         classNomenclatureRepository.deleteAll();
+        List<DestinyClassNomenclature> classNomenclatures = new ArrayList<>();
         for (Map.Entry<?,?> entry : classData.entrySet()) {
             DestinyClassNomenclature classNomenclature = new DestinyClassNomenclature();
             Map<?, ?> entryData = (Map<?, ?>) entry.getValue();
             classNomenclature.setHash(getHashAsLong(entryData.get("hash")));
             classNomenclature.setNameByGender((Map<Long, String>) entryData.get("genderedClassNamesByGenderHash"));
-            classNomenclatureRepository.save(classNomenclature);
+            classNomenclatures.add(classNomenclature);
         }
+        classNomenclatureRepository.saveAll(classNomenclatures);
     }
 
     public void updateVendorNomenclature() throws IOException, NullPointerException {
@@ -149,6 +151,7 @@ public class DestinyNomenclatureManagement {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<?,?> vendorData = objectMapper.readValue(vendorsJson, Map.class);
         vendorNomenclatureRepository.deleteAll();
+        List<DestinyVendorNomenclature> vendorNomenclatures = new ArrayList<>();
         for (Map.Entry<?,?> entry : vendorData.entrySet()) {
             DestinyVendorNomenclature vendorNomenclature = new DestinyVendorNomenclature();
             Map<?, ?> entryData = (Map<?, ?>) entry.getValue();
@@ -158,9 +161,10 @@ public class DestinyNomenclatureManagement {
             vendorNomenclature.setIcon(displayProperties.get("smallTransparentIcon"));
             vendorNomenclature.setIconBackground(displayProperties.get("icon"));
             if (vendorNomenclature.getIcon() != null && vendorNomenclature.getIconBackground() != null && !Objects.equals(vendorNomenclature.getName(), "")) {
-                vendorNomenclatureRepository.save(vendorNomenclature);
+                vendorNomenclatures.add(vendorNomenclature);
             }
         }
+        vendorNomenclatureRepository.saveAll(vendorNomenclatures);
     }
 
     public void updateVendorGroupNomenclature() throws IOException, NullPointerException {
@@ -169,13 +173,15 @@ public class DestinyNomenclatureManagement {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<?,?> vendorGroupData = objectMapper.readValue(vendorGroupsJson, Map.class);
         vendorGroupNomenclatureRepository.deleteAll();
+        List<DestinyVendorGroupNomenclature> vendorGroupNomenclatures = new ArrayList<>();
         for (Map.Entry<?,?> entry : vendorGroupData.entrySet()) {
             DestinyVendorGroupNomenclature vendorGroupNomenclature = new DestinyVendorGroupNomenclature();
             Map<?, ?> entryData = (Map<?, ?>) entry.getValue();
             vendorGroupNomenclature.setHash(getHashAsLong(entryData.get("hash")));
             vendorGroupNomenclature.setName((String)entryData.get("categoryName"));
-            vendorGroupNomenclatureRepository.save(vendorGroupNomenclature);
+            vendorGroupNomenclatures.add(vendorGroupNomenclature);
         }
+        vendorGroupNomenclatureRepository.saveAll(vendorGroupNomenclatures);
     }
 
     public void updateProgressionNomenclature() throws IOException, NullPointerException {
@@ -184,6 +190,7 @@ public class DestinyNomenclatureManagement {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<?,?> classData = objectMapper.readValue(progrssionsJson, Map.class);
         progressionNomenclatureRepository.deleteAll();
+        List<DestinyProgressionNomenclature> progressionNomenclatures = new ArrayList<>();
         for (Map.Entry<?,?> entry : classData.entrySet()) {
             Map<?, ?> entryData = (Map<?, ?>) entry.getValue();
 
@@ -206,9 +213,10 @@ public class DestinyNomenclatureManagement {
                     steps.add(step);
                 });
                 progressionNomenclature.setSteps(steps);
-                progressionNomenclatureRepository.save(progressionNomenclature);
+                progressionNomenclatures.add(progressionNomenclature);
             }
         }
+        progressionNomenclatureRepository.saveAll(progressionNomenclatures);
     }
 
     public void updateItemNomenclature() throws IOException, NullPointerException {
@@ -217,6 +225,7 @@ public class DestinyNomenclatureManagement {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<?,?> itemData = objectMapper.readValue(itemsJson, Map.class);
         itemNomenclatureRepository.deleteAll();
+        List<DestinyItemNomenclature> itemNomenclatures = new ArrayList<>();
         for (Map.Entry<?,?> entry : itemData.entrySet()) {
             DestinyItemNomenclature itemNomenclature = new DestinyItemNomenclature();
             itemNomenclature.setHash(getHashAsLong(entry.getKey()));
@@ -246,8 +255,9 @@ public class DestinyNomenclatureManagement {
             itemNomenclature.setClassType(getHashAsLong(entryData.get("classType")));
             itemNomenclature.setDefaultDamageType(getHashAsLong(entryData.get("defaultDamageType")));
             itemNomenclature.setEquippable((boolean)entryData.get("equippable"));
-            itemNomenclatureRepository.save(itemNomenclature);
+            itemNomenclatures.add(itemNomenclature);
         }
+        itemNomenclatureRepository.saveAll(itemNomenclatures);
     }
 
     public void updateRecordNomenclature() throws IOException, NullPointerException {
@@ -256,6 +266,7 @@ public class DestinyNomenclatureManagement {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<?,?> recordData = objectMapper.readValue(recordJson, Map.class);
         recordNomenclatureRepository.deleteAll();
+        List<DestinyRecordNomenclature> recordNomenclatures = new ArrayList<>();
         for (Map.Entry<?,?> entry : recordData.entrySet()) {
             DestinyRecordNomenclature recordNomenclature = new DestinyRecordNomenclature();
             Map<?, ?> entryData = (Map<?, ?>) entry.getValue();
@@ -297,8 +308,9 @@ public class DestinyNomenclatureManagement {
                 itemQuantity.setQuantity(getHashAsLong(rewardItem.get("quantity")));
                 return itemQuantity;
             }).toList());
-            recordNomenclatureRepository.save(recordNomenclature);
+            recordNomenclatures.add(recordNomenclature);
         }
+        recordNomenclatureRepository.saveAll(recordNomenclatures);
     }
 
     public void updateObjectiveNomenclature() throws IOException, NullPointerException {
@@ -307,6 +319,7 @@ public class DestinyNomenclatureManagement {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<?,?> objectiveData = objectMapper.readValue(objectiveJson, Map.class);
         objectiveNomenclatureRepository.deleteAll();
+        List<DestinyObjectiveNomenclature> objectiveNomenclatures = new ArrayList<>();
         for (Map.Entry<?,?> entry : objectiveData.entrySet()) {
             DestinyObjectiveNomenclature objectiveNomenclature = new DestinyObjectiveNomenclature();
             Map<?, ?> entryData = (Map<?, ?>) entry.getValue();
@@ -324,8 +337,9 @@ public class DestinyNomenclatureManagement {
             objectiveNomenclature.setAllowValueChangeWhenCompleted((boolean) entryData.get("allowValueChangeWhenCompleted"));
             objectiveNomenclature.setAllowOvercompletion((boolean) entryData.get("allowOvercompletion"));
             objectiveNomenclature.setDisplayOnlyObjective((boolean) entryData.get("isDisplayOnlyObjective"));
-            objectiveNomenclatureRepository.save(objectiveNomenclature);
+            objectiveNomenclatures.add(objectiveNomenclature);
         }
+        objectiveNomenclatureRepository.saveAll(objectiveNomenclatures);
     }
 
     public void updateCollectibleNomenclature() throws IOException, NullPointerException {
@@ -334,6 +348,7 @@ public class DestinyNomenclatureManagement {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<?,?> collectibleData = objectMapper.readValue(collectibleJson, Map.class);
         collectibleNomenclatureRepository.deleteAll();
+        List<DestinyCollectibleNomenclature> collectibleNomenclatures = new ArrayList<>();
         for (Map.Entry<?,?> entry : collectibleData.entrySet()) {
             DestinyCollectibleNomenclature collectibleNomenclature = new DestinyCollectibleNomenclature();
             Map<?, ?> entryData = (Map<?, ?>) entry.getValue();
@@ -342,8 +357,9 @@ public class DestinyNomenclatureManagement {
             collectibleNomenclature.setSourceHash(getHashAsLong(entryData.get("sourceHash")));
             collectibleNomenclature.setItemNomenclature(itemNomenclatureRepository.findByHash(getHashAsLong(entryData.get("itemHash"))));
             collectibleNomenclature.setNodeType(getHashAsLong(entryData.get("presentationNodeType")));
-            collectibleNomenclatureRepository.save(collectibleNomenclature);
+            collectibleNomenclatures.add(collectibleNomenclature);
         }
+        collectibleNomenclatureRepository.saveAll(collectibleNomenclatures);
     }
 
     public void updateMetricNomenclature() throws IOException, NullPointerException {
@@ -352,6 +368,7 @@ public class DestinyNomenclatureManagement {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<?,?> metricData = objectMapper.readValue(metricJson, Map.class);
         metricNomenclatureRepository.deleteAll();
+        List<DestinyMetricNomenclature> metricNomenclatures = new ArrayList<>();
         for (Map.Entry<?,?> entry : metricData.entrySet()) {
             DestinyMetricNomenclature metricNomenclature = new DestinyMetricNomenclature();
             Map<?, ?> entryData = (Map<?, ?>) entry.getValue();
@@ -363,8 +380,9 @@ public class DestinyNomenclatureManagement {
             metricNomenclature.setNodeType(getHashAsLong(entryData.get("presentationNodeType")));
             metricNomenclature.setTrackingObjective(objectiveNomenclatureRepository.findByHash(getHashAsLong(entryData.get("trackingObjectiveHash"))));
             metricNomenclature.setTraitHashes(((List<?>) entryData.get("traitHashes")).stream().map(this::getHashAsLong).toList());
-            metricNomenclatureRepository.save(metricNomenclature);
+            metricNomenclatures.add(metricNomenclature);
         }
+        metricNomenclatureRepository.saveAll(metricNomenclatures);
     }
 
     public void updatePresentationNodeNomenclature() throws IOException, NullPointerException {
@@ -374,6 +392,7 @@ public class DestinyNomenclatureManagement {
         Map<?,?> presentationNodeData = objectMapper.readValue(presentationNodeJson, Map.class);
         List<DestinyPresentationNodeNomenclature> presentationNodes = new ArrayList<>();
         presentationNodeNomenclatureRepository.deleteAll();
+        List<DestinyPresentationNodeNomenclature> presentationNodeNomenclatures = new ArrayList<>();
         for (Map.Entry<?,?> entry : presentationNodeData.entrySet()) {
             DestinyPresentationNodeNomenclature presentationNodeNomenclature = new DestinyPresentationNodeNomenclature();
             Map<?, ?> entryData = (Map<?, ?>) entry.getValue();
@@ -392,8 +411,9 @@ public class DestinyNomenclatureManagement {
             presentationNodeNomenclature.setChildrenMetric(metricNomenclatureRepository.findAllByHashIn(getChildrenHashList(entryData, "metrics", "metricHash")));
             presentationNodeNomenclature.setChildrenCraftable(itemNomenclatureRepository.findAllByHashIn(getChildrenHashList(entryData, "craftables", "craftableItemHash")));
             presentationNodes.add(presentationNodeNomenclature);
-            presentationNodeNomenclatureRepository.save(presentationNodeNomenclature);
+            presentationNodeNomenclatures.add(presentationNodeNomenclature);
         }
+        presentationNodeNomenclatureRepository.saveAll(presentationNodeNomenclatures);
         updatePresentationNodeTreeNomenclature(presentationNodes);
     }
 

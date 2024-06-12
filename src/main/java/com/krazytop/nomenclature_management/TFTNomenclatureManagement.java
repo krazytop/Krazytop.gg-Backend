@@ -19,7 +19,7 @@ public class TFTNomenclatureManagement {
     private static final Logger LOGGER = LoggerFactory.getLogger(TFTNomenclatureManagement.class);
 
     private static final List<String> VERSIONS = List.of("set8", "set8_5", "set9", "set9_5");
-    private static final String FOLDER = "/krazytop-core/src/main/resources/data/tft/";
+    private static final String FOLDER = "/src/main/resources/data/tft/";
 
     private final TFTTraitNomenclatureRepository traitNomenclatureRepository;
     private final TFTUnitNomenclatureRepository unitNomenclatureRepository;

@@ -19,7 +19,7 @@ public class LOLNomenclatureManagement {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LOLNomenclatureManagement.class);
 
-    private static final String FOLDER = "/krazytop-core/src/main/resources/data/lol/";
+    private static final String FOLDER = "/src/main/resources/data/lol/";
 
     private final LOLQueueNomenclatureRepository queueNomenclatureRepository;
     private final LOLChampionNomenclatureRepository championNomenclatureRepository;

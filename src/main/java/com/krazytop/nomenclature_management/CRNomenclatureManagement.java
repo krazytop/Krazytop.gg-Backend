@@ -23,7 +23,7 @@ public class CRNomenclatureManagement {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CRNomenclatureManagement.class);
 
-    private static final String FOLDER = "/krazytop-core/src/main/resources/data/clash-royal/";
+    private static final String FOLDER = "/src/main/resources/data/clash-royal/";
 
     private final CRAccountLevelNomenclatureRepository accountLevelRepository;
     private final CRCardNomenclatureRepository cardNomenclatureRepository;
