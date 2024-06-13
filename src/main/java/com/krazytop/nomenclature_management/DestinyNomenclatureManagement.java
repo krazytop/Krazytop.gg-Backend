@@ -6,6 +6,8 @@ import com.krazytop.entity.destiny.DestinyItemQuantityEntity;
 import com.krazytop.entity.destiny.DestinyProgressionStepEntity;
 import com.krazytop.nomenclature.destiny.*;
 import com.krazytop.repository.destiny.*;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -20,10 +22,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class DestinyNomenclatureManagement {
@@ -277,32 +276,36 @@ public class DestinyNomenclatureManagement {
             recordNomenclature.setIcon(displayProperties.get("icon"));
             recordNomenclature.setRecordTypeName((String)entryData.get("recordTypeName"));
             Map<String, ?> expirationInfo = (Map<String, ?>) entryData.get("expirationInfo");
-            recordNomenclature.setHasExpiration((boolean)expirationInfo.get("hasExpiration"));
-            recordNomenclature.setExpirationDescription((String)expirationInfo.get("expirationDescription"));
-            recordNomenclature.setObjectives(((List<?>)entryData.get("objectiveHashes")).stream().map(objectiveHash -> objectiveNomenclatureRepository.findByHash(getHashAsLong(objectiveHash))).toList());
-            Map<String,List<Map<String, ?>>> intervalInfo = (Map<String, List<Map<String, ?>>>) entryData.get("intervalInfo");
-            List<Map<String, ?>> intervalObjectives = intervalInfo.get("intervalObjectives");
-            List<Map<String, ?>> intervalRewardItems = intervalInfo.get("intervalRewards");
-            int intervalsCount = intervalObjectives.size();
-            List<DestinyIntervalObjectiveEntity> intervalObjectiveEntities = new ArrayList<>();
-            for (int interval = 0; interval < intervalsCount; interval++) {
-                DestinyIntervalObjectiveEntity intervalObjective = new DestinyIntervalObjectiveEntity();
-                intervalObjective.setRewardItems(((Map<String, List<Map<String,?>>>)intervalRewardItems.get(interval)).get("intervalRewardItems").stream().map(rewardItem -> {
-                    DestinyItemQuantityEntity itemQuantity = new DestinyItemQuantityEntity();
-                    itemQuantity.setItem(itemNomenclatureRepository.findByHash(getHashAsLong(rewardItem.get("itemHash"))));
-                    itemQuantity.setQuantity(getHashAsLong(rewardItem.get("quantity")));
-                    return itemQuantity;
-                }).toList());
-                intervalObjective.setObjective(objectiveNomenclatureRepository.findByHash(getHashAsLong(intervalObjectives.get(interval).get("intervalObjectiveHash"))));
-                intervalObjective.setScore(getHashAsLong(intervalObjectives.get(interval).get("intervalScoreValue")));
-                intervalObjectiveEntities.add(intervalObjective);
+            if (expirationInfo != null) {
+                recordNomenclature.setHasExpiration((boolean) expirationInfo.get("hasExpiration"));
+                recordNomenclature.setExpirationDescription((String) expirationInfo.get("expirationDescription"));
             }
-            recordNomenclature.setIntervalObjectives(intervalObjectiveEntities);
+            recordNomenclature.setObjectives(CollectionUtils.emptyIfNull((List<?>)entryData.get("objectiveHashes")).stream().map(objectiveHash -> objectiveNomenclatureRepository.findByHash(getHashAsLong(objectiveHash))).toList());
+            Map<String,List<Map<String, ?>>> intervalInfo = (Map<String, List<Map<String, ?>>>) entryData.get("intervalInfo");
+            if (intervalInfo != null) {
+                List<Map<String, ?>> intervalObjectives = intervalInfo.get("intervalObjectives");
+                List<Map<String, ?>> intervalRewardItems = intervalInfo.get("intervalRewards");
+                int intervalsCount = intervalObjectives.size();
+                List<DestinyIntervalObjectiveEntity> intervalObjectiveEntities = new ArrayList<>();
+                for (int interval = 0; interval < intervalsCount; interval++) {
+                    DestinyIntervalObjectiveEntity intervalObjective = new DestinyIntervalObjectiveEntity();
+                    intervalObjective.setRewardItems(((Map<String, List<Map<String,?>>>)intervalRewardItems.get(interval)).get("intervalRewardItems").stream().map(rewardItem -> {
+                        DestinyItemQuantityEntity itemQuantity = new DestinyItemQuantityEntity();
+                        itemQuantity.setItem(itemNomenclatureRepository.findByHash(getHashAsLong(rewardItem.get("itemHash"))));
+                        itemQuantity.setQuantity(getHashAsLong(rewardItem.get("quantity")));
+                        return itemQuantity;
+                    }).toList());
+                    intervalObjective.setObjective(objectiveNomenclatureRepository.findByHash(getHashAsLong(intervalObjectives.get(interval).get("intervalObjectiveHash"))));
+                    intervalObjective.setScore(getHashAsLong(intervalObjectives.get(interval).get("intervalScoreValue")));
+                    intervalObjectiveEntities.add(intervalObjective);
+                }
+                recordNomenclature.setIntervalObjectives(intervalObjectiveEntities);
+            }
             Map<String, ?> titleInfo = (Map<String, ?>) entryData.get("titleInfo");
-            if ((boolean) titleInfo.get("hasTitle")) {
+            if (titleInfo != null && (boolean) titleInfo.get("hasTitle")) {
                 recordNomenclature.setTitlesByGender((Map<Long, String>) titleInfo.get("titlesByGenderHash"));
             }
-            recordNomenclature.setRewardItems(((List<Map<String,?>>) entryData.get("rewardItems")).stream().map(rewardItem -> {
+            recordNomenclature.setRewardItems(CollectionUtils.emptyIfNull((List<Map<String,?>>) entryData.get("rewardItems")).stream().map(rewardItem -> {
                 DestinyItemQuantityEntity itemQuantity = new DestinyItemQuantityEntity();
                 itemQuantity.setItem(itemNomenclatureRepository.findByHash(getHashAsLong(rewardItem.get("itemHash"))));
                 itemQuantity.setQuantity(getHashAsLong(rewardItem.get("quantity")));
@@ -379,7 +382,7 @@ public class DestinyNomenclatureManagement {
             metricNomenclature.setIcon(displayProperties.get("icon"));
             metricNomenclature.setNodeType(getHashAsLong(entryData.get("presentationNodeType")));
             metricNomenclature.setTrackingObjective(objectiveNomenclatureRepository.findByHash(getHashAsLong(entryData.get("trackingObjectiveHash"))));
-            metricNomenclature.setTraitHashes(((List<?>) entryData.get("traitHashes")).stream().map(this::getHashAsLong).toList());
+            metricNomenclature.setTraitHashes(CollectionUtils.emptyIfNull((List<?>) entryData.get("traitHashes")).stream().map(this::getHashAsLong).toList());
             metricNomenclatures.add(metricNomenclature);
         }
         metricNomenclatureRepository.saveAll(metricNomenclatures);
@@ -404,7 +407,7 @@ public class DestinyNomenclatureManagement {
             presentationNodeNomenclature.setNodeType(getHashAsLong(entryData.get("nodeType")));
             presentationNodeNomenclature.setSeasonal((boolean) entryData.get("isSeasonal"));
             presentationNodeNomenclature.setObjective(objectiveNomenclatureRepository.findByHash(getHashAsLong(entryData.get("objectiveHash"))));
-            presentationNodeNomenclature.setParentNodeHashes(((List<?>) entryData.get("parentNodeHashes")).stream().map(this::getHashAsLong).toList());
+            presentationNodeNomenclature.setParentNodeHashes(CollectionUtils.emptyIfNull((List<?>) entryData.get("parentNodeHashes")).stream().map(this::getHashAsLong).toList());
             presentationNodeNomenclature.setChildrenNodeHash(getChildrenHashList(entryData, "presentationNodes", "presentationNodeHash"));
             presentationNodeNomenclature.setChildrenCollectible(collectibleNomenclatureRepository.findAllByHashIn(getChildrenHashList(entryData, "collectibles", "collectibleHash")));
             presentationNodeNomenclature.setChildrenRecord(recordNomenclatureRepository.findAllByHashIn(getChildrenHashList(entryData, "records", "recordHash")));
@@ -447,8 +450,8 @@ public class DestinyNomenclatureManagement {
 
 
     private List<Long> getChildrenHashList(Map<?, ?> entryData, String childrenNode, String childrenNodeHash) {
-        Map<String, ?> children = (Map<String, ?>) entryData.get("children");
-        return ((List<Map<String,Long>>) children.get(childrenNode)).stream()
+        Map<String, ?> children = MapUtils.emptyIfNull((Map<String, ?>) entryData.get("children"));
+        return CollectionUtils.emptyIfNull((List<Map<String,Long>>) children.get(childrenNode)).stream()
                 .map(presentationNode -> getHashAsLong(presentationNode.get(childrenNodeHash)))
                 .toList();
     }

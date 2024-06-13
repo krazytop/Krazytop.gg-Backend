@@ -13,6 +13,10 @@
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.3.2</version>
+      </plugin>
+      <plugin>
         <artifactId>maven-shade-plugin</artifactId>
         <version>3.5.1</version>
         <executions>
@@ -63,6 +67,18 @@
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
       <version>4.5.14</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-clean-plugin</artifactId>
+      <version>3.3.2</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-collections4</artifactId>
+      <version>4.5.0-M1</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
