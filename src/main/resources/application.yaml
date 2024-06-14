@@ -8,15 +8,15 @@ spring:
   data:
     mongodb:
       tft:
-        uri: ${env:MONGO_DATABASE_URL}/TeamfightTactics
+        uri: ${MONGO_DATABASE_URL}/TeamfightTactics
       lol:
-        uri: ${env:MONGO_DATABASE_URL}/LeagueOfLegends
+        uri: ${MONGO_DATABASE_URL}/LeagueOfLegends
       riot:
-        uri: ${env:MONGO_DATABASE_URL}/Riot
+        uri: ${MONGO_DATABASE_URL}/Riot
       clash-royal:
-        uri: ${env:MONGO_DATABASE_URL}/ClashRoyal
+        uri: ${MONGO_DATABASE_URL}/ClashRoyal
       destiny:
-        uri: ${env:MONGO_DATABASE_URL}/Destiny
+        uri: ${MONGO_DATABASE_URL}/Destiny
     web:
       pageable:
         default-page-size: 5
