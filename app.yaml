@@ -4,4 +4,3 @@ env: standard
 instance_class: F1
 
 env_variables:
-  MONGO_DATABASE_URL: '${{ secrets.MONGO_DATABASE_URL }}'
