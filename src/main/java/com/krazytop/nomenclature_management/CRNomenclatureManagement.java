@@ -6,6 +6,7 @@ import com.krazytop.nomenclature.clash_royal.CRAccountLevelNomenclature;
 import com.krazytop.nomenclature.clash_royal.CRCardNomenclature;
 import com.krazytop.nomenclature.clash_royal.CRCardRarityNomenclature;
 import com.krazytop.repository.clash_royal.CRAccountLevelNomenclatureRepository;
+import com.krazytop.repository.clash_royal.CRApiKeyRepository;
 import com.krazytop.repository.clash_royal.CRCardNomenclatureRepository;
 import com.krazytop.repository.clash_royal.CRCardRarityNomenclatureRepository;
 import org.slf4j.Logger;
@@ -28,12 +29,14 @@ public class CRNomenclatureManagement {
     private final CRAccountLevelNomenclatureRepository accountLevelRepository;
     private final CRCardNomenclatureRepository cardNomenclatureRepository;
     private final CRCardRarityNomenclatureRepository cardRarityNomenclatureRepository;
+    private final CRApiKeyRepository apiKeyRepository;
 
     @Autowired
-    public CRNomenclatureManagement(CRAccountLevelNomenclatureRepository accountLevelRepository, CRCardNomenclatureRepository cardNomenclatureRepository, CRCardRarityNomenclatureRepository cardRarityNomenclatureRepository) {
+    public CRNomenclatureManagement(CRAccountLevelNomenclatureRepository accountLevelRepository, CRCardNomenclatureRepository cardNomenclatureRepository, CRCardRarityNomenclatureRepository cardRarityNomenclatureRepository, CRApiKeyRepository apiKeyRepository) {
         this.accountLevelRepository = accountLevelRepository;
         this.cardNomenclatureRepository = cardNomenclatureRepository;
         this.cardRarityNomenclatureRepository = cardRarityNomenclatureRepository;
+        this.apiKeyRepository = apiKeyRepository;
     }
 
     public boolean updateAccountLevelNomenclature() {
@@ -42,13 +45,15 @@ public class CRNomenclatureManagement {
             ObjectMapper objectMapper = new ObjectMapper();
             File itemFile = new File(getCurrentWorkingDirectory() + FOLDER + "/cr-account-levels.json");
             JsonNode dataNode = objectMapper.readTree(itemFile);
+            List<CRAccountLevelNomenclature> accountLevels = new ArrayList<>();
             for (JsonNode field : dataNode) {
                 CRAccountLevelNomenclature accountLevel = new CRAccountLevelNomenclature();
                 accountLevel.setLevel(field.get("name").asInt());
                 accountLevel.setTowerLevel(field.get("tower_level").asInt());
                 accountLevel.setExpToNextLevel(field.get("exp_to_next_level").asInt());
-                accountLevelRepository.save(accountLevel);
+                accountLevels.add(accountLevel);
             }
+            accountLevelRepository.saveAll(accountLevels);
             return true;
         } catch (IOException e) {
             LOGGER.error("Error while updating account level nomenclature : {}", e.getMessage());
@@ -62,6 +67,7 @@ public class CRNomenclatureManagement {
             ObjectMapper objectMapper = new ObjectMapper();
             File itemFile = new File(getCurrentWorkingDirectory() + FOLDER + "/cr-cards.json");
             JsonNode dataNode = objectMapper.readTree(itemFile);
+            List<CRCardNomenclature> cards = new ArrayList<>();
             for (JsonNode field : dataNode) {
                 CRCardNomenclature card = new CRCardNomenclature();
                 card.setId(field.get("id").asInt());
@@ -70,8 +76,9 @@ public class CRNomenclatureManagement {
                 card.setRarity(field.get("rarity").asText());
                 card.setElixir(field.get("elixir").asInt());
                 card.setDescription(field.get("description").asText());
-                cardNomenclatureRepository.save(card);
+                cards.add(card);
             }
+            cardNomenclatureRepository.saveAll(cards);
             return true;
         } catch (IOException e) {
             LOGGER.error("Error while updating card nomenclature : {}", e.getMessage());
@@ -85,6 +92,7 @@ public class CRNomenclatureManagement {
             ObjectMapper objectMapper = new ObjectMapper();
             File itemFile = new File(getCurrentWorkingDirectory() + FOLDER + "/cr-cards-rarity.json");
             JsonNode dataNode = objectMapper.readTree(itemFile);
+            List<CRCardRarityNomenclature> rarities = new ArrayList<>();
             for (JsonNode field : dataNode) {
                 CRCardRarityNomenclature rarity = new CRCardRarityNomenclature();
                 rarity.setRelativeLevel(field.get("relative_level").asInt());
@@ -96,13 +104,20 @@ public class CRNomenclatureManagement {
                     upgradeCostsList.add(costNode.asInt());
                 }
                 rarity.setUpgradeCost(upgradeCostsList);
-                cardRarityNomenclatureRepository.save(rarity);
+                rarities.add(rarity);
             }
+            cardRarityNomenclatureRepository.saveAll(rarities);
             return true;
         } catch (IOException e) {
             LOGGER.error("Error while updating card nomenclature : {}", e.getMessage());
             return false;
         }
+    }
+
+    public boolean updateApiKey(String apiKey) {
+        apiKeyRepository.deleteAll();
+        apiKeyRepository.save(apiKey);
+        return true;
     }
 
     private String getCurrentWorkingDirectory() {

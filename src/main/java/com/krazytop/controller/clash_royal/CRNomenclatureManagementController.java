@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -49,6 +50,14 @@ public class CRNomenclatureManagementController {
         boolean successCardRarity = Boolean.TRUE.equals(this.updateCardRarityNomenclature().getBody());
         LOGGER.info("All nomenclature updated");
         return new ResponseEntity<>(successAccountLevel && successCard && successCardRarity, HttpStatus.OK);
+    }
+
+    @PostMapping("/clash-royal/api-key")
+    public ResponseEntity<Boolean> updateApiKey(@RequestBody String apiKey) {
+        LOGGER.info("Updating api key");
+        boolean success = crNomenclatureManagement.updateApiKey(apiKey);
+        LOGGER.info("Api key updated");
+        return new ResponseEntity<>(success, HttpStatus.OK);
     }
 
 }

@@ -14,14 +14,10 @@ import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 @Configuration
 public class MongoDbConfig {
 
-    @Value("${spring.data.mongodb.tft.uri}")
-    private String log;
-
     @Primary
     @Bean(name = "tftMongoProperties")
     @ConfigurationProperties(prefix = "spring.data.mongodb.tft")
     public MongoProperties getTftMongoProperties() {
-        System.out.println(log);
         return new MongoProperties();
     }
 

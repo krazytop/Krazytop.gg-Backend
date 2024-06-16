@@ -1,7 +1,7 @@
 package com.krazytop.service.clash_royal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.krazytop.api.clash_royal.CRApiKeyApi;
+import com.krazytop.repository.clash_royal.CRApiKeyRepository;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -16,19 +16,20 @@ import java.io.IOException;
 
 @Service
 public class CRApiService {
-    private final CRApiKeyApi crApiKeyApi;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CRApiService.class);
 
+    private final CRApiKeyRepository crApiKeyRepository;
+
     @Autowired
-    public CRApiService(CRApiKeyApi crApiKeyApi) {
-        this.crApiKeyApi = crApiKeyApi;
+    public CRApiService(CRApiKeyRepository crApiKeyRepository) {
+        this.crApiKeyRepository = crApiKeyRepository;
     }
 
     public <T> T callCrApi(String apiUrl, Class<T> responseTypeClass) {
         try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
             HttpGet httpGet = new HttpGet(apiUrl);
-            httpGet.addHeader("Authorization", "Bearer " + crApiKeyApi.getApiKey().getKey());
+            httpGet.addHeader("Authorization", "Bearer " + crApiKeyRepository.findFirst());
             try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
                 int statusCode = response.getStatusLine().getStatusCode();
 
