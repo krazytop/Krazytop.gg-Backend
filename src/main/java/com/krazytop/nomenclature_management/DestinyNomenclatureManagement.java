@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 @Service
@@ -76,9 +75,8 @@ public class DestinyNomenclatureManagement {
         }
     }
 
-    private String getNomenclaturePath(String nomenclature) throws IOException {
-        File itemFile = new File(getCurrentWorkingDirectory() + FOLDER + "manifest.json");
-        Map<?, ?> jsonData = new ObjectMapper().readValue(itemFile, Map.class);
+    private String getNomenclaturePath(String nomenclature, String manifest) throws IOException {
+        Map<?, ?> jsonData = new ObjectMapper().readValue(manifest, Map.class);
         return (String) ((Map<?, ?>) ((Map<?, ?>) ((Map<?, ?>) jsonData.get("Response")).get("jsonWorldComponentContentPaths")).get("fr")).get(nomenclature);
     }
 
@@ -99,36 +97,17 @@ public class DestinyNomenclatureManagement {
         return (String) ((Map<?, ?>) latestManifestData.get("Response")).get("version");
     }
 
-    public boolean updateManifest() throws IOException {
+    public String downloadManifest() throws IOException {
         try {
-            String jsonString = downloadJson("/Platform/Destiny2/Manifest/");
-            Path filePath = Paths.get(getCurrentWorkingDirectory(), FOLDER, "/manifest.json");
-
-            String latesManifestVersion = getManifestVersion(jsonString);
-
-            String currentManifestVersion = "";
-            try (BufferedReader reader = new BufferedReader(new FileReader(filePath.toFile()))) {
-                latesManifestVersion = getManifestVersion(new String(Files.readAllBytes(filePath)));
-            } catch (IOException e) {
-                LOGGER.error("Error reading current manifest: {}", e.getMessage());
-            }
-
-            if (!currentManifestVersion.equals(latesManifestVersion)) {
-                updateManifestFile(jsonString, filePath);
-                LOGGER.info("Manifest updated to version: {}", latesManifestVersion);
-                return true;
-            } else {
-                LOGGER.info("Manifest is already up-to-date. Current version: {}", currentManifestVersion);
-                return false;
-            }
+            return downloadJson("/Platform/Destiny2/Manifest/");
         } catch (IOException e) {
-            LOGGER.error("Error downloading or parsing manifest: {}", e.getMessage());
+            LOGGER.error("Error downloading manifest: {}", e.getMessage());
             throw new IOException();
         }
     }
 
-    public void updateClassNomenclature() throws IOException, NullPointerException {
-        String nomenclaturePath = getNomenclaturePath("DestinyClassDefinition");
+    public void updateClassNomenclature(String manifest) throws IOException, NullPointerException {
+        String nomenclaturePath = getNomenclaturePath("DestinyClassDefinition", manifest);
         String classJson = downloadJson(nomenclaturePath);
         ObjectMapper objectMapper = new ObjectMapper();
         Map<?,?> classData = objectMapper.readValue(classJson, Map.class);
@@ -142,10 +121,11 @@ public class DestinyNomenclatureManagement {
             classNomenclatures.add(classNomenclature);
         }
         classNomenclatureRepository.saveAll(classNomenclatures);
+        LOGGER.info("Class nomenclature updated");
     }
 
-    public void updateVendorNomenclature() throws IOException, NullPointerException {
-        String nomenclaturePath = getNomenclaturePath("DestinyVendorDefinition");
+    public void updateVendorNomenclature(String manifest) throws IOException, NullPointerException {
+        String nomenclaturePath = getNomenclaturePath("DestinyVendorDefinition", manifest);
         String vendorsJson = downloadJson(nomenclaturePath);
         ObjectMapper objectMapper = new ObjectMapper();
         Map<?,?> vendorData = objectMapper.readValue(vendorsJson, Map.class);
@@ -164,10 +144,11 @@ public class DestinyNomenclatureManagement {
             }
         }
         vendorNomenclatureRepository.saveAll(vendorNomenclatures);
+        LOGGER.info("Vendor nomenclature updated");
     }
 
-    public void updateVendorGroupNomenclature() throws IOException, NullPointerException {
-        String nomenclaturePath = getNomenclaturePath("DestinyVendorGroupDefinition");
+    public void updateVendorGroupNomenclature(String manifest) throws IOException, NullPointerException {
+        String nomenclaturePath = getNomenclaturePath("DestinyVendorGroupDefinition", manifest);
         String vendorGroupsJson = downloadJson(nomenclaturePath);
         ObjectMapper objectMapper = new ObjectMapper();
         Map<?,?> vendorGroupData = objectMapper.readValue(vendorGroupsJson, Map.class);
@@ -181,10 +162,11 @@ public class DestinyNomenclatureManagement {
             vendorGroupNomenclatures.add(vendorGroupNomenclature);
         }
         vendorGroupNomenclatureRepository.saveAll(vendorGroupNomenclatures);
+        LOGGER.info("Vendor group nomenclature updated");
     }
 
-    public void updateProgressionNomenclature() throws IOException, NullPointerException {
-        String nomenclaturePath = getNomenclaturePath("DestinyProgressionDefinition");
+    public void updateProgressionNomenclature(String manifest) throws IOException, NullPointerException {
+        String nomenclaturePath = getNomenclaturePath("DestinyProgressionDefinition", manifest);
         String progrssionsJson = downloadJson(nomenclaturePath);
         ObjectMapper objectMapper = new ObjectMapper();
         Map<?,?> classData = objectMapper.readValue(progrssionsJson, Map.class);
@@ -216,10 +198,11 @@ public class DestinyNomenclatureManagement {
             }
         }
         progressionNomenclatureRepository.saveAll(progressionNomenclatures);
+        LOGGER.info("Progression nomenclature updated");
     }
 
-    public void updateItemNomenclature() throws IOException, NullPointerException {
-        String nomenclaturePath = getNomenclaturePath("DestinyInventoryItemLiteDefinition");
+    public void updateItemNomenclature(String manifest) throws IOException, NullPointerException {
+        String nomenclaturePath = getNomenclaturePath("DestinyInventoryItemLiteDefinition", manifest);
         String itemsJson = downloadJson(nomenclaturePath);
         ObjectMapper objectMapper = new ObjectMapper();
         Map<?,?> itemData = objectMapper.readValue(itemsJson, Map.class);
@@ -257,10 +240,11 @@ public class DestinyNomenclatureManagement {
             itemNomenclatures.add(itemNomenclature);
         }
         itemNomenclatureRepository.saveAll(itemNomenclatures);
+        LOGGER.info("Item nomenclature updated");
     }
 
-    public void updateRecordNomenclature() throws IOException, NullPointerException {
-        String recordPath = getNomenclaturePath("DestinyRecordDefinition");
+    public void updateRecordNomenclature(String manifest) throws IOException, NullPointerException {
+        String recordPath = getNomenclaturePath("DestinyRecordDefinition", manifest);
         String recordJson = downloadJson(recordPath);
         ObjectMapper objectMapper = new ObjectMapper();
         Map<?,?> recordData = objectMapper.readValue(recordJson, Map.class);
@@ -314,10 +298,11 @@ public class DestinyNomenclatureManagement {
             recordNomenclatures.add(recordNomenclature);
         }
         recordNomenclatureRepository.saveAll(recordNomenclatures);
+        LOGGER.info("Record nomenclature updated");
     }
 
-    public void updateObjectiveNomenclature() throws IOException, NullPointerException {
-        String objectivePath = getNomenclaturePath("DestinyObjectiveDefinition");
+    public void updateObjectiveNomenclature(String manifest) throws IOException, NullPointerException {
+        String objectivePath = getNomenclaturePath("DestinyObjectiveDefinition", manifest);
         String objectiveJson = downloadJson(objectivePath);
         ObjectMapper objectMapper = new ObjectMapper();
         Map<?,?> objectiveData = objectMapper.readValue(objectiveJson, Map.class);
@@ -343,10 +328,11 @@ public class DestinyNomenclatureManagement {
             objectiveNomenclatures.add(objectiveNomenclature);
         }
         objectiveNomenclatureRepository.saveAll(objectiveNomenclatures);
+        LOGGER.info("Objective nomenclature updated");
     }
 
-    public void updateCollectibleNomenclature() throws IOException, NullPointerException {
-        String collectiblePath = getNomenclaturePath("DestinyCollectibleDefinition");
+    public void updateCollectibleNomenclature(String manifest) throws IOException, NullPointerException {
+        String collectiblePath = getNomenclaturePath("DestinyCollectibleDefinition", manifest);
         String collectibleJson = downloadJson(collectiblePath);
         ObjectMapper objectMapper = new ObjectMapper();
         Map<?,?> collectibleData = objectMapper.readValue(collectibleJson, Map.class);
@@ -363,10 +349,11 @@ public class DestinyNomenclatureManagement {
             collectibleNomenclatures.add(collectibleNomenclature);
         }
         collectibleNomenclatureRepository.saveAll(collectibleNomenclatures);
+        LOGGER.info("Collectible nomenclature updated");
     }
 
-    public void updateMetricNomenclature() throws IOException, NullPointerException {
-        String metricPath = getNomenclaturePath("DestinyMetricDefinition");
+    public void updateMetricNomenclature(String manifest) throws IOException, NullPointerException {
+        String metricPath = getNomenclaturePath("DestinyMetricDefinition", manifest);
         String metricJson = downloadJson(metricPath);
         ObjectMapper objectMapper = new ObjectMapper();
         Map<?,?> metricData = objectMapper.readValue(metricJson, Map.class);
@@ -386,10 +373,11 @@ public class DestinyNomenclatureManagement {
             metricNomenclatures.add(metricNomenclature);
         }
         metricNomenclatureRepository.saveAll(metricNomenclatures);
+        LOGGER.info("Metric nomenclature updated");
     }
 
-    public void updatePresentationNodeNomenclature() throws IOException, NullPointerException {
-        String presentationNodePath = getNomenclaturePath("DestinyPresentationNodeDefinition");
+    public void updatePresentationNodeNomenclature(String manifest) throws IOException, NullPointerException {
+        String presentationNodePath = getNomenclaturePath("DestinyPresentationNodeDefinition", manifest);
         String presentationNodeJson = downloadJson(presentationNodePath);
         ObjectMapper objectMapper = new ObjectMapper();
         Map<?,?> presentationNodeData = objectMapper.readValue(presentationNodeJson, Map.class);
@@ -418,6 +406,7 @@ public class DestinyNomenclatureManagement {
         }
         presentationNodeNomenclatureRepository.saveAll(presentationNodeNomenclatures);
         updatePresentationNodeTreeNomenclature(presentationNodes);
+        LOGGER.info("Presentation node nomenclature updated");
     }
 
     private void updatePresentationNodeTreeNomenclature(List<DestinyPresentationNodeNomenclature> presentationNodes) { //TODO voir si je ne le fait pas seulement pour des hashs particuliers
