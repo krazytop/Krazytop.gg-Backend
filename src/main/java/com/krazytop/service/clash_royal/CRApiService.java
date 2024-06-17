@@ -29,7 +29,7 @@ public class CRApiService {
     public <T> T callCrApi(String apiUrl, Class<T> responseTypeClass) {
         try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
             HttpGet httpGet = new HttpGet(apiUrl);
-            httpGet.addHeader("Authorization", "Bearer " + crApiKeyRepository.findFirst());
+            httpGet.addHeader("Authorization", "Bearer " + crApiKeyRepository.findFirstByOrderByKeyAsc());
             try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
                 int statusCode = response.getStatusLine().getStatusCode();
 

@@ -9,6 +9,10 @@ public class CRApiKeyEntity {
 
     private String key;
 
+    public CRApiKeyEntity(String key){
+        this.key = key;
+    }
+
     public String toString() {
         return this.key;
     }

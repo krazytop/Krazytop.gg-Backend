@@ -2,6 +2,7 @@ package com.krazytop.nomenclature_management;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.krazytop.entity.clash_royal.CRApiKeyEntity;
 import com.krazytop.nomenclature.clash_royal.CRAccountLevelNomenclature;
 import com.krazytop.nomenclature.clash_royal.CRCardNomenclature;
 import com.krazytop.nomenclature.clash_royal.CRCardRarityNomenclature;
@@ -116,7 +117,7 @@ public class CRNomenclatureManagement {
 
     public boolean updateApiKey(String apiKey) {
         apiKeyRepository.deleteAll();
-        apiKeyRepository.save(apiKey);
+        apiKeyRepository.save(new CRApiKeyEntity(apiKey));
         return true;
     }
 
