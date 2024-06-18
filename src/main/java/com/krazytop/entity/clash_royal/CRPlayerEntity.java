@@ -92,7 +92,8 @@ public class CRPlayerEntity {
     private List<CRChestEntity> upcomingChests;
 
     public static String getUrl(String playerId) {
-        return "https://api.clashroyale.com/v1/players/" + playerId;
+        return "https://proxy.royaleapi.dev/v1/players/" + playerId;
+        //return "https://api.clashroyale.com/v1/players/" + playerId;
     }
 
     public String toString() {
