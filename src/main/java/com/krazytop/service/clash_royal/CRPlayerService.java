@@ -59,6 +59,7 @@ public class CRPlayerService {
 
     private void accountLevelEnrichment(CRPlayerEntity player) {
         CRAccountLevelEntity accountLevel = new ModelMapper().map(accountLevelNomenclatureRepository.findFirstByLevel(player.getExpLevel()), CRAccountLevelEntity.class);
+        System.out.println("Account level : " + accountLevel);
         accountLevel.setCurrentExp(player.getExpPoints());
         player.setAccountLevel(accountLevel);
     }
