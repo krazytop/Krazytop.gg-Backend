@@ -22,11 +22,15 @@ jobs:
       - name: Build with Maven
         run: mvn clean package
       
-      - name: Add environnement variables
+      - name: Add environment variables
         env:
           MONGO_DATABASE_URL: ${{ secrets.MONGO_DATABASE_URL }}
+          BUNGIE_CLIENT_ID: ${{ secrets.BUNGIE_CLIENT_ID }}
+          BUNGIE_CLIENT_SECRET: ${{ secrets.BUNGIE_CLIENT_SECRET }}
         run: | 
           echo "  MONGO_DATABASE_URL: '$MONGO_DATABASE_URL'" >> app.yaml
+          echo "  BUNGIE_CLIENT_ID: '$BUNGIE_CLIENT_ID'" >> app.yaml
+          echo "  BUNGIE_CLIENT_SECRET: '$BUNGIE_CLIENT_SECRET'" >> app.yaml
 
 
       - name: 'Authenticate to Google Cloud'

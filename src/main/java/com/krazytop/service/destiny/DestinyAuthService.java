@@ -8,6 +8,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -17,8 +18,10 @@ public class DestinyAuthService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DestinyAuthService.class);
 
-    public static final String CLIENT_ID = "46584";
-    public static final String CLIENT_SECRET = "S0-Kru7b2kd2ZhVh.YwTne8GxcqRezIgDLIdwMoY.sE";
+    @Value("${spring.data.destiny.client_id}")
+    private String CLIENT_ID;
+    @Value("${spring.data.destiny.client_secret}")
+    private String CLIENT_SECRET;
 
     public String getPlayerToken(String playerCode) {
         try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
