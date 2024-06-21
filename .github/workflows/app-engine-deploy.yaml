@@ -32,6 +32,9 @@ jobs:
           echo "  BUNGIE_CLIENT_ID: '$BUNGIE_CLIENT_ID'" >> app.yaml
           echo "  BUNGIE_CLIENT_SECRET: '$BUNGIE_CLIENT_SECRET'" >> app.yaml
 
+      - name: Check env
+        run: cat app.yaml
+
 
       - name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v2'
