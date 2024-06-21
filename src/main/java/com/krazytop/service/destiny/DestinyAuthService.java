@@ -18,9 +18,9 @@ public class DestinyAuthService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DestinyAuthService.class);
 
-    @Value("${spring.data.destiny.client_id:'XXX'}")
+    @Value("${spring.data.bungie.client_id:'XXX'}")
     private String CLIENT_ID;
-    @Value("${spring.data.destiny.client_secret:'XXX'}")
+    @Value("${spring.data.bungie.client_secret:'XXX'}")
     private String CLIENT_SECRET;
 
     public String getPlayerToken(String playerCode) {
@@ -46,6 +46,7 @@ public class DestinyAuthService {
     private String getStringRequest(CloseableHttpClient httpclient, HttpPost httpPost, StringEntity requestEntity) throws IOException {
         httpPost.setEntity(requestEntity);
         String auth = CLIENT_ID + ":" + CLIENT_SECRET;
+        System.out.println(auth);
         String encodedAuth = java.util.Base64.getEncoder().encodeToString(auth.getBytes());
         httpPost.addHeader("Authorization", "Basic " + encodedAuth);
         httpPost.addHeader("Content-Type", "application/x-www-form-urlencoded");
