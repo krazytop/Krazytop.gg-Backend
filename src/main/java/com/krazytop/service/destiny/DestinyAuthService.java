@@ -18,9 +18,9 @@ public class DestinyAuthService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DestinyAuthService.class);
 
-    @Value("${spring.data.destiny.client_id}")
+    @Value("${spring.data.destiny.client_id:'XXX'}")
     private String CLIENT_ID;
-    @Value("${spring.data.destiny.client_secret}")
+    @Value("${spring.data.destiny.client_secret:'XXX'}")
     private String CLIENT_SECRET;
 
     public String getPlayerToken(String playerCode) {
