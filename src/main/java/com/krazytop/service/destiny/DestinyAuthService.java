@@ -46,7 +46,6 @@ public class DestinyAuthService {
     private String getStringRequest(CloseableHttpClient httpclient, HttpPost httpPost, StringEntity requestEntity) throws IOException {
         httpPost.setEntity(requestEntity);
         String auth = CLIENT_ID + ":" + CLIENT_SECRET;
-        System.out.println(auth);
         String encodedAuth = java.util.Base64.getEncoder().encodeToString(auth.getBytes());
         httpPost.addHeader("Authorization", "Basic " + encodedAuth);
         httpPost.addHeader("Content-Type", "application/x-www-form-urlencoded");
