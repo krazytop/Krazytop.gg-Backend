@@ -26,8 +26,13 @@ public class DestinyAuthController {
     public ResponseEntity<String> getPlayerToken(@PathVariable String code) {
         LOGGER.info("Retrieving Destiny player token for code : {}", code);
         String playerToken = destinyAuthService.getPlayerToken(code);
-        LOGGER.info("Recovered Destiny player token : {}", playerToken);
-        return new ResponseEntity<>(playerToken, HttpStatus.OK);
+        if (playerToken == null) {
+            LOGGER.info("Failed to recovered Destiny player token");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            LOGGER.info("Recovered Destiny player token : {}", playerToken);
+            return new ResponseEntity<>(playerToken, HttpStatus.OK);
+        }
     }
 
     @PostMapping("/destiny/update")
