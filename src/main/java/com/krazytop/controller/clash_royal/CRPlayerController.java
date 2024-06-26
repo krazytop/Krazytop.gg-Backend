@@ -24,7 +24,7 @@ public class CRPlayerController {
     public ResponseEntity<CRPlayerEntity> getLocalPlayer(@PathVariable String playerId) {
         LOGGER.info("Retrieving of local information from player : {}", playerId);
         CRPlayerEntity player = crPlayerService.getLocalPlayer(playerId);
-        LOGGER.info("Recovered player : {}", player);
+        LOGGER.info("Recovery player : {}", player);
         return new ResponseEntity<>(player, HttpStatus.OK);
     }
 
@@ -32,15 +32,15 @@ public class CRPlayerController {
     public ResponseEntity<CRPlayerEntity> getRemotePlayer(@PathVariable String playerId) {
         LOGGER.info("Retrieving of remote information from player : {}", playerId);
         CRPlayerEntity player = crPlayerService.getRemotePlayer(playerId);
-        LOGGER.info("Recovered player : {}", player);
+        LOGGER.info("Recovery player : {}", player);
         return new ResponseEntity<>(player, HttpStatus.OK);
     }
 
     @PostMapping("/clash-royal/player/update/{playerId}")
     public ResponseEntity<CRPlayerEntity> updateRemoteToLocalPlayer(@PathVariable String playerId) {
-        LOGGER.info("Retrieving of local information from player : {}", playerId);
+        LOGGER.info("Updating of remote to local information from player : {}", playerId);
         CRPlayerEntity player = crPlayerService.updateRemoteToLocalPlayer(playerId);
-        LOGGER.info("Recovered player : {}", player);
+        LOGGER.info("Updated player : {}", player);
         return new ResponseEntity<>(player, HttpStatus.OK);
     }
 
