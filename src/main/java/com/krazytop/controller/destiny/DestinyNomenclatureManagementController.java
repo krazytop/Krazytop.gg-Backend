@@ -25,7 +25,6 @@ public class DestinyNomenclatureManagementController {
         LOGGER.info("Updating all nomenclature");
         try {
             String manifest = destinyNomenclatureManagement.downloadManifest();
-            destinyNomenclatureManagement.updateClassNomenclature(manifest);
             destinyNomenclatureManagement.updateObjectiveNomenclature(manifest);
             destinyNomenclatureManagement.updateItemNomenclature(manifest);
             destinyNomenclatureManagement.updateVendorNomenclature(manifest);

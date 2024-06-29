@@ -12,7 +12,6 @@ import java.util.Map;
 @Service
 public class DestinyNomenclatureService {
 
-    private final DestinyClassNomenclatureRepository classNomenclatureRepository;
     private final DestinyVendorNomenclatureRepository vendorNomenclatureRepository;
     private final DestinyVendorGroupNomenclatureRepository vendorGroupNomenclatureRepository;
     private final DestinyProgressionNomenclatureRepository progressionNomenclatureRepository;
@@ -21,23 +20,13 @@ public class DestinyNomenclatureService {
     private final DestinyRecordNomenclatureRepository recordNomenclatureRepository;
 
     @Autowired
-    public DestinyNomenclatureService(DestinyClassNomenclatureRepository classNomenclatureRepository, DestinyVendorNomenclatureRepository vendorNomenclatureRepository, DestinyVendorGroupNomenclatureRepository vendorGroupNomenclatureRepository, DestinyProgressionNomenclatureRepository progressionNomenclatureRepository, DestinyItemNomenclatureRepository itemNomenclatureRepository, DestinyPresentationTreeNomenclatureRepository presentationTreeNomenclatureRepository, DestinyRecordNomenclatureRepository recordNomenclatureRepository) {
-        this.classNomenclatureRepository = classNomenclatureRepository;
+    public DestinyNomenclatureService(DestinyVendorNomenclatureRepository vendorNomenclatureRepository, DestinyVendorGroupNomenclatureRepository vendorGroupNomenclatureRepository, DestinyProgressionNomenclatureRepository progressionNomenclatureRepository, DestinyItemNomenclatureRepository itemNomenclatureRepository, DestinyPresentationTreeNomenclatureRepository presentationTreeNomenclatureRepository, DestinyRecordNomenclatureRepository recordNomenclatureRepository) {
         this.vendorNomenclatureRepository = vendorNomenclatureRepository;
         this.vendorGroupNomenclatureRepository = vendorGroupNomenclatureRepository;
         this.progressionNomenclatureRepository = progressionNomenclatureRepository;
         this.itemNomenclatureRepository = itemNomenclatureRepository;
         this.presentationTreeNomenclatureRepository = presentationTreeNomenclatureRepository;
         this.recordNomenclatureRepository = recordNomenclatureRepository;
-    }
-
-    public Map<Long, DestinyClassNomenclature> getClassNomenclatures(List<Long> classHashList) {
-        List<DestinyClassNomenclature> classNomenclatures = classNomenclatureRepository.findAllByHashIn(classHashList);
-        Map<Long, DestinyClassNomenclature> classNomenclatureMap = new HashMap<>();
-        for (DestinyClassNomenclature classNomenclature : classNomenclatures) {
-            classNomenclatureMap.put(classNomenclature.getHash(), classNomenclature);
-        }
-        return classNomenclatureMap;
     }
 
     public Map<Long, DestinyVendorNomenclature> getVendorNomenclatures(List<Long> vendorHashList) {

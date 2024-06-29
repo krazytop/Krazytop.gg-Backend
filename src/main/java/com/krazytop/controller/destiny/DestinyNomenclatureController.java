@@ -20,19 +20,6 @@ public class DestinyNomenclatureController {
     @Autowired
     private DestinyNomenclatureService destinyNomenclatureService;
 
-    @PostMapping("/destiny/class")
-    public ResponseEntity<Map<Long, DestinyClassNomenclature>> getClassNomenclatures(@RequestBody List<Long> classHashList) {
-        LOGGER.info("Retrieving Destiny class nomenclatures for hash list: {}", classHashList);
-        Map<Long, DestinyClassNomenclature> classNomenclatures = destinyNomenclatureService.getClassNomenclatures(classHashList);
-        if (classNomenclatures.isEmpty()) {
-            LOGGER.info("No class nomenclatures found for the provided hash list");
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            LOGGER.info("Retrieved {} Destiny class nomenclatures", classNomenclatures.size());
-            return new ResponseEntity<>(classNomenclatures, HttpStatus.OK);
-        }
-    }
-
     @PostMapping("/destiny/vendors")
     public ResponseEntity<Map<Long, DestinyVendorNomenclature>> getVendorNomenclatures(@RequestBody List<Long> vendorHashList) {
         LOGGER.info("Retrieving Destiny vendor nomenclatures for hash list: {}", vendorHashList);

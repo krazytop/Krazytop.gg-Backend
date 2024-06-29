@@ -30,7 +30,6 @@ public class DestinyNomenclatureManagement {
 
     private static final String FOLDER = "/src/main/resources/data/destiny/";
 
-    private final DestinyClassNomenclatureRepository classNomenclatureRepository;
     private final DestinyRecordNomenclatureRepository recordNomenclatureRepository;
     private final DestinyVendorNomenclatureRepository vendorNomenclatureRepository;
     private final DestinyVendorGroupNomenclatureRepository vendorGroupNomenclatureRepository;
@@ -43,8 +42,7 @@ public class DestinyNomenclatureManagement {
     private final DestinyObjectiveNomenclatureRepository objectiveNomenclatureRepository;
 
     @Autowired
-    public DestinyNomenclatureManagement(DestinyClassNomenclatureRepository classNomenclatureRepository, DestinyRecordNomenclatureRepository recordNomenclatureRepository, DestinyVendorNomenclatureRepository vendorNomenclatureRepository, DestinyVendorGroupNomenclatureRepository vendorGroupNomenclatureRepository, DestinyProgressionNomenclatureRepository progressionNomenclatureRepository, DestinyItemNomenclatureRepository itemNomenclatureRepository, DestinyPresentationNodeNomenclatureRepository presentationNodeNomenclatureRepository, DestinyPresentationTreeNomenclatureRepository presentationNodeTreeNomenclatureRepository, DestinyCollectibleNomenclatureRepository collectibleNomenclatureRepository, DestinyMetricNomenclatureRepository metricNomenclatureRepository, DestinyObjectiveNomenclatureRepository objectiveNomenclatureRepository) {
-        this.classNomenclatureRepository = classNomenclatureRepository;
+    public DestinyNomenclatureManagement(DestinyRecordNomenclatureRepository recordNomenclatureRepository, DestinyVendorNomenclatureRepository vendorNomenclatureRepository, DestinyVendorGroupNomenclatureRepository vendorGroupNomenclatureRepository, DestinyProgressionNomenclatureRepository progressionNomenclatureRepository, DestinyItemNomenclatureRepository itemNomenclatureRepository, DestinyPresentationNodeNomenclatureRepository presentationNodeNomenclatureRepository, DestinyPresentationTreeNomenclatureRepository presentationNodeTreeNomenclatureRepository, DestinyCollectibleNomenclatureRepository collectibleNomenclatureRepository, DestinyMetricNomenclatureRepository metricNomenclatureRepository, DestinyObjectiveNomenclatureRepository objectiveNomenclatureRepository) {
         this.recordNomenclatureRepository = recordNomenclatureRepository;
         this.vendorNomenclatureRepository = vendorNomenclatureRepository;
         this.vendorGroupNomenclatureRepository = vendorGroupNomenclatureRepository;
@@ -104,24 +102,6 @@ public class DestinyNomenclatureManagement {
             LOGGER.error("Error downloading manifest: {}", e.getMessage());
             throw new IOException();
         }
-    }
-
-    public void updateClassNomenclature(String manifest) throws IOException, NullPointerException {
-        String nomenclaturePath = getNomenclaturePath("DestinyClassDefinition", manifest);
-        String classJson = downloadJson(nomenclaturePath);
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<?,?> classData = objectMapper.readValue(classJson, Map.class);
-        classNomenclatureRepository.deleteAll();
-        List<DestinyClassNomenclature> classNomenclatures = new ArrayList<>();
-        for (Map.Entry<?,?> entry : classData.entrySet()) {
-            DestinyClassNomenclature classNomenclature = new DestinyClassNomenclature();
-            Map<?, ?> entryData = (Map<?, ?>) entry.getValue();
-            classNomenclature.setHash(getHashAsLong(entryData.get("hash")));
-            classNomenclature.setNameByGender((Map<Long, String>) entryData.get("genderedClassNamesByGenderHash"));
-            classNomenclatures.add(classNomenclature);
-        }
-        classNomenclatureRepository.saveAll(classNomenclatures);
-        LOGGER.info("Class nomenclature updated");
     }
 
     public void updateVendorNomenclature(String manifest) throws IOException, NullPointerException {
