@@ -3,6 +3,7 @@ package com.krazytop.nomenclature_management;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.entity.destiny.DestinyIntervalObjectiveEntity;
 import com.krazytop.entity.destiny.DestinyItemQuantityEntity;
+import com.krazytop.entity.destiny.DestinyPresentationTreeEnum;
 import com.krazytop.entity.destiny.DestinyProgressionStepEntity;
 import com.krazytop.nomenclature.destiny.*;
 import com.krazytop.repository.destiny.*;
@@ -27,8 +28,6 @@ import java.util.*;
 public class DestinyNomenclatureManagement {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DestinyNomenclatureManagement.class);
-
-    private static final String FOLDER = "/src/main/resources/data/destiny/";
 
     private final DestinyRecordNomenclatureRepository recordNomenclatureRepository;
     private final DestinyVendorNomenclatureRepository vendorNomenclatureRepository;
@@ -390,8 +389,9 @@ public class DestinyNomenclatureManagement {
     }
 
     private void updatePresentationNodeTreeNomenclature(List<DestinyPresentationNodeNomenclature> presentationNodes) { //TODO voir si je ne le fait pas seulement pour des hashs particuliers
+        presentationNodeTreeNomenclatureRepository.deleteAll();
         presentationNodes.forEach( presentationNode -> {
-           if (presentationNode.getParentNodeHashes().isEmpty()){
+            if (DestinyPresentationTreeEnum.isUseful(presentationNode.getHash())) {
                 DestinyPresentationTreeNomenclature tree = buildPresentationNodeTreeNomenclature(presentationNode.getHash());
                 presentationNodeTreeNomenclatureRepository.save(tree);
             }
