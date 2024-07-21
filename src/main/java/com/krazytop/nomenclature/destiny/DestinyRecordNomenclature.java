@@ -16,6 +16,7 @@ public class DestinyRecordNomenclature {
     @Id private Long hash;
     private String name;
     private String description;
+    private String obscuredDescription;
     private String icon;
     private List<DestinyObjectiveNomenclature> objectives;
     private List<DestinyIntervalObjectiveEntity> intervalObjectives;

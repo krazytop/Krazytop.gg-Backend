@@ -237,6 +237,10 @@ public class DestinyNomenclatureManagement {
             recordNomenclature.setName(displayProperties.get("name"));
             recordNomenclature.setDescription(displayProperties.get("description"));
             recordNomenclature.setIcon(displayProperties.get("icon"));
+            Map<String, String> stateInfo = (Map<String, String>) entryData.get("stateInfo");
+            if (stateInfo != null) {
+                recordNomenclature.setObscuredDescription(stateInfo.get("obscuredDescription"));
+            }
             recordNomenclature.setRecordTypeName((String)entryData.get("recordTypeName"));
             Map<String, ?> expirationInfo = (Map<String, ?>) entryData.get("expirationInfo");
             if (expirationInfo != null) {
