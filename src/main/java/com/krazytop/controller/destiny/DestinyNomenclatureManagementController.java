@@ -25,15 +25,25 @@ public class DestinyNomenclatureManagementController {
         LOGGER.info("Updating all nomenclature");
         try {
             String manifest = destinyNomenclatureManagement.downloadManifest();
+            LOGGER.info("Manifest downloaded");
             destinyNomenclatureManagement.updateObjectiveNomenclature(manifest);
+            LOGGER.info("Objective nomenclature updated");
             destinyNomenclatureManagement.updateItemNomenclature(manifest);
+            LOGGER.info("Item nomenclature updated");
             destinyNomenclatureManagement.updateVendorNomenclature(manifest);
+            LOGGER.info("Vendor nomenclature updated");
             destinyNomenclatureManagement.updateVendorGroupNomenclature(manifest);
+            LOGGER.info("VendorGroup nomenclature updated");
             destinyNomenclatureManagement.updateRecordNomenclature(manifest);
+            LOGGER.info("Record nomenclature updated");
             destinyNomenclatureManagement.updateProgressionNomenclature(manifest);
+            LOGGER.info("Progression nomenclature updated");
             destinyNomenclatureManagement.updateCollectibleNomenclature(manifest);
+            LOGGER.info("Collectible nomenclature updated");
             destinyNomenclatureManagement.updateMetricNomenclature(manifest);
+            LOGGER.info("Metric nomenclature updated");
             destinyNomenclatureManagement.updatePresentationNodeNomenclature(manifest);
+            LOGGER.info("Presentation node nomenclature updated");
             LOGGER.info("All nomenclature updated");
             return new ResponseEntity<>("All nomenclature updated", HttpStatus.OK);
         } catch (IOException | NullPointerException e) {
