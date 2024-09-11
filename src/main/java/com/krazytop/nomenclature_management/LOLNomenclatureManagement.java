@@ -8,9 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -78,7 +82,7 @@ public class LOLNomenclatureManagement {
         }
     }
 
-    public boolean updateItemNomenclature() {
+    public boolean updateSummonerSpellNomenclature() {
         summonerSpellNomenclature.deleteAll();
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -100,7 +104,7 @@ public class LOLNomenclatureManagement {
         }
     }
 
-    public boolean updateSummonerSpellNomenclature() {
+    public boolean updateItemNomenclature() {
         itemNomenclatureRepository.deleteAll();
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -125,6 +129,23 @@ public class LOLNomenclatureManagement {
             return false;
         }
     }
+
+    public void downloadJsonAndGetMap(String stringUrl) {//https://ddragon.leagueoflegends.com/cdn/9.18.1/data/en_US/item.json
+        try {
+            URL url = new URL(stringUrl);
+            LOGGER.info(url.toString());
+            LOGGER.info(new ObjectMapper().readTree(url).toString());
+        } catch (Exception e) {
+
+        }
+    }
+
+
+
+
+
+
+
 
     public boolean updateRuneNomenclature() {
         runeNomenclatureRepository.deleteAll();

@@ -8,6 +8,7 @@ import com.krazytop.http_response.lol.LOLMatchHTTPResponse;
 import com.krazytop.http_response.lol.LOLMatchIdsHTTPResponse;
 import com.krazytop.http_response.lol.LOLParticipantHTTPResponse;
 import com.krazytop.http_response.lol.LOLTeamHTTPResponse;
+import com.krazytop.nomenclature.lol.LOLQueueNomenclature;
 import com.krazytop.service.riot.RIOTApiService;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -25,66 +26,69 @@ public class LOLMatchService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LOLMatchService.class);
 
-    private final LOLMatchApi lolMatchApi;
+    private final LOLMatchApi matchApi;
     private final RIOTApiService riotApiService;
-    private final LOLNomenclatureApi lolNomenclatureApi;
+    private final LOLNomenclatureApi nomenclatureApi;
 
     @Autowired
-    public LOLMatchService(LOLMatchApi lolMatchApi, RIOTApiService riotApiService, LOLNomenclatureApi lolNomenclatureApi) {
-        this.lolMatchApi = lolMatchApi;
+    public LOLMatchService(LOLMatchApi matchApi, RIOTApiService riotApiService, LOLNomenclatureApi nomenclatureApi) {
+        this.matchApi = matchApi;
         this.riotApiService = riotApiService;
-        this.lolNomenclatureApi = lolNomenclatureApi;
+        this.nomenclatureApi = nomenclatureApi;
     }
 
     public List<LOLMatchEntity> getLocalMatches(String puuid, int pageNb, String queue, String role) {
-        return lolMatchApi.getMatches(puuid, pageNb, queue, role);
+        return matchApi.getMatches(puuid, pageNb, queue, role);
     }
 
     public long getLocalMatchesCount(String puuid, String queue, String role) {
-        return lolMatchApi.getMatchCount(puuid, queue, role);
+        return matchApi.getMatchCount(puuid, queue, role);
     }
 
     private boolean updateMatch(String matchId) {
         String apiUrl = LOLMatchHTTPResponse.getUrl(matchId);
         LOLMatchEntity match = riotApiService.callRiotApi(apiUrl, LOLMatchHTTPResponse.class);
-        queueEnrichment(match);
-        teamsEnrichment(match);
-        match.setRemake(match.getTeams().get(0).getParticipants().get(0).isGameEndedInEarlySurrender());
-        lolMatchApi.updateMatch(match);
-        LOGGER.info("Match {} updated", match.getId());
-        return true;
+        if (this.checkIfQueueIsCompatible(match)) {
+            queueEnrichment(match);
+            teamsEnrichment(match);
+            match.setRemake(match.getTeams().get(0).getParticipants().get(0).isGameEndedInEarlySurrender());
+            matchApi.updateMatch(match);
+            LOGGER.info("Match {} updated", match.getId());
+            return true;
+        } else {
+            LOGGER.info("Match {} has incompatible queue", match.getId());
+            return false;
+        }
     }
 
+    /**
+     * Due to developpement API Key rate limit, we recover only and always 100 last matches
+     */
     public void updateRemoteToLocalMatches(String puuid) {
-        int count = 5; //TODO
-        int totalMatchesRecovered = 0;
-        int matchesRecovered;
-        boolean allMatchesRecovered = false;
-        int waitingTime = 1000;
-        do {
-            String apiUrl = LOLMatchIdsHTTPResponse.getUrl(puuid, totalMatchesRecovered, count);
-            List<String> matchIds = riotApiService.callRiotApiForList(apiUrl, LOLMatchIdsHTTPResponse.class);
-            totalMatchesRecovered += matchIds.size();
-            matchesRecovered = matchIds.size();
-            for (String matchId : matchIds) {
-                if (!allMatchesRecovered && lolMatchApi.getMatch(matchId) == null) {
-                    allMatchesRecovered = !updateMatch(matchId);
-                    waitingTime += 2000;
-                }
+        String apiUrl = LOLMatchIdsHTTPResponse.getUrl(puuid, 0, 100);
+        List<String> matchIds = riotApiService.callRiotApiForList(apiUrl, LOLMatchIdsHTTPResponse.class);
+
+        for (String matchId : matchIds) {
+            if (this.matchApi.getMatch(matchId) != null) {
+                break;
             }
-            if (matchesRecovered == count && !allMatchesRecovered) {
+            if (this.updateMatch(matchId)) {
                 try {
-                    Thread.sleep(waitingTime);
-                    waitingTime = 1000;
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
             }
-        } while (matchesRecovered == 10 && !allMatchesRecovered);
+        }
+    }
+
+    private boolean checkIfQueueIsCompatible(LOLMatchEntity match) {
+        List<String> compatibleQueues = List.of("325", "400", "420", "430", "440", "450", "490", "700", "720", "900", "1020", "1900");
+        return compatibleQueues.contains(match.getQueueIdHTTPResponse());
     }
 
     private void queueEnrichment(LOLMatchEntity match) {
-        match.setQueue(lolNomenclatureApi.getQueueNomenclature(match.getQueueIdHTTPResponse()));
+        match.setQueue(nomenclatureApi.getQueueNomenclature(match.getQueueIdHTTPResponse()));
         match.setQueueIdHTTPResponse(null);
     }
 
@@ -93,7 +97,7 @@ public class LOLMatchService {
         for (LOLTeamHTTPResponse teamHTTPResponse : match.getTeamsHTTPResponse()) {
             LOLTeamEntity team = new LOLTeamEntity();
             team.setBannedChampions(teamHTTPResponse.getBans().getBansChampionId().stream()
-                    .map(lolNomenclatureApi::getChampionNomenclature)
+                    .map(nomenclatureApi::getChampionNomenclature)
                     .toList());
             team.setObjectives(new ModelMapper().map(teamHTTPResponse.getObjectives(), LOLObjectivesEntity.class));
             participantsEnrichment(match, teamHTTPResponse.getId(), team);
@@ -119,30 +123,30 @@ public class LOLMatchService {
     }
 
     private void itemsEnrichment(LOLParticipantEntity participant) {
-        participant.setItem0(lolNomenclatureApi.getItemNomenclature(participant.getItem0Id()));
+        participant.setItem0(nomenclatureApi.getItemNomenclature(participant.getItem0Id()));
         participant.setItem0Id(null);
-        participant.setItem1(lolNomenclatureApi.getItemNomenclature(participant.getItem1Id()));
+        participant.setItem1(nomenclatureApi.getItemNomenclature(participant.getItem1Id()));
         participant.setItem1Id(null);
-        participant.setItem2(lolNomenclatureApi.getItemNomenclature(participant.getItem2Id()));
+        participant.setItem2(nomenclatureApi.getItemNomenclature(participant.getItem2Id()));
         participant.setItem2Id(null);
-        participant.setItem3(lolNomenclatureApi.getItemNomenclature(participant.getItem3Id()));
+        participant.setItem3(nomenclatureApi.getItemNomenclature(participant.getItem3Id()));
         participant.setItem3Id(null);
-        participant.setItem4(lolNomenclatureApi.getItemNomenclature(participant.getItem4Id()));
+        participant.setItem4(nomenclatureApi.getItemNomenclature(participant.getItem4Id()));
         participant.setItem4Id(null);
-        participant.setItem5(lolNomenclatureApi.getItemNomenclature(participant.getItem5Id()));
+        participant.setItem5(nomenclatureApi.getItemNomenclature(participant.getItem5Id()));
         participant.setItem5Id(null);
-        participant.setWard(lolNomenclatureApi.getItemNomenclature(participant.getWardId()));
+        participant.setWard(nomenclatureApi.getItemNomenclature(participant.getWardId()));
         participant.setWardId(null);
     }
 
     private void championEnrichment(LOLParticipantEntity participant) {
-        participant.setChampion(lolNomenclatureApi.getChampionNomenclature(participant.getChampionId()));
+        participant.setChampion(nomenclatureApi.getChampionNomenclature(participant.getChampionId()));
         participant.setChampionId(null);
     }
 
     private void summonerSpellsEnrichment(LOLParticipantEntity participant) {
-        participant.setSummonerSpell1(lolNomenclatureApi.getSummonerSpellNomenclature(participant.getSummonerSpellId1()));
-        participant.setSummonerSpell2(lolNomenclatureApi.getSummonerSpellNomenclature(participant.getSummonerSpellId2()));
+        participant.setSummonerSpell1(nomenclatureApi.getSummonerSpellNomenclature(participant.getSummonerSpellId1()));
+        participant.setSummonerSpell2(nomenclatureApi.getSummonerSpellNomenclature(participant.getSummonerSpellId2()));
         participant.setSummonerSpellId1(null);
         participant.setSummonerSpellId2(null);
     }
@@ -151,13 +155,13 @@ public class LOLMatchService {
         LOLRunesEntity runes = new LOLRunesEntity();
         LOLParticipantHTTPResponse.Perks.RuneStyle primaryRuneStyle = participant.getPerks().getStyles().stream().max(Comparator.comparingInt(style -> style.getSelections().size())).get();
         LOLParticipantHTTPResponse.Perks.RuneStyle secondaryRuneStyle = participant.getPerks().getStyles().stream().min(Comparator.comparingInt(style -> style.getSelections().size())).get();
-        runes.setPrimaryRuneCategory(lolNomenclatureApi.getRuneNomenclature(primaryRuneStyle.getStyleId()));
-        runes.setPrimaryRuneFirstPerk(lolNomenclatureApi.getRuneNomenclature(primaryRuneStyle.getSelections().get(0).getPerkId()));
-        runes.setPrimaryRuneSecondPerk(lolNomenclatureApi.getRuneNomenclature(primaryRuneStyle.getSelections().get(1).getPerkId()));
-        runes.setPrimaryRuneThirdPerk(lolNomenclatureApi.getRuneNomenclature(primaryRuneStyle.getSelections().get(2).getPerkId()));
-        runes.setSecondaryRuneCategory(lolNomenclatureApi.getRuneNomenclature(secondaryRuneStyle.getStyleId()));
-        runes.setSecondaryRuneFirstPerk(lolNomenclatureApi.getRuneNomenclature(secondaryRuneStyle.getSelections().get(0).getPerkId()));
-        runes.setSecondaryRuneSecondaryPerk(lolNomenclatureApi.getRuneNomenclature(secondaryRuneStyle.getSelections().get(1).getPerkId()));
+        runes.setPrimaryRuneCategory(nomenclatureApi.getRuneNomenclature(primaryRuneStyle.getStyleId()));
+        runes.setPrimaryRuneFirstPerk(nomenclatureApi.getRuneNomenclature(primaryRuneStyle.getSelections().get(0).getPerkId()));
+        runes.setPrimaryRuneSecondPerk(nomenclatureApi.getRuneNomenclature(primaryRuneStyle.getSelections().get(1).getPerkId()));
+        runes.setPrimaryRuneThirdPerk(nomenclatureApi.getRuneNomenclature(primaryRuneStyle.getSelections().get(2).getPerkId()));
+        runes.setSecondaryRuneCategory(nomenclatureApi.getRuneNomenclature(secondaryRuneStyle.getStyleId()));
+        runes.setSecondaryRuneFirstPerk(nomenclatureApi.getRuneNomenclature(secondaryRuneStyle.getSelections().get(0).getPerkId()));
+        runes.setSecondaryRuneSecondaryPerk(nomenclatureApi.getRuneNomenclature(secondaryRuneStyle.getSelections().get(1).getPerkId()));
         participant.setRunes(runes);
         participant.setPerks(null);
     }

@@ -36,9 +36,10 @@ public class LOLNomenclatureManagementController {
     @PostMapping("/lol/nomenclature/item")
     public ResponseEntity<Boolean> updateItemNomenclature() {
         LOGGER.info("Updating lol item nomenclature");
-        boolean success = lolNomenclatureManagement.updateItemNomenclature();
+        lolNomenclatureManagement.downloadJsonAndGetMap("https://ddragon.leagueoflegends.com/cdn/9.18.1/data/en_US/item.json");
+        //boolean success = lolNomenclatureManagement.updateItemNomenclature();
         LOGGER.info("LOL item nomenclature updated");
-        return new ResponseEntity<>(success, HttpStatus.OK);
+        return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
     @PostMapping("/lol/nomenclature/summoner-spell")
