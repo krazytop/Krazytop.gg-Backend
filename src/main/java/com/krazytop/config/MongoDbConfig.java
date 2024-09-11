@@ -40,12 +40,6 @@ public class MongoDbConfig {
         return new MongoProperties();
     }
 
-    @Bean(name = "destinyMongoProperties")
-    @ConfigurationProperties(prefix = "spring.data.mongodb.destiny")
-    public MongoProperties getDestinyMongoProperties() {
-        return new MongoProperties();
-    }
-
     @Primary
     @Bean(name = "tftMongoTemplate")
     public MongoTemplate tftMongoTemplate() {
@@ -65,11 +59,6 @@ public class MongoDbConfig {
     @Bean(name = "clashRoyalMongoTemplate")
     public MongoTemplate clashRoyalMongoTemplate() {
         return new MongoTemplate(clashRoyalMongoDatabaseFactory(getClashRoyalMongoProperties()));
-    }
-
-    @Bean(name = "destinyMongoTemplate")
-    public MongoTemplate destinyMongoTemplate() {
-        return new MongoTemplate(destinyMongoDatabaseFactory(getDestinyMongoProperties()));
     }
 
     @Primary
@@ -96,13 +85,6 @@ public class MongoDbConfig {
 
     @Bean
     public MongoDatabaseFactory clashRoyalMongoDatabaseFactory(MongoProperties mongo) {
-        return new SimpleMongoClientDatabaseFactory(
-                mongo.getUri()
-        );
-    }
-
-    @Bean
-    public MongoDatabaseFactory destinyMongoDatabaseFactory(MongoProperties mongo) {
         return new SimpleMongoClientDatabaseFactory(
                 mongo.getUri()
         );
