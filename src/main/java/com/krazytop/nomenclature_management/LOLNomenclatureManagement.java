@@ -1,5 +1,6 @@
 package com.krazytop.nomenclature_management;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.nomenclature.lol.*;
@@ -104,7 +105,7 @@ public class LOLNomenclatureManagement {
         }
     }
 
-    public boolean updateItemNomenclature() {
+    public boolean updateItemNomenclatureOLD() {
         itemNomenclatureRepository.deleteAll();
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -130,14 +131,43 @@ public class LOLNomenclatureManagement {
         }
     }
 
-    public void downloadJsonAndGetMap(String stringUrl) {//https://ddragon.leagueoflegends.com/cdn/9.18.1/data/en_US/item.json
+    public boolean updateItemNomenclature() {
+        itemNomenclatureRepository.deleteAll();
+        Map<String, JsonNode> map = this.downloadJsonAndGetMap("https://ddragon.leagueoflegends.com/cdn/14.18.1/data/en_US/item.json");
+        if (map != null) {
+            for (Map.Entry<String, JsonNode> entry : map.entrySet()) {
+                JsonNode value = entry.getValue();
+                LOLItemNomenclature item = new LOLItemNomenclature();
+                item.setId(entry.getKey());
+                item.setName(value.get("name").asText());
+                item.setImage(value.get("image").get("full").asText());
+                LOGGER.info(item.toString());
+                itemNomenclatureRepository.save(item);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public Map<String, JsonNode> downloadJsonAndGetMap(String stringUrl) {
         try {
             URL url = new URL(stringUrl);
-            LOGGER.info(url.toString());
-            LOGGER.info(new ObjectMapper().readTree(url).toString());
+            JsonNode json = new ObjectMapper().readTree(url).get("data");
+            if (json != null) {
+                return new ObjectMapper().convertValue(json, new TypeReference<>() {});
+            } else {
+                return null;
+            }
         } catch (Exception e) {
-
+            return null;
         }
+    }
+
+    public String getLastNomenclatureVersion() {
+        int season = 1;
+        int majorVersion = 1;
+        int minorVersion = 1;
     }
 
 
