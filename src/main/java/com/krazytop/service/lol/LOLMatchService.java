@@ -1,14 +1,15 @@
 package com.krazytop.service.lol;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.api.lol.LOLMatchApi;
-import com.krazytop.api.lol.LOLNomenclatureApi;
 import com.krazytop.entity.lol.*;
 import com.krazytop.entity.riot.RIOTSummonerEntity;
 import com.krazytop.http_response.lol.LOLMatchHTTPResponse;
 import com.krazytop.http_response.lol.LOLMatchIdsHTTPResponse;
 import com.krazytop.http_response.lol.LOLParticipantHTTPResponse;
 import com.krazytop.http_response.lol.LOLTeamHTTPResponse;
-import com.krazytop.nomenclature.lol.LOLQueueNomenclature;
+import com.krazytop.repository.lol.*;
 import com.krazytop.service.riot.RIOTApiService;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -16,6 +17,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -28,13 +33,23 @@ public class LOLMatchService {
 
     private final LOLMatchApi matchApi;
     private final RIOTApiService riotApiService;
-    private final LOLNomenclatureApi nomenclatureApi;
+    private final LOLChampionNomenclatureRepository championNomenclatureRepository;
+    private final LOLItemNomenclatureRepository itemNomenclatureRepository;
+    private final LOLRuneNomenclatureRepository runeNomenclatureRepository;
+    private final LOLQueueNomenclatureRepository queueNomenclatureRepository;
+    private final LOLSummonerSpellNomenclatureRepository summonerSpellNomenclatureRepository;
+    private final LOLMatchRepository matchRepository;
 
     @Autowired
-    public LOLMatchService(LOLMatchApi matchApi, RIOTApiService riotApiService, LOLNomenclatureApi nomenclatureApi) {
+    public LOLMatchService(LOLMatchApi matchApi, RIOTApiService riotApiService, LOLChampionNomenclatureRepository championNomenclatureRepository, LOLItemNomenclatureRepository itemNomenclatureRepository, LOLRuneNomenclatureRepository runeNomenclatureRepository, LOLQueueNomenclatureRepository queueNomenclatureRepository, LOLSummonerSpellNomenclatureRepository summonerSpellNomenclatureRepository, LOLMatchRepository matchRepository) {
         this.matchApi = matchApi;
         this.riotApiService = riotApiService;
-        this.nomenclatureApi = nomenclatureApi;
+        this.championNomenclatureRepository = championNomenclatureRepository;
+        this.itemNomenclatureRepository = itemNomenclatureRepository;
+        this.runeNomenclatureRepository = runeNomenclatureRepository;
+        this.queueNomenclatureRepository = queueNomenclatureRepository;
+        this.summonerSpellNomenclatureRepository = summonerSpellNomenclatureRepository;
+        this.matchRepository = matchRepository;
     }
 
     public List<LOLMatchEntity> getLocalMatches(String puuid, int pageNb, String queue, String role) {
@@ -61,6 +76,12 @@ public class LOLMatchService {
         }
     }
 
+    public void updateMatchTEST(String matchId) throws URISyntaxException, IOException {
+        String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/%s", matchId);
+        JsonNode json = new ObjectMapper().readTree(new URI(stringUrl).toURL()).get("data");
+        LOGGER.info(json.toString());
+    }
+
     /**
      * Due to development API Key rate limit, we recover only and always 100 last matches
      */
@@ -69,7 +90,7 @@ public class LOLMatchService {
         List<String> matchIds = riotApiService.callRiotApiForList(apiUrl, LOLMatchIdsHTTPResponse.class); //TODO use mapper & jackson
 
         for (String matchId : matchIds) {
-            if (this.matchApi.getMatch(matchId) != null) {
+            if (this.matchRepository.findFirstById(matchId) != null) {
                 break;
             }
             if (this.updateMatch(matchId)) {
@@ -88,7 +109,7 @@ public class LOLMatchService {
     }
 
     private void queueEnrichment(LOLMatchEntity match) {
-        match.setQueue(nomenclatureApi.getQueueNomenclature(match.getQueueIdHTTPResponse()));
+        match.setQueue(queueNomenclatureRepository.findFirstById(match.getQueueIdHTTPResponse()));
         match.setQueueIdHTTPResponse(null);
     }
 
@@ -97,7 +118,7 @@ public class LOLMatchService {
         for (LOLTeamHTTPResponse teamHTTPResponse : match.getTeamsHTTPResponse()) {
             LOLTeamEntity team = new LOLTeamEntity();
             team.setBannedChampions(teamHTTPResponse.getBans().getBansChampionId().stream()
-                    .map(nomenclatureApi::getChampionNomenclature)
+                    .map(championNomenclatureRepository::findFirstById)
                     .toList());
             team.setObjectives(new ModelMapper().map(teamHTTPResponse.getObjectives(), LOLObjectivesEntity.class));
             participantsEnrichment(match, teamHTTPResponse.getId(), team);
@@ -123,30 +144,30 @@ public class LOLMatchService {
     }
 
     private void itemsEnrichment(LOLParticipantEntity participant) {
-        participant.setItem0(nomenclatureApi.getItemNomenclature(participant.getItem0Id()));
+        participant.setItem0(itemNomenclatureRepository.findFirstById(participant.getItem0Id()));
         participant.setItem0Id(null);
-        participant.setItem1(nomenclatureApi.getItemNomenclature(participant.getItem1Id()));
+        participant.setItem1(itemNomenclatureRepository.findFirstById(participant.getItem1Id()));
         participant.setItem1Id(null);
-        participant.setItem2(nomenclatureApi.getItemNomenclature(participant.getItem2Id()));
+        participant.setItem2(itemNomenclatureRepository.findFirstById(participant.getItem2Id()));
         participant.setItem2Id(null);
-        participant.setItem3(nomenclatureApi.getItemNomenclature(participant.getItem3Id()));
+        participant.setItem3(itemNomenclatureRepository.findFirstById(participant.getItem3Id()));
         participant.setItem3Id(null);
-        participant.setItem4(nomenclatureApi.getItemNomenclature(participant.getItem4Id()));
+        participant.setItem4(itemNomenclatureRepository.findFirstById(participant.getItem4Id()));
         participant.setItem4Id(null);
-        participant.setItem5(nomenclatureApi.getItemNomenclature(participant.getItem5Id()));
+        participant.setItem5(itemNomenclatureRepository.findFirstById(participant.getItem5Id()));
         participant.setItem5Id(null);
-        participant.setWard(nomenclatureApi.getItemNomenclature(participant.getWardId()));
+        participant.setWard(itemNomenclatureRepository.findFirstById(participant.getWardId()));
         participant.setWardId(null);
     }
 
     private void championEnrichment(LOLParticipantEntity participant) {
-        participant.setChampion(nomenclatureApi.getChampionNomenclature(participant.getChampionId()));
+        participant.setChampion(championNomenclatureRepository.findFirstById(participant.getChampionId()));
         participant.setChampionId(null);
     }
 
     private void summonerSpellsEnrichment(LOLParticipantEntity participant) {
-        participant.setSummonerSpell1(nomenclatureApi.getSummonerSpellNomenclature(participant.getSummonerSpellId1()));
-        participant.setSummonerSpell2(nomenclatureApi.getSummonerSpellNomenclature(participant.getSummonerSpellId2()));
+        participant.setSummonerSpell1(summonerSpellNomenclatureRepository.findFirstById(participant.getSummonerSpellId1()));
+        participant.setSummonerSpell2(summonerSpellNomenclatureRepository.findFirstById(participant.getSummonerSpellId2()));
         participant.setSummonerSpellId1(null);
         participant.setSummonerSpellId2(null);
     }
@@ -155,13 +176,13 @@ public class LOLMatchService {
         LOLRunesEntity runes = new LOLRunesEntity();
         LOLParticipantHTTPResponse.Perks.RuneStyle primaryRuneStyle = participant.getPerks().getStyles().stream().max(Comparator.comparingInt(style -> style.getSelections().size())).get();
         LOLParticipantHTTPResponse.Perks.RuneStyle secondaryRuneStyle = participant.getPerks().getStyles().stream().min(Comparator.comparingInt(style -> style.getSelections().size())).get();
-        runes.setPrimaryRuneCategory(nomenclatureApi.getRuneNomenclature(primaryRuneStyle.getStyleId()));
-        runes.setPrimaryRuneFirstPerk(nomenclatureApi.getRuneNomenclature(primaryRuneStyle.getSelections().get(0).getPerkId()));
-        runes.setPrimaryRuneSecondPerk(nomenclatureApi.getRuneNomenclature(primaryRuneStyle.getSelections().get(1).getPerkId()));
-        runes.setPrimaryRuneThirdPerk(nomenclatureApi.getRuneNomenclature(primaryRuneStyle.getSelections().get(2).getPerkId()));
-        runes.setSecondaryRuneCategory(nomenclatureApi.getRuneNomenclature(secondaryRuneStyle.getStyleId()));
-        runes.setSecondaryRuneFirstPerk(nomenclatureApi.getRuneNomenclature(secondaryRuneStyle.getSelections().get(0).getPerkId()));
-        runes.setSecondaryRuneSecondaryPerk(nomenclatureApi.getRuneNomenclature(secondaryRuneStyle.getSelections().get(1).getPerkId()));
+        runes.setPrimaryRuneCategory(runeNomenclatureRepository.findFirstById(primaryRuneStyle.getStyleId()));
+        runes.setPrimaryRuneFirstPerk(runeNomenclatureRepository.findFirstById(primaryRuneStyle.getSelections().get(0).getPerkId()));
+        runes.setPrimaryRuneSecondPerk(runeNomenclatureRepository.findFirstById(primaryRuneStyle.getSelections().get(1).getPerkId()));
+        runes.setPrimaryRuneThirdPerk(runeNomenclatureRepository.findFirstById(primaryRuneStyle.getSelections().get(2).getPerkId()));
+        runes.setSecondaryRuneCategory(runeNomenclatureRepository.findFirstById(secondaryRuneStyle.getStyleId()));
+        runes.setSecondaryRuneFirstPerk(runeNomenclatureRepository.findFirstById(secondaryRuneStyle.getSelections().get(0).getPerkId()));
+        runes.setSecondaryRuneSecondaryPerk(runeNomenclatureRepository.findFirstById(secondaryRuneStyle.getSelections().get(1).getPerkId()));
         participant.setRunes(runes);
         participant.setPerks(null);
     }

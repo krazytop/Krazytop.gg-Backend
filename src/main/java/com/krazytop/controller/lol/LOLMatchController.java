@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 
 @RestController
@@ -41,7 +43,12 @@ public class LOLMatchController {
     @PostMapping("/lol/matches/{puuid}")
     public ResponseEntity<Boolean> updateRemoteToLocalMatches(@PathVariable String puuid) {
         LOGGER.info("Updating remote to local matches with PUUID : {}", puuid);
-        lolMatchService.updateRemoteToLocalMatches(puuid);
+        //lolMatchService.updateRemoteToLocalMatches(puuid);
+        try {
+            lolMatchService.updateMatchTEST("EUW1_7116043000");
+        } catch (URISyntaxException | IOException e) {
+            throw new RuntimeException(e);
+        }
         LOGGER.info("Matches updated");
         return new ResponseEntity<>(true, HttpStatus.OK);
     }

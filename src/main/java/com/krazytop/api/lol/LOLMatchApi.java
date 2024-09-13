@@ -58,8 +58,4 @@ public class LOLMatchApi {
         }
     }
 
-    public LOLMatchEntity getMatch(String matchId) {
-        return lolMatchRepository.findFirstById(matchId);
-    }
-
 }
