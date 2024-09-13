@@ -91,8 +91,9 @@ public class LOLMatchService {
         List<LOLTeamTestEntity> teams = new ArrayList<>();
         teamsNode.forEach(teamNode -> {
             LOLTeamTestEntity team = new LOLTeamTestEntity();
-            team.setHasWin(teamsNode.get("win").asBoolean());
-            team.setId(teamsNode.get("teamId").asText());
+            team.setHasWin(teamNode.get("win").asBoolean());
+            team.setId(teamNode.get("teamId").asText());
+            teams.add(team);
         });
         match.setTeams(teams);
 
