@@ -146,7 +146,7 @@ public class LOLNomenclatureManagement { //TODO need better deserialization
 
     public void checkNomenclaturesToUpdate() throws IOException, URISyntaxException {
         LOLVersionEntity lastVersion = this.getLastNomenclatureVersions();
-        LOLVersionEntity dbVersion = this.versionRepository.findFirstById("1");
+        LOLVersionEntity dbVersion = this.versionRepository.findFirstByOrderByItemAsc();
         if (dbVersion == null || !Objects.equals(lastVersion.getItem(), dbVersion.getItem())) {
             this.updateItemNomenclature(lastVersion.getItem());
             this.updateRuneNomenclature(lastVersion.getItem());

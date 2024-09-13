@@ -5,6 +5,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface LOLVersionRepository extends MongoRepository<LOLVersionEntity, String> {
 
-    LOLVersionEntity findFirstById(String id);
+    LOLVersionEntity findFirstByOrderByItemAsc();
 
 }

@@ -10,6 +10,7 @@ import com.krazytop.http_response.lol.LOLMatchIdsHTTPResponse;
 import com.krazytop.http_response.lol.LOLParticipantHTTPResponse;
 import com.krazytop.http_response.lol.LOLTeamHTTPResponse;
 import com.krazytop.repository.lol.*;
+import com.krazytop.repository.riot.RIOTApiKeyRepository;
 import com.krazytop.service.riot.RIOTApiService;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -39,9 +40,10 @@ public class LOLMatchService {
     private final LOLQueueNomenclatureRepository queueNomenclatureRepository;
     private final LOLSummonerSpellNomenclatureRepository summonerSpellNomenclatureRepository;
     private final LOLMatchRepository matchRepository;
+    private final RIOTApiKeyRepository apiKeyRepository;
 
     @Autowired
-    public LOLMatchService(LOLMatchApi matchApi, RIOTApiService riotApiService, LOLChampionNomenclatureRepository championNomenclatureRepository, LOLItemNomenclatureRepository itemNomenclatureRepository, LOLRuneNomenclatureRepository runeNomenclatureRepository, LOLQueueNomenclatureRepository queueNomenclatureRepository, LOLSummonerSpellNomenclatureRepository summonerSpellNomenclatureRepository, LOLMatchRepository matchRepository) {
+    public LOLMatchService(LOLMatchApi matchApi, RIOTApiService riotApiService, LOLChampionNomenclatureRepository championNomenclatureRepository, LOLItemNomenclatureRepository itemNomenclatureRepository, LOLRuneNomenclatureRepository runeNomenclatureRepository, LOLQueueNomenclatureRepository queueNomenclatureRepository, LOLSummonerSpellNomenclatureRepository summonerSpellNomenclatureRepository, LOLMatchRepository matchRepository, RIOTApiKeyRepository apiKeyRepository) {
         this.matchApi = matchApi;
         this.riotApiService = riotApiService;
         this.championNomenclatureRepository = championNomenclatureRepository;
@@ -50,6 +52,7 @@ public class LOLMatchService {
         this.queueNomenclatureRepository = queueNomenclatureRepository;
         this.summonerSpellNomenclatureRepository = summonerSpellNomenclatureRepository;
         this.matchRepository = matchRepository;
+        this.apiKeyRepository = apiKeyRepository;
     }
 
     public List<LOLMatchEntity> getLocalMatches(String puuid, int pageNb, String queue, String role) {
@@ -60,7 +63,7 @@ public class LOLMatchService {
         return matchApi.getMatchCount(puuid, queue, role);
     }
 
-    private boolean updateMatch(String matchId) { //TODO best serializer
+    private void updateMatch(String matchId) { //TODO best serializer
         String apiUrl = LOLMatchHTTPResponse.getUrl(matchId);
         LOLMatchEntity match = riotApiService.callRiotApi(apiUrl, LOLMatchHTTPResponse.class); //TODO use mapper & jackson
         if (this.checkIfQueueIsCompatible(match)) {
@@ -69,17 +72,31 @@ public class LOLMatchService {
             match.setRemake(match.getTeams().get(0).getParticipants().get(0).isGameEndedInEarlySurrender());
             matchApi.updateMatch(match);
             LOGGER.info("Match {} updated", match.getId());
-            return true;
         } else {
             LOGGER.info("Match {} has incompatible queue", match.getId());
-            return false;
         }
     }
 
     public void updateMatchTEST(String matchId) throws URISyntaxException, IOException {
-        String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/%s", matchId);
-        JsonNode json = new ObjectMapper().readTree(new URI(stringUrl).toURL()).get("data");
-        LOGGER.info(json.toString());
+        String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/%s?api_key=%s", matchId, apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
+        JsonNode infoNode = new ObjectMapper().readTree(new URI(stringUrl).toURL()).get("info");
+        LOLMatchTestEntity match = new LOLMatchTestEntity();
+        match.setId(matchId);
+        match.setDatetime(infoNode.get("gameCreation").asLong());
+        match.setDuration(infoNode.get("gameDuration").asLong());
+        match.setVersion(infoNode.get("gameVersion").asText());
+        match.setQueue(queueNomenclatureRepository.findFirstById(infoNode.get("queueId").asText()));
+
+        JsonNode teamsNode = infoNode.get("teams");
+        List<LOLTeamTestEntity> teams = new ArrayList<>();
+        teamsNode.forEach(teamNode -> {
+            LOLTeamTestEntity team = new LOLTeamTestEntity();
+            team.setHasWin(teamsNode.get("win").asBoolean());
+            team.setId(teamsNode.get("teamId").asText());
+        });
+        match.setTeams(teams);
+
+        LOGGER.info(match.toString());
     }
 
     /**
@@ -93,12 +110,11 @@ public class LOLMatchService {
             if (this.matchRepository.findFirstById(matchId) != null) {
                 break;
             }
-            if (this.updateMatch(matchId)) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+            this.updateMatch(matchId);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
     }
