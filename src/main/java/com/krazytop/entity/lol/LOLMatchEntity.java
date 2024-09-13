@@ -12,6 +12,7 @@ import java.util.List;
 public class LOLMatchEntity {
 
     private String id;
+    private String version;
     private Long datetime;
     private double length;
     private String queueIdHTTPResponse;

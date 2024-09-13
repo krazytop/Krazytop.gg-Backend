@@ -45,9 +45,9 @@ public class LOLMatchService {
         return matchApi.getMatchCount(puuid, queue, role);
     }
 
-    private boolean updateMatch(String matchId) {
+    private boolean updateMatch(String matchId) { //TODO best serializer
         String apiUrl = LOLMatchHTTPResponse.getUrl(matchId);
-        LOLMatchEntity match = riotApiService.callRiotApi(apiUrl, LOLMatchHTTPResponse.class);
+        LOLMatchEntity match = riotApiService.callRiotApi(apiUrl, LOLMatchHTTPResponse.class); //TODO use mapper & jackson
         if (this.checkIfQueueIsCompatible(match)) {
             queueEnrichment(match);
             teamsEnrichment(match);
@@ -62,11 +62,11 @@ public class LOLMatchService {
     }
 
     /**
-     * Due to developpement API Key rate limit, we recover only and always 100 last matches
+     * Due to development API Key rate limit, we recover only and always 100 last matches
      */
     public void updateRemoteToLocalMatches(String puuid) {
-        String apiUrl = LOLMatchIdsHTTPResponse.getUrl(puuid, 0, 100);
-        List<String> matchIds = riotApiService.callRiotApiForList(apiUrl, LOLMatchIdsHTTPResponse.class);
+        String apiUrl = LOLMatchIdsHTTPResponse.getUrl(puuid, 0, 1); //TODO count pour les tests
+        List<String> matchIds = riotApiService.callRiotApiForList(apiUrl, LOLMatchIdsHTTPResponse.class); //TODO use mapper & jackson
 
         for (String matchId : matchIds) {
             if (this.matchApi.getMatch(matchId) != null) {

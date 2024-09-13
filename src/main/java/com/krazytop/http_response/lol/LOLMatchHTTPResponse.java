@@ -19,6 +19,7 @@ import java.util.List;
 public class LOLMatchHTTPResponse implements HTTPResponseInterface<LOLMatchEntity> {
 
     private String id;
+    private String version;
     private Long datetimeHTTPResponse;
     private double length;
     private String queueIdHTTPResponse;
@@ -44,6 +45,7 @@ public class LOLMatchHTTPResponse implements HTTPResponseInterface<LOLMatchEntit
             match.setId(rootNode.at("/metadata/matchId").asText());
             match.setDatetimeHTTPResponse(rootNode.at("/info/gameCreation").asLong());
             match.setLength(rootNode.at("/info/gameDuration").asDouble());
+            match.setVersion(rootNode.at("/info/gameVersion").asText());
             match.setQueueIdHTTPResponse(rootNode.at("/info/queueId").asText());
 
             ObjectMapper objectMapper = new ObjectMapper();
