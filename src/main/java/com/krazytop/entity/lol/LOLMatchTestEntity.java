@@ -3,6 +3,7 @@ package com.krazytop.entity.lol;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.krazytop.config.SpringConfiguration;
 import com.krazytop.nomenclature.lol.LOLQueueNomenclature;
 import com.krazytop.repository.lol.LOLQueueNomenclatureRepository;
 import lombok.Data;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Data
@@ -30,17 +32,9 @@ public class LOLMatchTestEntity {
     private boolean remake;
 
     @JsonProperty("queueId")
-    private void unpackQueue(JsonNode node) {
-        LOLQueueNomenclatureRepository queueNomenclatureRepository = new Test().getQueueNomenclatureRepository();
-        System.out.println(queueNomenclatureRepository);
+    private void unpackQueue(String queueId) {
+        LOLQueueNomenclatureRepository queueNomenclatureRepository = SpringConfiguration.contextProvider().getApplicationContext().getBean(LOLQueueNomenclatureRepository.class);
+        System.out.println(queueNomenclatureRepository.findFirstById(queueId));
     }
-
-}
-
-@Service
-@Data
-class Test {
-
-    @Autowired private LOLQueueNomenclatureRepository queueNomenclatureRepository;
 
 }
