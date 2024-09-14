@@ -43,12 +43,7 @@ public class LOLMatchController {
     @PostMapping("/lol/matches/{puuid}")
     public ResponseEntity<Boolean> updateRemoteToLocalMatches(@PathVariable String puuid) {
         LOGGER.info("Updating remote to local matches with PUUID : {}", puuid);
-        //lolMatchService.updateRemoteToLocalMatches(puuid);
-        try {
-            lolMatchService.updateMatchTEST("EUW1_7116043000");
-        } catch (URISyntaxException | IOException e) {
-            throw new RuntimeException(e);
-        }
+        lolMatchService.updateRemoteToLocalMatches(puuid);
         LOGGER.info("Matches updated");
         return new ResponseEntity<>(true, HttpStatus.OK);
     }
