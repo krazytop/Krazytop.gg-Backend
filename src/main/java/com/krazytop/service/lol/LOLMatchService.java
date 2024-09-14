@@ -9,6 +9,7 @@ import com.krazytop.http_response.lol.LOLMatchHTTPResponse;
 import com.krazytop.http_response.lol.LOLMatchIdsHTTPResponse;
 import com.krazytop.http_response.lol.LOLParticipantHTTPResponse;
 import com.krazytop.http_response.lol.LOLTeamHTTPResponse;
+import com.krazytop.nomenclature.lol.LOLChampionNomenclature;
 import com.krazytop.repository.lol.*;
 import com.krazytop.repository.riot.RIOTApiKeyRepository;
 import com.krazytop.service.riot.RIOTApiService;
@@ -78,21 +79,21 @@ public class LOLMatchService {
     }
 
     public void updateMatchTEST(String matchId) throws URISyntaxException, IOException {
-        String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/%s?api_key=%s", matchId, apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
+        String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/%s?api_key=%s", matchId, "RGAPI-d2db62c3-e922-45d2-bbaf-b29505530f08");
         JsonNode infoNode = new ObjectMapper().readTree(new URI(stringUrl).toURL()).get("info");
-        LOLMatchTestEntity match = new LOLMatchTestEntity();
+        LOLMatchTestEntity match = new ObjectMapper().convertValue(infoNode, LOLMatchTestEntity.class);
         match.setId(matchId);
-        match.setDatetime(infoNode.get("gameCreation").asLong());
-        match.setDuration(infoNode.get("gameDuration").asLong());
-        match.setVersion(infoNode.get("gameVersion").asText());
         match.setQueue(queueNomenclatureRepository.findFirstById(infoNode.get("queueId").asText()));
 
         JsonNode teamsNode = infoNode.get("teams");
         List<LOLTeamTestEntity> teams = new ArrayList<>();
         teamsNode.forEach(teamNode -> {
-            LOLTeamTestEntity team = new LOLTeamTestEntity();
-            team.setHasWin(teamNode.get("win").asBoolean());
-            team.setId(teamNode.get("teamId").asText());
+            LOLTeamTestEntity team = new ObjectMapper().convertValue(teamNode, LOLTeamTestEntity.class);
+            List<LOLChampionNomenclature> bans = new ArrayList<>();
+            teamNode.get("bans").forEach(ban -> bans.add(championNomenclatureRepository.findFirstById(ban.asText())));
+            team.setBans(bans);
+
+
             teams.add(team);
         });
         match.setTeams(teams);

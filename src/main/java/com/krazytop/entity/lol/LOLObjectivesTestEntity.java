@@ -1,11 +1,10 @@
 package com.krazytop.entity.lol;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
-public class LOLObjectivesEntity {
+public class LOLObjectivesTestEntity {
 
     private int baronKills;
     private int championKills;
