@@ -1,9 +1,10 @@
 package com.krazytop.entity.lol;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.krazytop.config.SpringConfiguration;
 import com.krazytop.nomenclature.lol.LOLChampionNomenclature;
+import com.krazytop.repository.lol.LOLChampionNomenclatureRepository;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -12,27 +13,21 @@ import java.util.List;
 @Data
 public class LOLTeamTestEntity {
 
-    @JsonIgnore
     private List<LOLChampionNomenclature> bans;
-    private LOLObjectivesEntity objectives;
+    @JsonProperty("objectives")
+    private LOLObjectivesTestEntity objectives;
     @JsonProperty("win")
     private boolean hasWin;
     @JsonProperty("teamId")
     private String id;
-    @JsonIgnore
-    private List<LOLParticipantEntity> participants = new ArrayList<>();
+    private List<LOLParticipantTestEntity> participants;
 
-    @JsonProperty("objectives")
-    private void unpackObjectives(JsonNode map) {
-        String kills = "kills";
-        this.setObjectives(new LOLObjectivesEntity(
-                map.get("baron").get(kills).asInt(),
-                map.get("champion").get(kills).asInt(),
-                map.get("dragon").get(kills).asInt(),
-                map.get("horde").get(kills).asInt(),
-                map.get("inhibitor").get(kills).asInt(),
-                map.get("riftHerald").get(kills).asInt(),
-                map.get("tower").get(kills).asInt()
-        ));
+    @JsonProperty("bans")
+    private void unpackBans(JsonNode node) {
+        List<LOLChampionNomenclature> banArray = new ArrayList<>();
+        LOLChampionNomenclatureRepository championNomenclatureRepository = SpringConfiguration.contextProvider().getApplicationContext().getBean(LOLChampionNomenclatureRepository.class);
+        node.forEach(ban -> banArray.add(championNomenclatureRepository.findFirstById(ban.get("championId").asText())));
+        this.setBans(banArray);
     }
+
 }

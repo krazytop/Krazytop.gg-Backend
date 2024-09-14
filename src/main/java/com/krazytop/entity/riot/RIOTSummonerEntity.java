@@ -19,4 +19,7 @@ public class RIOTSummonerEntity {
     private String region;
     private Date updateDate;
 
+    public RIOTSummonerEntity(String id, String puuid, String name, String tag, int level, int icon) {
+
+    }
 }
