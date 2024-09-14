@@ -20,6 +20,11 @@ public class RIOTSummonerEntity {
     private Date updateDate;
 
     public RIOTSummonerEntity(String id, String puuid, String name, String tag, int level, int icon) {
-
+        this.id = id;
+        this.puuid = puuid;
+        this.name = name;
+        this.tag = tag;
+        this.level = level;
+        this.icon = icon;
     }
 }

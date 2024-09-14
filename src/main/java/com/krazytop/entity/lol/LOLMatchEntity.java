@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.krazytop.config.SpringConfiguration;
 import com.krazytop.nomenclature.lol.LOLQueueNomenclature;
 import com.krazytop.repository.lol.LOLQueueNomenclatureRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.Data;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -28,6 +30,7 @@ public class LOLMatchEntity {
     private List<LOLTeamEntity> teams;
     private boolean remake;
     @JsonProperty("participants")
+    @Transient
     private List<LOLParticipantEntity> participants;
 
     @JsonProperty("queueId")
@@ -36,9 +39,9 @@ public class LOLMatchEntity {
         this.setQueue(queueNomenclatureRepository.findFirstById(queueId));
     }
 
-    public void dispatchParticipantsInTeams() {
+    public void dispatchParticipantsInTeamsAndBuildSummoners() {
         this.getTeams().forEach(team -> team.setParticipants(this.participants.stream().filter(participant -> Objects.equals(participant.getTeamId(), team.getId())).toList()));
-        this.setParticipants(null);
+        this.getTeams().forEach(team -> team.getParticipants().forEach(LOLParticipantEntity::buildSummoner));
     }
 
 }

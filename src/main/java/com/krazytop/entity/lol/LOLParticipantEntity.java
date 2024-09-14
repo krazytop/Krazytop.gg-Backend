@@ -12,6 +12,8 @@ import com.krazytop.repository.lol.LOLChampionNomenclatureRepository;
 import com.krazytop.repository.lol.LOLItemNomenclatureRepository;
 import com.krazytop.repository.lol.LOLSummonerSpellNomenclatureRepository;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 
 import java.util.function.Consumer;
 
@@ -72,14 +74,26 @@ public class LOLParticipantEntity {
     private RIOTSummonerEntity summoner; //TODO
     private LOLSummonerSpellNomenclature summonerSpell1;
     private LOLSummonerSpellNomenclature summonerSpell2;
+    @JsonProperty("summonerId")
+    @Transient
+    private String id;
+    @JsonProperty("puuid")
+    @Transient
+    private String puuid;
+    @JsonProperty("riotIdGameName")
+    @Transient
+    private String name;
+    @JsonProperty("riotIdTagline")
+    @Transient
+    private String tag;
+    @JsonProperty("summonerLevel")
+    @Transient
+    private int level;
+    @JsonProperty("profileIcon")
+    @Transient
+    private int icon;
 
-    @JsonCreator
-    private void createSummoner(@JsonProperty("summonerId") String id,
-                                @JsonProperty("puuid") String puuid,
-                                @JsonProperty("riotIdGameName") String name,
-                                @JsonProperty("riotIdTagline") String tag,
-                                @JsonProperty("summonerLevel") int level,
-                                @JsonProperty("profileIcon") int icon) {
+    public void buildSummoner() {
         this.setSummoner(new RIOTSummonerEntity(id, puuid, name, tag, level, icon));
     }
 

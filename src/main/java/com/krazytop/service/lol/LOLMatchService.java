@@ -42,15 +42,17 @@ public class LOLMatchService {
     }
 
     private void updateMatch(String matchId) throws URISyntaxException, IOException {
-        String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/%s?api_key=%s", matchId, apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
+        String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/%s?api_key=%s", matchId, "RGAPI-baad2caa-87d5-4f8b-a132-f96cf9ace580");
         JsonNode infoNode = new ObjectMapper().readTree(new URI(stringUrl).toURL()).get("info");
         LOLMatchEntity match = new ObjectMapper().convertValue(infoNode, LOLMatchEntity.class);
         match.setId(matchId);
-        match.dispatchParticipantsInTeams();
+        match.dispatchParticipantsInTeamsAndBuildSummoners();
         match.setRemake(match.getTeams().get(0).getParticipants().get(0).isGameEndedInEarlySurrender());
         if (this.checkIfQueueIsCompatible(match)) {
             LOGGER.info("Saving match : {}", matchId);
             matchRepository.save(match);
+            LOLMatchEntity m = matchRepository.findFirstById(matchId);
+            LOLMatchEntity p = matchRepository.findFirstById(matchId);
         }
     }
 
@@ -61,7 +63,7 @@ public class LOLMatchService {
 
         try {
             //TODO count à 1 pour les tests
-            String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, 0, 1, apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
+            String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, 0, 1, "RGAPI-baad2caa-87d5-4f8b-a132-f96cf9ace580");
             ObjectMapper mapper = new ObjectMapper();
             List<String> matchIds = mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()), new TypeReference<>() {});
 
