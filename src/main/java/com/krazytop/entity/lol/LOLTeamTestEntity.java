@@ -8,7 +8,6 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Data
 public class LOLTeamTestEntity {
@@ -25,14 +24,15 @@ public class LOLTeamTestEntity {
 
     @JsonProperty("objectives")
     private void unpackObjectives(JsonNode map) {
+        String kills = "kills";
         this.setObjectives(new LOLObjectivesEntity(
-                map.get("baron").get("kills").asInt(),
-                map.get("champion").get("kills").asInt(),
-                map.get("dragon").get("kills").asInt(),
-                map.get("horde").get("kills").asInt(),
-                map.get("inhibitor").get("kills").asInt(),
-                map.get("riftHerald").get("kills").asInt(),
-                map.get("tower").get("kills").asInt()
+                map.get("baron").get(kills).asInt(),
+                map.get("champion").get(kills).asInt(),
+                map.get("dragon").get(kills).asInt(),
+                map.get("horde").get(kills).asInt(),
+                map.get("inhibitor").get(kills).asInt(),
+                map.get("riftHerald").get(kills).asInt(),
+                map.get("tower").get(kills).asInt()
         ));
     }
 }
