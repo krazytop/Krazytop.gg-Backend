@@ -5,7 +5,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface LOLRankRepository extends MongoRepository<LOLRankEntity, String> {
 
-    LOLRankEntity findFirstBySummonerIdAndQueueTypeOrderByUpdateDateDesc(String summonerId, String queueType);
+    LOLRankEntity findFirstBySummonerIdAndQueueNameOrderByUpdateDateDesc(String summonerId, String queueName);
 
-    LOLRankEntity findFirstBySummonerIdOrderByUpdateDateDesc(String summonerId);
 }

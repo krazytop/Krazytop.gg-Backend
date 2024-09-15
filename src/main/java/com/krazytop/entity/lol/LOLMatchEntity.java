@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.krazytop.config.SpringConfiguration;
 import com.krazytop.nomenclature.lol.LOLQueueNomenclature;
 import com.krazytop.repository.lol.LOLQueueNomenclatureRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -29,8 +28,7 @@ public class LOLMatchEntity {
     @JsonProperty("teams")
     private List<LOLTeamEntity> teams;
     private boolean remake;
-    @JsonProperty("participants")
-    @Transient
+    @JsonProperty("participants") @Transient
     private List<LOLParticipantEntity> participants;
 
     @JsonProperty("queueId")

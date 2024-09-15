@@ -1,6 +1,5 @@
 package com.krazytop.entity.lol;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.krazytop.config.SpringConfiguration;
@@ -12,7 +11,6 @@ import com.krazytop.repository.lol.LOLChampionNomenclatureRepository;
 import com.krazytop.repository.lol.LOLItemNomenclatureRepository;
 import com.krazytop.repository.lol.LOLSummonerSpellNomenclatureRepository;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 
 import java.util.function.Consumer;
@@ -71,7 +69,7 @@ public class LOLParticipantEntity {
     private LOLItemNomenclature item4;
     private LOLItemNomenclature item5;
     private LOLItemNomenclature ward;
-    private RIOTSummonerEntity summoner; //TODO
+    private RIOTSummonerEntity summoner;
     private LOLSummonerSpellNomenclature summonerSpell1;
     private LOLSummonerSpellNomenclature summonerSpell2;
     @JsonProperty("summonerId")

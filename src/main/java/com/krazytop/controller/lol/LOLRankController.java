@@ -19,8 +19,12 @@ public class LOLRankController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LOLRankController.class);
 
+    private final LOLRankService lolRankService;
+
     @Autowired
-    private LOLRankService lolRankService;
+    public LOLRankController(LOLRankService lolRankService) {
+        this.lolRankService = lolRankService;
+    }
 
     @GetMapping("/lol/rank/{summonerId}/{queueType}")
     public ResponseEntity<LOLRankEntity> getLocalRank(@PathVariable String summonerId, @PathVariable String queueType) {
