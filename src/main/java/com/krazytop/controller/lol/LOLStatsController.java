@@ -1,7 +1,6 @@
 package com.krazytop.controller.lol;
 
 import com.krazytop.service.lol.LOLStatsService;
-import com.krazytop.service.tft.TFTStatsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +17,12 @@ public class LOLStatsController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LOLStatsController.class);
 
+    private final LOLStatsService lolStatsService;
+
     @Autowired
-    private LOLStatsService lolStatsService;
+    public LOLStatsController(LOLStatsService lolStatsService){
+        this.lolStatsService = lolStatsService;
+    }
 
     @GetMapping("/lol/stats/latest-matches-placement/{puuid}/{queue}/{role}")
     public ResponseEntity<List<String>> getLatestMatchesResult(@PathVariable String puuid, @PathVariable String queue, @PathVariable String role) {

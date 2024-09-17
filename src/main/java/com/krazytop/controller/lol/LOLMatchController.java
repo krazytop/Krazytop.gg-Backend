@@ -21,8 +21,12 @@ public class LOLMatchController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LOLMatchController.class);
 
+    private final LOLMatchService lolMatchService;
+
     @Autowired
-    private LOLMatchService lolMatchService;
+    public LOLMatchController(LOLMatchService lolMatchService){
+        this.lolMatchService = lolMatchService;
+    }
 
     @GetMapping("/lol/matches/{puuid}/{pageNb}/{queue}/{role}")
     public ResponseEntity<List<LOLMatchEntity>> getLocalMatches(@PathVariable String puuid, @PathVariable int pageNb, @PathVariable String queue, @PathVariable String role) {

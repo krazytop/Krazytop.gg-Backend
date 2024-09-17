@@ -38,10 +38,6 @@ public class LOLMatchApi {
         }
     }
 
-    public void updateMatch(LOLMatchEntity match) {
-        lolMatchRepository.save(match);
-    }
-
     public long getMatchCount(String puuid, String queue, String role) {
         if (queue.equals("ALL_QUEUES")) {
             if (role.equals("ALL_ROLES")) {

@@ -23,7 +23,6 @@ public class LOLRankService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LOLRankService.class);
 
-
     private final RIOTApiKeyRepository apiKeyRepository;
     private final LOLRankRepository rankRepository;
 
@@ -34,7 +33,7 @@ public class LOLRankService {
     }
 
     public LOLRankEntity getLocalRank(String summonerId, String queueType) {
-        return rankRepository.findFirstBySummonerIdAndQueueNameOrderByUpdateDateDesc(summonerId, queueType);
+        return rankRepository.findFirstBySummonerIdAndQueueOrderByUpdateDateDesc(summonerId, queueType);
     }
 
     public List<LOLRankEntity> updateRemoteToLocalRank(String summonerId) {
@@ -42,10 +41,10 @@ public class LOLRankService {
             String stringUrl = String.format("https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/%s?api_key=%s", summonerId, apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
             ObjectMapper mapper = new ObjectMapper();
             List<LOLRankEntity> ranks = mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()), new TypeReference<>() {});
-            List<String> compatiblesRanks = List.of("RANKED_SOLO_5x5", "RANKED_FLEX_SR");
+            List<String> compatiblesRanks = List.of("RANKED_SOLO_5x5", "RANKED_TEAM_5x5");
             ranks = ranks.stream()
-                    .filter(rank -> compatiblesRanks.contains(rank.getQueue().getName()))
-                    .filter(rank -> !rank.equals(rankRepository.findFirstBySummonerIdAndQueueNameOrderByUpdateDateDesc(summonerId, rank.getQueue().getName())))
+                    .filter(rank -> compatiblesRanks.contains(rank.getQueue()))
+                    .filter(rank -> !rank.equals(getLocalRank(summonerId, rank.getQueue())))
                     .toList();
             ranks.forEach(rank -> rank.setUpdateDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant())));
             return rankRepository.saveAll(ranks);

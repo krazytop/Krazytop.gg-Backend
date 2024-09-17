@@ -51,8 +51,6 @@ public class LOLMatchService {
         if (this.checkIfQueueIsCompatible(match)) {
             LOGGER.info("Saving match : {}", matchId);
             matchRepository.save(match);
-            LOLMatchEntity m = matchRepository.findFirstById(matchId);
-            LOLMatchEntity p = matchRepository.findFirstById(matchId);
         }
     }
 

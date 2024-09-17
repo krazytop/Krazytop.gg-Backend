@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 @Service
 public class LOLStatsService {
@@ -23,22 +24,19 @@ public class LOLStatsService {
 
     public List<String> getLatestMatchesResult(String puuid, String queue, String role) {
         List<String> latestMatchesResult = new ArrayList<>();
-        List<LOLMatchEntity> latestMatches = new ArrayList<>();
-        for (int i = 0; i < 5; i++) { // 5 pages
-            latestMatches.addAll(lolMatchApi.getMatches(puuid, i, queue, role));
-        }
+        List<LOLMatchEntity> latestMatches = IntStream.range(0, 5)
+                .mapToObj(i -> lolMatchApi.getMatches(puuid, i, queue, role))
+                .flatMap(List::stream)
+                .toList();
         for (LOLMatchEntity match : latestMatches) {
             if (match.isRemake()) {
                 latestMatchesResult.add("REMAKE");
             } else {
-                for (LOLTeamEntity team : match.getTeams()) {
-                    for (LOLParticipantEntity participant : team.getParticipants()) {
-                        if (Objects.equals(participant.getSummoner().getPuuid(), puuid)) {
-                            latestMatchesResult.add(team.isHasWin() ? "VICTORY" : "DEFEAT");
-                            break;
-                        }
+                match.getTeams().forEach(team -> team.getParticipants().forEach(participant -> {
+                    if (Objects.equals(participant.getSummoner().getPuuid(), puuid)) {
+                        latestMatchesResult.add(team.isHasWin() ? "VICTORY" : "DEFEAT");
                     }
-                }
+                }));
             }
         }
         return latestMatchesResult;
