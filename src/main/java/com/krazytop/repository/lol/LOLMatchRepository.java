@@ -20,13 +20,13 @@ public interface LOLMatchRepository extends MongoRepository<LOLMatchEntity, Stri
 
     LOLMatchEntity findFirstById(String matchId);
 
-    long countByTeamsParticipantsSummonerPuuid(String puuid);
+    Long countByTeamsParticipantsSummonerPuuid(String puuid);
 
-    long countByTeamsParticipantsSummonerPuuidAndQueueName(String puuid, String queueName);
+    Long countByTeamsParticipantsSummonerPuuidAndQueueName(String puuid, String queueName);
 
     @Query(value = "{'teams.participants': {$elemMatch: {'summoner.puuid': ?0, 'role': ?1}}}", count = true)
-    long countByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRole(String puuid, String role);
+    Long countByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRole(String puuid, String role);
 
     @Query(value = "{'teams.participants': {$elemMatch: {'summoner.puuid': ?0, 'role': ?2}}, 'queue.name':  ?1}", count = true)
-    long countByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRoleAndQueueName(String puuid, String queueName, String role);
+    Long countByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRoleAndQueueName(String puuid, String queueName, String role);
 }

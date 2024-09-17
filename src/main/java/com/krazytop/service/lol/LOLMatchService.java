@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.entity.lol.*;
-import com.krazytop.repository.lol.*;
+import com.krazytop.repository.lol.LOLMatchRepository;
 import com.krazytop.repository.riot.RIOTApiKeyRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
