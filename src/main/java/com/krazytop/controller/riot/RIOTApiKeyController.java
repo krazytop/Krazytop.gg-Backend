@@ -2,7 +2,6 @@ package com.krazytop.controller.riot;
 
 import com.krazytop.entity.riot.RIOTApiKeyEntity;
 import com.krazytop.repository.riot.RIOTApiKeyRepository;
-import com.krazytop.service.riot.RIOTApiKeyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

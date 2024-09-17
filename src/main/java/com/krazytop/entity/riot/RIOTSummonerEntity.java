@@ -1,5 +1,6 @@
 package com.krazytop.entity.riot;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -9,13 +10,19 @@ import java.util.Date;
 @Document(collection = "Summoner")
 public class RIOTSummonerEntity {
 
+    @JsonProperty("id")
     private String id;
-    private String tag;
+    @JsonProperty("name")
     private String name;
+    @JsonProperty("accountId")
     private String accountId;
+    @JsonProperty("summonerLevel")
     private int level;
+    @JsonProperty("profileIconId")
     private int icon;
+    @JsonProperty("puuid")
     private String puuid;
+    private String tag;
     private String region;
     private Date updateDate;
 
