@@ -39,7 +39,7 @@ public class LOLMatchController {
     @GetMapping("/lol/matches/count/{puuid}/{queue}/{role}")
     public ResponseEntity<Long> getLocalMatchesCount(@PathVariable String puuid, @PathVariable String queue, @PathVariable String role) {
         LOGGER.info("Retrieving count of matches locally with PUUID : {}, queue type : {} and role : {}", puuid, queue, role);
-        long matchesCount = lolMatchService.getLocalMatchesCount(puuid, queue, role);
+        Long matchesCount = lolMatchService.getLocalMatchesCount(puuid, queue, role);
         LOGGER.info("Count of matches locally : {}", matchesCount);
         return new ResponseEntity<>(matchesCount, HttpStatus.OK);
     }
