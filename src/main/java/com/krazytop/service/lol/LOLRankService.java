@@ -44,7 +44,7 @@ public class LOLRankService {
             List<String> compatiblesRanks = List.of("RANKED_SOLO_5x5", "RANKED_TEAM_5x5");
             ranks = ranks.stream()
                     .filter(rank -> compatiblesRanks.contains(rank.getQueue()))
-                    .filter(rank -> !rank.equals(getLocalRank(summonerId, rank.getQueue())))
+                    .filter(rank -> rank.needToUpdate(getLocalRank(summonerId, rank.getQueue())))
                     .toList();
             ranks.forEach(rank -> rank.setUpdateDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant())));
             return rankRepository.saveAll(ranks);

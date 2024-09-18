@@ -1,5 +1,6 @@
 package com.krazytop.entity.lol;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -26,20 +27,17 @@ public class LOLRankEntity {
     @JsonProperty("losses")
     private int losses;
     private Date updateDate;
-    @JsonProperty("queueType")
+    @JsonAlias("queueType")
+    @JsonProperty("queue")
     private String queue;
 
-    public boolean equals(LOLRankEntity rank) {
-        return getLeaguePoints() == rank.getLeaguePoints()
-                && getWins() == rank.getWins() && getLosses() == rank.getLosses()
-                && Objects.equals(getSummonerId(), rank.getSummonerId())
-                && Objects.equals(getTier(), rank.getTier())
-                && Objects.equals(getRank(), rank.getRank())
-                && Objects.equals(getQueue(), rank.getQueue());
+    public boolean needToUpdate(LOLRankEntity rank) {
+        return rank == null
+                || getLeaguePoints() != rank.getLeaguePoints()
+                || getWins() != rank.getWins()
+                || getLosses() != rank.getLosses()
+                || !Objects.equals(getTier(), rank.getTier())
+                || !Objects.equals(getRank(), rank.getRank());
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getSummonerId(), getTier(), getRank(), getQueue(), getLeaguePoints(), getUpdateDate(), getWins(), getLosses());
-    }
 }

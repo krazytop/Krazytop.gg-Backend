@@ -43,7 +43,7 @@ public class LOLMatchService {
     }
 
     private void updateMatch(String matchId) throws URISyntaxException, IOException {
-        String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/%s?api_key=%s", matchId, apiKeyRepository.findFirstByOrderByKeyAsc());
+        String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/%s?api_key=%s", matchId, apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
         JsonNode infoNode = new ObjectMapper().readTree(new URI(stringUrl).toURL()).get("info");
         LOLMatchEntity match = new ObjectMapper().convertValue(infoNode, LOLMatchEntity.class);
         match.setId(matchId);
@@ -61,7 +61,7 @@ public class LOLMatchService {
     public void updateRemoteToLocalMatches(String puuid) {
         try {
             //TODO count à 1 pour les tests
-            String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, 0, 1, apiKeyRepository.findFirstByOrderByKeyAsc());
+            String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, 0, 1, apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
             ObjectMapper mapper = new ObjectMapper();
             List<String> matchIds = mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()), new TypeReference<>() {});
 

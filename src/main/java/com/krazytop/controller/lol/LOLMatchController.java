@@ -32,7 +32,7 @@ public class LOLMatchController {
     public ResponseEntity<List<LOLMatchEntity>> getLocalMatches(@PathVariable String puuid, @PathVariable int pageNb, @PathVariable String queue, @PathVariable String role) {
         LOGGER.info("Retrieving matches locally with PUUID : {}, queue type : {} and role : {}", puuid, queue, role);
         List<LOLMatchEntity> matches = lolMatchService.getLocalMatches(puuid, pageNb, queue, role);
-        LOGGER.info("Recovered matches : {}", matches);
+        LOGGER.info("Recovered {} matches", matches.size());
         return new ResponseEntity<>(matches, HttpStatus.OK);
     }
 

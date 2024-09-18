@@ -10,6 +10,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 public class RIOTApiKeyEntity {
 
-    @Id private String key;
+    private String key;
 
 }

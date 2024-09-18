@@ -1,5 +1,6 @@
 package com.krazytop.entity.lol;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.krazytop.config.SpringConfiguration;
@@ -27,11 +28,13 @@ public class LOLParticipantEntity {
     private int assists;
     @JsonProperty("deaths")
     private int deaths;
-    @JsonProperty("individualPosition")
+    @JsonAlias("individualPosition")
+    @JsonProperty("role")
     private String role;
     @JsonProperty("visionScore")
     private int visionScore;
-    @JsonProperty("totalMinionsKilled")
+    @JsonAlias("totalMinionsKilled")
+    @JsonProperty("minions")
     private int minions;
     @JsonProperty("doubleKills")
     private int doubleKills;
@@ -53,13 +56,15 @@ public class LOLParticipantEntity {
     private int magicDamageTaken;
     @JsonProperty("trueDamageTaken")
     private int trueDamageTaken;
-    @JsonProperty("goldEarned")
+    @JsonAlias("goldEarned")
+    @JsonProperty("golds")
     private int golds;
     @JsonProperty("teamId")
     private String teamId;
     @JsonProperty("gameEndedInEarlySurrender")
     private boolean gameEndedInEarlySurrender;
-    @JsonProperty("perks")
+    @JsonAlias("perks")
+    @JsonProperty("runes")
     private LOLRunesEntity runes;
     private LOLChampionNomenclature champion;
     private LOLItemNomenclature item0;

@@ -1,5 +1,6 @@
 package com.krazytop.entity.lol;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.krazytop.config.SpringConfiguration;
@@ -18,18 +19,22 @@ import java.util.Objects;
 public class LOLMatchEntity {
 
     private String id;
-    @JsonProperty("gameVersion")
+    @JsonAlias("gameVersion")
+    @JsonProperty("version")
     private String version;
-    @JsonProperty("gameCreation")
+    @JsonAlias("gameCreation")
+    @JsonProperty("datetime")
     private Long datetime;
-    @JsonProperty("gameDuration")
+    @JsonAlias("gameDuration")
+    @JsonProperty("duration")
     private Long duration;
-    private LOLQueueNomenclature queue;
     @JsonProperty("teams")
     private List<LOLTeamEntity> teams;
-    private boolean remake;
-    @JsonProperty("participants") @Transient
+    @JsonProperty("participants")
+    @Transient
     private List<LOLParticipantEntity> participants;
+    private LOLQueueNomenclature queue;
+    private boolean remake;
 
     @JsonProperty("queueId")
     private void unpackQueue(String queueId) {

@@ -1,5 +1,6 @@
 package com.krazytop.entity.lol;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.krazytop.config.SpringConfiguration;
@@ -13,14 +14,16 @@ import java.util.List;
 @Data
 public class LOLTeamEntity {
 
-    private List<LOLChampionNomenclature> bans;
     @JsonProperty("objectives")
     private LOLObjectivesEntity objectives;
-    @JsonProperty("win")
+    @JsonAlias("win")
+    @JsonProperty("hasWin")
     private boolean hasWin;
-    @JsonProperty("teamId")
+    @JsonAlias("teamId")
+    @JsonProperty("id")
     private String id;
     private List<LOLParticipantEntity> participants;
+    private List<LOLChampionNomenclature> bans;
 
     @JsonProperty("bans")
     private void unpackBans(JsonNode node) {
