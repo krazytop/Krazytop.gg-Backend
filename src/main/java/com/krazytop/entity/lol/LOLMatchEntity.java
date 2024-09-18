@@ -7,6 +7,7 @@ import com.krazytop.config.SpringConfiguration;
 import com.krazytop.nomenclature.lol.LOLQueueNomenclature;
 import com.krazytop.repository.lol.LOLQueueNomenclatureRepository;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -16,6 +17,7 @@ import java.util.Objects;
 @Data
 @Document(collection = "Match")
 @JsonIgnoreProperties(ignoreUnknown = true)
+@NoArgsConstructor
 public class LOLMatchEntity {
 
     private String id;
@@ -35,6 +37,10 @@ public class LOLMatchEntity {
     private List<LOLParticipantEntity> participants;
     private LOLQueueNomenclature queue;
     private boolean remake;
+
+    public LOLMatchEntity(String id) {
+        this.id = id;
+    }
 
     @JsonProperty("queueId")
     private void unpackQueue(String queueId) {
