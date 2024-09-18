@@ -1,7 +1,9 @@
 package com.krazytop.nomenclature_management;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.krazytop.entity.lol.LOLVersionEntity;
 import com.krazytop.nomenclature.lol.*;
 import com.krazytop.repository.lol.*;
 import org.slf4j.Logger;
@@ -9,157 +11,169 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.*;
 
+/**
+ * Only EUW & fr_FR for now
+ */
 @Service
-public class LOLNomenclatureManagement {
+public class LOLNomenclatureManagement { //TODO need better deserialization
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LOLNomenclatureManagement.class);
-
-    private static final String FOLDER = "/src/main/resources/data/lol/";
 
     private final LOLQueueNomenclatureRepository queueNomenclatureRepository;
     private final LOLChampionNomenclatureRepository championNomenclatureRepository;
     private final LOLItemNomenclatureRepository itemNomenclatureRepository;
     private final LOLRuneNomenclatureRepository runeNomenclatureRepository;
     private final LOLSummonerSpellNomenclatureRepository summonerSpellNomenclature;
+    private final LOLVersionRepository versionRepository;
 
     @Autowired
-    public LOLNomenclatureManagement(LOLQueueNomenclatureRepository queueNomenclatureRepository, LOLChampionNomenclatureRepository championNomenclatureRepository, LOLItemNomenclatureRepository itemNomenclatureRepository, LOLRuneNomenclatureRepository runeNomenclatureRepository, LOLSummonerSpellNomenclatureRepository summonerSpellNomenclature) {
+    public LOLNomenclatureManagement(LOLQueueNomenclatureRepository queueNomenclatureRepository, LOLChampionNomenclatureRepository championNomenclatureRepository, LOLItemNomenclatureRepository itemNomenclatureRepository, LOLRuneNomenclatureRepository runeNomenclatureRepository, LOLSummonerSpellNomenclatureRepository summonerSpellNomenclature, LOLVersionRepository versionRepository) {
         this.queueNomenclatureRepository = queueNomenclatureRepository;
         this.championNomenclatureRepository = championNomenclatureRepository;
         this.itemNomenclatureRepository = itemNomenclatureRepository;
         this.runeNomenclatureRepository = runeNomenclatureRepository;
         this.summonerSpellNomenclature = summonerSpellNomenclature;
+        this.versionRepository = versionRepository;
     }
 
-    public boolean updateQueueNomenclature() {
+    private void updateQueueNomenclature() throws IOException, URISyntaxException {
         queueNomenclatureRepository.deleteAll();
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            File itemFile = new File(getCurrentWorkingDirectory() + FOLDER + "/lol-queues.json");
-            JsonNode rootNode = objectMapper.readTree(itemFile);
-
-            for (JsonNode field : rootNode) {
-                LOLQueueNomenclature queue = new LOLQueueNomenclature();
-                queue.setName(field.get("name").asText());
-                queue.setId(field.get("id").asText());
-                queueNomenclatureRepository.save(queue);
-            }
-            return true;
-        } catch (IOException e) {
-            LOGGER.error("Error while updating queue nomenclature : {}", e.getMessage());
-            return false;
-        }
+        String uri = "https://static.developer.riotgames.com/docs/lol/queues.json";
+        URL url = new URI(uri).toURL();
+        ObjectMapper mapper = new ObjectMapper();
+        List<LOLQueueNomenclature> queues = mapper.convertValue(mapper.readTree(url), new TypeReference<>() {});
+        queueNomenclatureRepository.saveAll(queues);
+        LOGGER.info("Update {} queue nomenclatures", queues.size());
     }
 
-    public boolean updateChampionNomenclature() {
-        championNomenclatureRepository.deleteAll();
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            File itemFile = new File(getCurrentWorkingDirectory() + FOLDER + "/lol-champions.json");
-            JsonNode rootNode = objectMapper.readTree(itemFile);
-            JsonNode dataNode = rootNode.path("data");
-
-            for (JsonNode field : dataNode) {
-                LOLChampionNomenclature champion = new LOLChampionNomenclature();
-                champion.setName(field.get("name").asText());
-                champion.setId(field.get("key").asText());
-                champion.setImage(field.path("image").get("full").asText());
-                championNomenclatureRepository.save(champion);
-            }
-            return true;
-        } catch (IOException e) {
-            LOGGER.error("Error while updating champion nomenclature : {}", e.getMessage());
-            return false;
-        }
-    }
-
-    public boolean updateItemNomenclature() {
-        summonerSpellNomenclature.deleteAll();
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            File itemFile = new File(getCurrentWorkingDirectory() + FOLDER + "/lol-summoner-spells.json");
-            JsonNode rootNode = objectMapper.readTree(itemFile);
-            JsonNode dataNode = rootNode.path("data");
-
-            for (JsonNode field : dataNode) {
-                LOLSummonerSpellNomenclature summonerSpell = new LOLSummonerSpellNomenclature();
-                summonerSpell.setName(field.get("name").asText());
-                summonerSpell.setId(field.get("key").asText());
-                summonerSpell.setImage(field.path("image").get("full").asText());
-                summonerSpellNomenclature.save(summonerSpell);
-            }
-            return true;
-        } catch (IOException e) {
-            LOGGER.error("Error while updating item nomenclature : {}", e.getMessage());
-            return false;
-        }
-    }
-
-    public boolean updateSummonerSpellNomenclature() {
-        itemNomenclatureRepository.deleteAll();
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            File itemFile = new File(getCurrentWorkingDirectory() + FOLDER + "/lol-items.json");
-            JsonNode rootNode = objectMapper.readTree(itemFile);
-            JsonNode dataNode = rootNode.path("data");
-
-            Iterator<Map.Entry<String, JsonNode>> fieldsIterator = dataNode.fields();
-            while (fieldsIterator.hasNext()) {
-                Map.Entry<String, JsonNode> entry = fieldsIterator.next();
-                String itemId = entry.getKey();
-                JsonNode field = entry.getValue();
-                LOLItemNomenclature item = new LOLItemNomenclature();
-                item.setName(field.get("name").asText());
-                item.setId(itemId);
-                item.setImage(field.path("image").get("full").asText());
-                itemNomenclatureRepository.save(item);
-            }
-            return true;
-        } catch (IOException e) {
-            LOGGER.error("Error while updating item nomenclature : {}", e.getMessage());
-            return false;
-        }
-    }
-
-    public boolean updateRuneNomenclature() {
+    private void updateRuneNomenclature(String version) throws IOException, URISyntaxException {
         runeNomenclatureRepository.deleteAll();
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            File itemFile = new File(getCurrentWorkingDirectory() + FOLDER + "/lol-runes.json");
-            JsonNode rootNode = objectMapper.readTree(itemFile);
+        List<LOLRuneNomenclature> runes = new ArrayList<>();
+        JsonNode json = new ObjectMapper().readTree(new URI(String.format("https://ddragon.leagueoflegends.com/cdn/%s/data/fr_FR/runesReforged.json", version)).toURL());
 
-            for (JsonNode parentRuneNode : rootNode) {
-                LOLRuneNomenclature parentRune = new LOLRuneNomenclature();
-                parentRune.setName(parentRuneNode.get("name").asText());
-                parentRune.setId(parentRuneNode.get("id").asText());
-                parentRune.setImage(parentRuneNode.get("icon").asText().split("/")[parentRuneNode.get("icon").asText().split("/").length-1]);
-                runeNomenclatureRepository.save(parentRune);
-                JsonNode slotsNode = parentRuneNode.path("slots");
-
-                for (JsonNode slotNode : slotsNode) {
-                    JsonNode runesNode = slotNode.get("runes");
-                    for (JsonNode runeNode : runesNode) {
-                        LOLRuneNomenclature rune = new LOLRuneNomenclature();
-                        rune.setName(runeNode.get("name").asText());
-                        rune.setId(runeNode.get("id").asText());
-                        rune.setImage(runeNode.get("icon").asText().split("/")[runeNode.get("icon").asText().split("/").length-1]);
-                        runeNomenclatureRepository.save(rune);
-                    }
+        json.forEach(parentRuneNode -> {
+            LOLRuneNomenclature parentRune = new LOLRuneNomenclature();
+            parentRune.setName(parentRuneNode.get("name").asText());
+            parentRune.setId(parentRuneNode.get("id").asText());
+            parentRune.setImage(parentRuneNode.get("icon").asText());
+            runes.add(parentRune);
+            JsonNode slotsNode = parentRuneNode.path("slots");
+            for (JsonNode slotNode : slotsNode) {
+                JsonNode runesNode = slotNode.get("runes");
+                for (JsonNode runeNode : runesNode) {
+                    LOLRuneNomenclature rune = new LOLRuneNomenclature();
+                    rune.setName(runeNode.get("name").asText());
+                    rune.setId(runeNode.get("id").asText());
+                    rune.setImage(runeNode.get("icon").asText());
+                    rune.setDescription(runeNode.get("shortDesc").asText());
+                    rune.setLongDescription(runeNode.get("longDesc").asText());
+                    runes.add(rune);
                 }
             }
-            return true;
-        } catch (IOException e) {
-            LOGGER.error("Error while updating rune nomenclature : {}", e.getMessage());
-            return false;
-        }
+        });
+        runeNomenclatureRepository.saveAll(runes);
+        LOGGER.info("Update {} rune nomenclatures", runes.size());
     }
 
-    private String getCurrentWorkingDirectory() {
-        return System.getProperty("user.dir");
+    private void updateChampionNomenclature(String version) throws IOException, URISyntaxException {
+        List<LOLChampionNomenclature> champions = new ArrayList<>();
+        Map<String, JsonNode> map = this.downloadJsonAndGetMap(String.format("https://ddragon.leagueoflegends.com/cdn/%s/data/fr_FR/champion.json", version));
+        for (Map.Entry<String, JsonNode> entry : map.entrySet()) {
+            JsonNode value = entry.getValue();
+            LOLChampionNomenclature champion = new LOLChampionNomenclature();
+            this.setBasicNomenclature(champion, entry);
+            champion.setTitle(value.get("title").asText());
+            champion.setStats(this.getStringMapFromNode(value.get("stats")));
+            champion.setTags(this.getStringListFromNode(value.get("tags")));
+            champions.add(champion);
+        }
+        championNomenclatureRepository.saveAll(champions);
+        LOGGER.info("Update {} champion nomenclatures", champions.size());
     }
+
+    private void updateSummonerSpellNomenclature(String version) throws IOException, URISyntaxException {
+        List<LOLSummonerSpellNomenclature> summonerSpells = new ArrayList<>();
+        Map<String, JsonNode> map = this.downloadJsonAndGetMap(String.format("https://ddragon.leagueoflegends.com/cdn/%s/data/fr_FR/summoner.json", version));
+        for (Map.Entry<String, JsonNode> entry : map.entrySet()) {
+            JsonNode value = entry.getValue();
+            LOLSummonerSpellNomenclature summonerSpell = new LOLSummonerSpellNomenclature();
+            this.setBasicNomenclature(summonerSpell, entry);
+            summonerSpell.setCooldownBurn(value.get("cooldownBurn").asInt());
+            summonerSpells.add(summonerSpell);
+        }
+        summonerSpellNomenclature.saveAll(summonerSpells);
+        LOGGER.info("Update {} summoner spell nomenclatures", summonerSpells.size());
+    }
+
+    private void updateItemNomenclature(String version) throws IOException, URISyntaxException {
+        List<LOLItemNomenclature> items = new ArrayList<>();
+        Map<String, JsonNode> map = this.downloadJsonAndGetMap(String.format("https://ddragon.leagueoflegends.com/cdn/%s/data/fr_FR/item.json", version));
+        for (Map.Entry<String, JsonNode> entry : map.entrySet()) {
+            JsonNode value = entry.getValue();
+            LOLItemNomenclature item = new LOLItemNomenclature();
+            this.setBasicNomenclature(item, entry);
+            item.setPlainText(value.get("plaintext").asText());
+            item.setBaseGold(value.get("gold").get("base").asInt());
+            item.setTotalGold(value.get("gold").get("total").asInt());
+            item.setTags(this.getStringListFromNode(value.get("tags")));
+            item.setStats(this.getStringMapFromNode(value.get("stats")));
+            item.setToItems(this.getStringListFromNode(value.get("into")));
+            item.setFromItems(this.getStringListFromNode(value.get("from")));
+            items.add(item);
+        }
+        itemNomenclatureRepository.saveAll(items);
+        LOGGER.info("Update {} item nomenclatures", items.size());
+    }
+
+    private List<String> getStringListFromNode(JsonNode node) {
+        return new ObjectMapper().convertValue(node, new TypeReference<>() {});
+    }
+
+    private Map<String, Integer> getStringMapFromNode(JsonNode node) {
+        return new ObjectMapper().convertValue(node, new TypeReference<>() {});
+    }
+
+    private Map<String, JsonNode> downloadJsonAndGetMap(String stringUrl) throws IOException, URISyntaxException {
+        JsonNode json = new ObjectMapper().readTree(new URI(stringUrl).toURL()).get("data");
+        return new ObjectMapper().convertValue(json, new TypeReference<>() {});
+    }
+
+    public void checkNomenclaturesToUpdate() throws IOException, URISyntaxException {
+        LOLVersionEntity lastVersion = this.getLastNomenclatureVersions();
+        LOLVersionEntity dbVersion = this.versionRepository.findFirstByOrderByItemAsc();
+        if (dbVersion == null || !Objects.equals(lastVersion.getItem(), dbVersion.getItem())) {
+            this.updateItemNomenclature(lastVersion.getItem());
+            this.updateRuneNomenclature(lastVersion.getItem());
+            this.updateQueueNomenclature();
+        }
+        if (dbVersion == null || !Objects.equals(lastVersion.getChampion(), dbVersion.getChampion())) {
+            this.updateChampionNomenclature(lastVersion.getChampion());
+        }
+        if (dbVersion == null || !Objects.equals(lastVersion.getSummoner(), dbVersion.getSummoner())) {
+            this.updateSummonerSpellNomenclature(lastVersion.getSummoner());
+        }
+        this.versionRepository.save(lastVersion);
+    }
+
+    private LOLVersionEntity getLastNomenclatureVersions() throws IOException, URISyntaxException {
+        String uri = "https://ddragon.leagueoflegends.com/realms/euw.json";
+        URL url = new URI(uri).toURL();
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.convertValue(mapper.readTree(url).get("n"), LOLVersionEntity.class);
+    }
+
+    private void setBasicNomenclature(LOLNomenclature nomenclature, Map.Entry<String, JsonNode> entry) {
+        JsonNode value = entry.getValue();
+        nomenclature.setId(value.get("key") != null ? value.get("key").asText() : entry.getKey());
+        nomenclature.setName(value.get("name").asText());
+        nomenclature.setImage(value.get("image").get("full").asText());
+        nomenclature.setDescription(value.get("blurb") != null ? value.get("blurb").asText() : value.get("description").asText());
+    }
+
 }

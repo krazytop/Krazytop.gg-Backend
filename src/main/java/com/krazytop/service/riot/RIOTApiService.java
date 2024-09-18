@@ -1,8 +1,8 @@
 package com.krazytop.service.riot;
 
-import com.krazytop.api.riot.RIOTApiKeyApi;
 import com.krazytop.config.RIOTApiException;
 import com.krazytop.http_response.HTTPResponseInterface;
+import com.krazytop.repository.riot.RIOTApiKeyRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,15 +17,16 @@ import java.util.List;
 
 @Service
 public class RIOTApiService {
-    private final RIOTApiKeyApi riotApiKeyApi;
+
+    private final RIOTApiKeyRepository riotApiKeyRepository;
 
     @Autowired
-    public RIOTApiService(RIOTApiKeyApi riotApiKeyApi) {
-        this.riotApiKeyApi = riotApiKeyApi;
+    public RIOTApiService(RIOTApiKeyRepository riotApiKeyRepository) {
+        this.riotApiKeyRepository = riotApiKeyRepository;
     }
 
     public <T> T callRiotApi(String apiUrl, Class<? extends HTTPResponseInterface<T>> responseTypeClass) {
-        String apiKey = riotApiKeyApi.getApiKey().getKey();
+        String apiKey = this.riotApiKeyRepository.findFirstByOrderByKeyAsc().getKey();
         if (apiUrl.contains("?")) {
             apiUrl += "&";
         } else {
@@ -52,7 +53,7 @@ public class RIOTApiService {
     }
 
     public <T> List<T> callRiotApiForList(String apiUrl, Class<? extends HTTPResponseInterface<T>> responseTypeClass) {
-        String apiKey = riotApiKeyApi.getApiKey().getKey();
+        String apiKey = this.riotApiKeyRepository.findFirstByOrderByKeyAsc().getKey();
         if (apiUrl.contains("?")) {
             apiUrl += "&";
         } else {

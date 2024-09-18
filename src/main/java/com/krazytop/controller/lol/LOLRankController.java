@@ -19,14 +19,18 @@ public class LOLRankController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LOLRankController.class);
 
+    private final LOLRankService lolRankService;
+
     @Autowired
-    private LOLRankService lolRankService;
+    public LOLRankController(LOLRankService lolRankService) {
+        this.lolRankService = lolRankService;
+    }
 
     @GetMapping("/lol/rank/{summonerId}/{queueType}")
     public ResponseEntity<LOLRankEntity> getLocalRank(@PathVariable String summonerId, @PathVariable String queueType) {
         LOGGER.info("Retrieving rank locally with summoner ID : {} and queue type : {}", summonerId, queueType);
         LOLRankEntity rank = lolRankService.getLocalRank(summonerId, queueType);
-        LOGGER.info("Recovered rank : {} for queue type : {}", rank, queueType);
+        LOGGER.info("Recovered rank");
         return new ResponseEntity<>(rank, HttpStatus.OK);
     }
 
@@ -34,6 +38,7 @@ public class LOLRankController {
     public ResponseEntity<List<LOLRankEntity>> updateRemoteToLocalRank(@PathVariable String summonerId) {
         LOGGER.info("Updating remote to local rank with summoner ID : {}", summonerId);
         List<LOLRankEntity> rank = lolRankService.updateRemoteToLocalRank(summonerId);
+        LOGGER.info("Ranks updated");
         return new ResponseEntity<>(rank, HttpStatus.OK);
     }
 }

@@ -1,14 +1,13 @@
 package com.krazytop.nomenclature.lol;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Document(collection = "SummonerSpellNomenclature")
-public class LOLSummonerSpellNomenclature {
+public class LOLSummonerSpellNomenclature extends LOLNomenclature {
 
-    private String id;
-    private String name;
-    private String image;
-
+    private int cooldownBurn;
 }

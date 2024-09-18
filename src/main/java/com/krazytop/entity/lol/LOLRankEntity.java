@@ -1,5 +1,8 @@
 package com.krazytop.entity.lol;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -7,34 +10,34 @@ import java.util.Date;
 import java.util.Objects;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Document(collection = "Rank")
 public class LOLRankEntity {
 
+    @JsonProperty("summonerId")
     private String summonerId;
+    @JsonProperty("tier")
     private String tier;
+    @JsonProperty("rank")
     private String rank;
-    private String queueType;
+    @JsonProperty("leaguePoints")
     private int leaguePoints;
-    private Date updateDate;
+    @JsonProperty("wins")
     private int wins;
+    @JsonProperty("losses")
     private int losses;
+    private Date updateDate;
+    @JsonAlias("queueType")
+    @JsonProperty("queue")
+    private String queue;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LOLRankEntity that = (LOLRankEntity) o;
-        return getLeaguePoints() == that.getLeaguePoints()
-                && getWins() == that.getWins() && getLosses() == that.getLosses()
-                && Objects.equals(getSummonerId(), that.getSummonerId())
-                && Objects.equals(getTier(), that.getTier())
-                && Objects.equals(getRank(), that.getRank())
-                && Objects.equals(getQueueType(), that.getQueueType())
-                && Objects.equals(getUpdateDate(), that.getUpdateDate());
+    public boolean needToUpdate(LOLRankEntity rank) {
+        return rank == null
+                || getLeaguePoints() != rank.getLeaguePoints()
+                || getWins() != rank.getWins()
+                || getLosses() != rank.getLosses()
+                || !Objects.equals(getTier(), rank.getTier())
+                || !Objects.equals(getRank(), rank.getRank());
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getSummonerId(), getTier(), getRank(), getQueueType(), getLeaguePoints(), getUpdateDate(), getWins(), getLosses());
-    }
 }

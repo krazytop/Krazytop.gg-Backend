@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 
 @RestController
@@ -19,21 +21,25 @@ public class LOLMatchController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LOLMatchController.class);
 
+    private final LOLMatchService lolMatchService;
+
     @Autowired
-    private LOLMatchService lolMatchService;
+    public LOLMatchController(LOLMatchService lolMatchService){
+        this.lolMatchService = lolMatchService;
+    }
 
     @GetMapping("/lol/matches/{puuid}/{pageNb}/{queue}/{role}")
     public ResponseEntity<List<LOLMatchEntity>> getLocalMatches(@PathVariable String puuid, @PathVariable int pageNb, @PathVariable String queue, @PathVariable String role) {
         LOGGER.info("Retrieving matches locally with PUUID : {}, queue type : {} and role : {}", puuid, queue, role);
         List<LOLMatchEntity> matches = lolMatchService.getLocalMatches(puuid, pageNb, queue, role);
-        LOGGER.info("Recovered matches : {}", matches);
+        LOGGER.info("Recovered {} matches", matches.size());
         return new ResponseEntity<>(matches, HttpStatus.OK);
     }
 
     @GetMapping("/lol/matches/count/{puuid}/{queue}/{role}")
     public ResponseEntity<Long> getLocalMatchesCount(@PathVariable String puuid, @PathVariable String queue, @PathVariable String role) {
         LOGGER.info("Retrieving count of matches locally with PUUID : {}, queue type : {} and role : {}", puuid, queue, role);
-        long matchesCount = lolMatchService.getLocalMatchesCount(puuid, queue, role);
+        Long matchesCount = lolMatchService.getLocalMatchesCount(puuid, queue, role);
         LOGGER.info("Count of matches locally : {}", matchesCount);
         return new ResponseEntity<>(matchesCount, HttpStatus.OK);
     }

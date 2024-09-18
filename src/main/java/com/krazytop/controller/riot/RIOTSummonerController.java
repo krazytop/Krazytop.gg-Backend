@@ -17,8 +17,12 @@ public class RIOTSummonerController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RIOTSummonerController.class);
 
+    private final RIOTSummonerService riotSummonerService;
+
     @Autowired
-    private RIOTSummonerService riotSummonerService;
+    public RIOTSummonerController(RIOTSummonerService riotSummonerService){
+        this.riotSummonerService = riotSummonerService;
+    }
 
     @GetMapping("/riot/summoner/local/{region}/{tag}/{name}")
     public ResponseEntity<RIOTSummonerEntity> getLocalSummoner(@PathVariable String region, @PathVariable String tag, @PathVariable String name) {
