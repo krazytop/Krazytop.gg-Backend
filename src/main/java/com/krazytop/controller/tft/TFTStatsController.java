@@ -17,14 +17,18 @@ public class TFTStatsController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TFTStatsController.class);
 
+    private final TFTStatsService tftStatsService;
+
     @Autowired
-    private TFTStatsService tftStatsService;
+    public TFTStatsController(TFTStatsService tftStatsService) {
+        this.tftStatsService = tftStatsService;
+    }
 
     @GetMapping("/tft/stats/latest-matches-placement/{puuid}/{set}/{queue}")
     public ResponseEntity<List<Integer>> getLatestMatchesPlacement(@PathVariable String puuid, @PathVariable String queue, @PathVariable String set) {
-        LOGGER.info("Retrieval placements from last matches with PUUID : {}, queue type : {} and set : {}", puuid, queue, set);
+        LOGGER.info("Retrieving last matches placement");
         List<Integer> latestMatchesResults = tftStatsService.getLatestMatchesPlacement(puuid, queue, set);
-        LOGGER.info("Recovered placements : {}", latestMatchesResults);
+        LOGGER.info("Last matches placement recovered");
         return new ResponseEntity<>(latestMatchesResults, HttpStatus.OK);
     }
 

@@ -28,7 +28,7 @@ public class RIOTApiKeyController {
     public ResponseEntity<RIOTApiKeyEntity> getApiKey() {
         LOGGER.info("Retrieving RIOT API key");
         RIOTApiKeyEntity apiKey = riotApiKeyRepository.findFirstByOrderByKeyAsc();
-        LOGGER.info("RIOT API key Recovered: {}", apiKey);
+        LOGGER.info("RIOT API key recovered");
         return new ResponseEntity<>(apiKey, HttpStatus.OK);
     }
 
@@ -37,7 +37,7 @@ public class RIOTApiKeyController {
         LOGGER.info("Updating RIOT API key");
         riotApiKeyRepository.deleteAll();
         riotApiKeyRepository.save(new RIOTApiKeyEntity(key));
-        LOGGER.info("RIOT API key updated: {}", key);
+        LOGGER.info("RIOT API key updated");
         return new ResponseEntity<>(HttpStatus.OK, HttpStatus.OK);
     }
 

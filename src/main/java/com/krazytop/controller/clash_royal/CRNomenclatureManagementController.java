@@ -15,8 +15,12 @@ public class CRNomenclatureManagementController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CRNomenclatureManagementController.class);
 
+    private final CRNomenclatureManagement crNomenclatureManagement;
+
     @Autowired
-    private CRNomenclatureManagement crNomenclatureManagement;
+    public CRNomenclatureManagementController(CRNomenclatureManagement crNomenclatureManagement){
+        this.crNomenclatureManagement = crNomenclatureManagement;
+    }
 
     @PostMapping("/clash-royal/nomenclature/account-level")
     public ResponseEntity<Boolean> updateAccountLevelNomenclature() {

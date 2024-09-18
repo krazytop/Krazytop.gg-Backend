@@ -55,7 +55,6 @@ public class TFTMatchHTTPResponse implements HTTPResponseInterface<TFTMatchEntit
             });
 
             match.setParticipantsHTTPResponse(participants);
-            System.out.println(match);
             return match;
         }
     }

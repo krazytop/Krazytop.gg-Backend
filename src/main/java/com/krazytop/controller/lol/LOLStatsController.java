@@ -26,10 +26,12 @@ public class LOLStatsController {
 
     @GetMapping("/lol/stats/latest-matches-placement/{puuid}/{queue}/{role}")
     public ResponseEntity<List<String>> getLatestMatchesResult(@PathVariable String puuid, @PathVariable String queue, @PathVariable String role) {
-        LOGGER.info("Retrieval results from last matches with PUUID : {}, queue type : {} and role : {}", puuid, queue, role);
+        LOGGER.info("Retrieving last matches results");
         List<String> latestMatchesResults = lolStatsService.getLatestMatchesResult(puuid, queue, role);
-        LOGGER.info("Recovered results : {}", latestMatchesResults);
+        LOGGER.info("Last matches results recovered");
         return new ResponseEntity<>(latestMatchesResults, HttpStatus.OK);
     }
+
+    //TODO with queue & role ?
 
 }

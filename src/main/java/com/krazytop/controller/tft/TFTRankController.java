@@ -19,21 +19,26 @@ public class TFTRankController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TFTRankController.class);
 
+    private final TFTRankService tftRankService;
+
     @Autowired
-    private TFTRankService tftRankService;
+    public TFTRankController(TFTRankService tftRankService) {
+        this.tftRankService = tftRankService;
+    }
 
     @GetMapping("/tft/rank/{summonerId}/{queueType}")
     public ResponseEntity<TFTRankEntity> getLocalRank(@PathVariable String summonerId, @PathVariable String queueType) {
-        LOGGER.info("Retrieving rank locally with summoner ID : {} and queue type : {}", summonerId, queueType);
+        LOGGER.info("Retrieving local rank");
         TFTRankEntity rank = tftRankService.getLocalRank(summonerId, queueType);
-        LOGGER.info("Recovered rank : {} for queue type : {}", rank, queueType);
+        LOGGER.info("Recovered rank");
         return new ResponseEntity<>(rank, HttpStatus.OK);
     }
 
     @PostMapping("/tft/rank/{summonerId}")
     public ResponseEntity<List<TFTRankEntity>> updateRemoteToLocalRank(@PathVariable String summonerId) {
-        LOGGER.info("Updating remote to local rank with summoner ID : {}", summonerId);
+        LOGGER.info("Updating ranks");
         List<TFTRankEntity> rank = tftRankService.updateRemoteToLocalRank(summonerId);
+        LOGGER.info("Ranks updated");
         return new ResponseEntity<>(rank, HttpStatus.OK);
     }
 }
