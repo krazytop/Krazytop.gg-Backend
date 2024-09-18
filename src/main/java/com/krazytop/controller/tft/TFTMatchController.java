@@ -19,14 +19,18 @@ public class TFTMatchController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TFTMatchController.class);
 
+    private final TFTMatchService tftMatchService;
+
     @Autowired
-    private TFTMatchService tftMatchService;
+    public TFTMatchController(TFTMatchService tftMatchService) {
+        this.tftMatchService = tftMatchService;
+    }
 
     @GetMapping("/tft/matches/{puuid}/{pageNb}/{set}/{queue}")
     public ResponseEntity<List<TFTMatchEntity>> getLocalMatches(@PathVariable String puuid, @PathVariable int pageNb, @PathVariable String queue, @PathVariable String set) {
-        LOGGER.info("Retrieving matches locally with PUUID : {}, queue type : {} and set : {}", puuid, queue, set);
+        LOGGER.info("Retrieving local matches");
         List<TFTMatchEntity> matches = tftMatchService.getLocalMatches(puuid, pageNb, queue, set);
-        LOGGER.info("Recovered matches : {}", matches);
+        LOGGER.info("Recovered matches");
         return new ResponseEntity<>(matches, HttpStatus.OK);
     }
 
@@ -37,9 +41,9 @@ public class TFTMatchController {
 
     @GetMapping("/tft/matches/count/{puuid}/{set}/{queue}")
     public ResponseEntity<Long> getLocalMatchesCount(@PathVariable String puuid, @PathVariable String queue, @PathVariable String set) {
-        LOGGER.info("Retrieving count of matches locally with PUUID : {}, queue type : {} and set : {}", puuid, queue, set);
+        LOGGER.info("Retrieving local matches count");
         long matchesCount = tftMatchService.getLocalMatchesCount(puuid, queue, set);
-        LOGGER.info("Count of matches locally : {}", matchesCount);
+        LOGGER.info("Recovered matches count");
         return new ResponseEntity<>(matchesCount, HttpStatus.OK);
     }
 
@@ -50,7 +54,7 @@ public class TFTMatchController {
 
     @PostMapping("/tft/matches/{puuid}")
     public ResponseEntity<Boolean> updateRemoteToLocalMatches(@PathVariable String puuid) {
-        LOGGER.info("Updating remote to local matches with PUUID : {}", puuid);
+        LOGGER.info("Updating matches");
         tftMatchService.updateRemoteToLocalMatches(puuid);
         LOGGER.info("Matches updated");
         return new ResponseEntity<>(true, HttpStatus.OK);

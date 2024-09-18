@@ -26,25 +26,25 @@ public class RIOTSummonerController {
 
     @GetMapping("/riot/summoner/local/{region}/{tag}/{name}")
     public ResponseEntity<RIOTSummonerEntity> getLocalSummoner(@PathVariable String region, @PathVariable String tag, @PathVariable String name) {
-        LOGGER.info("Retrieving of local information from summoner : {} #{} on region : {}", name, tag, region);
+        LOGGER.info("Retrieving local summoner");
         RIOTSummonerEntity summoner = riotSummonerService.getLocalSummoner(region, tag, name);
-        LOGGER.info("Recovered summoner : {}", summoner);
+        LOGGER.info("Local summoner recovered");
         return new ResponseEntity<>(summoner, HttpStatus.OK);
     }
 
     @GetMapping("/riot/summoner/remote/{region}/{tag}/{name}")
     public ResponseEntity<RIOTSummonerEntity> getRemoteSummoner(@PathVariable String region, @PathVariable String tag, @PathVariable String name) {
-        LOGGER.info("Retrieving of remote information from summoner : {} #{} on region : {}", name, tag, region);
+        LOGGER.info("Retrieving remote summoner");
         RIOTSummonerEntity summoner = riotSummonerService.getRemoteSummoner(region, tag, name);
-        LOGGER.info("Recovered summoner : {}", summoner);
+        LOGGER.info("Remote summoner recovered");
         return new ResponseEntity<>(summoner, HttpStatus.OK);
     }
 
     @PostMapping("/riot/summoner/update/{region}/{tag}/{name}")
     public ResponseEntity<RIOTSummonerEntity> updateRemoteToLocalSummoner(@PathVariable String region, @PathVariable String tag, @PathVariable String name) {
-        LOGGER.info("Updating remote to local summoner : {} #{} on region : {}", name, tag, region);
+        LOGGER.info("Updating summoner");
         RIOTSummonerEntity summoner = riotSummonerService.updateRemoteToLocalSummoner(region, tag, name);
-        LOGGER.info("Updated summoner : {}", summoner);
+        LOGGER.info("Summoner updated");
         return new ResponseEntity<>(summoner, HttpStatus.OK);
     }
 }

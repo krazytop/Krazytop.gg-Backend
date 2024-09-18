@@ -17,30 +17,34 @@ public class CRPlayerController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CRPlayerController.class);
 
+    private final CRPlayerService crPlayerService;
+
     @Autowired
-    private CRPlayerService crPlayerService;
+    public CRPlayerController(CRPlayerService crPlayerService){
+        this.crPlayerService = crPlayerService;
+    }
 
     @GetMapping("/clash-royal/player/local/{playerId}")
     public ResponseEntity<CRPlayerEntity> getLocalPlayer(@PathVariable String playerId) {
-        LOGGER.info("Retrieving of local information from player : {}", playerId);
+        LOGGER.info("Retrieving local player");
         CRPlayerEntity player = crPlayerService.getLocalPlayer(playerId);
-        LOGGER.info("Recovery player : {}", player);
+        LOGGER.info("Local player recovered");
         return new ResponseEntity<>(player, HttpStatus.OK);
     }
 
     @GetMapping("/clash-royal/player/remote/{playerId}")
     public ResponseEntity<CRPlayerEntity> getRemotePlayer(@PathVariable String playerId) {
-        LOGGER.info("Retrieving of remote information from player : {}", playerId);
+        LOGGER.info("Retrieving remote player");
         CRPlayerEntity player = crPlayerService.getRemotePlayer(playerId);
-        LOGGER.info("Recovery player : {}", player);
+        LOGGER.info("Remote player recovered");
         return new ResponseEntity<>(player, HttpStatus.OK);
     }
 
     @PostMapping("/clash-royal/player/update/{playerId}")
     public ResponseEntity<CRPlayerEntity> updateRemoteToLocalPlayer(@PathVariable String playerId) {
-        LOGGER.info("Updating of remote to local information from player : {}", playerId);
+        LOGGER.info("Updating player");
         CRPlayerEntity player = crPlayerService.updateRemoteToLocalPlayer(playerId);
-        LOGGER.info("Updated player : {}", player);
+        LOGGER.info("Player updated");
         return new ResponseEntity<>(player, HttpStatus.OK);
     }
 

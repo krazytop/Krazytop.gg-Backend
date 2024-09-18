@@ -14,8 +14,12 @@ public class TFTNomenclatureManagementController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TFTNomenclatureManagementController.class);
 
+    private final TFTNomenclatureManagement tftNomenclatureManagement;
+
     @Autowired
-    private TFTNomenclatureManagement tftNomenclatureManagement;
+    public TFTNomenclatureManagementController(TFTNomenclatureManagement tftNomenclatureManagement) {
+        this.tftNomenclatureManagement = tftNomenclatureManagement;
+    }
 
     @PostMapping("/tft/nomenclature/trait")
     public ResponseEntity<Boolean> updateTraitNomenclature() {

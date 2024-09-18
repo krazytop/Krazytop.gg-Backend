@@ -24,13 +24,13 @@ public class DestinyAuthController {
 
     @GetMapping("/destiny/get/{code}")
     public ResponseEntity<String> getPlayerToken(@PathVariable String code) {
-        LOGGER.info("Retrieving Destiny player token for code : {}", code);
+        LOGGER.info("Retrieving player tokens with bungie code");
         String playerToken = destinyAuthService.getPlayerToken(code);
         if (playerToken == null) {
-            LOGGER.info("Failed to recovered Destiny player token");
+            LOGGER.info("Failed to recovered player tokens");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
-            LOGGER.info("Recovered Destiny player token : {}", playerToken);
+            LOGGER.info("Player tokens recovered");
             return new ResponseEntity<>(playerToken, HttpStatus.OK);
         }
     }
@@ -38,9 +38,9 @@ public class DestinyAuthController {
     @PostMapping("/destiny/update")
     public ResponseEntity<String> updatePlayerToken(@RequestBody Map<String, String> requestBody) {
         String refreshToken = requestBody.get("refreshToken");
-        LOGGER.info("Updating Destiny player token for refresh token");
+        LOGGER.info("Updating player tokens with refresh token");
         String playerToken = destinyAuthService.updatePlayerToken(refreshToken);
-        LOGGER.info("Destiny player token updated: {}", playerToken);
+        LOGGER.info("Player tokens refreshed");
         return new ResponseEntity<>(playerToken, HttpStatus.OK);
     }
 
