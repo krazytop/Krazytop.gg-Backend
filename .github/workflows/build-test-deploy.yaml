@@ -2,7 +2,7 @@ name: Build and Deploy on App Engine
 
 on:
   push:
-    branches: [ master ]
+    branches: [ '**' ]
   pull_request:
     types: [ opened, synchronize, reopened ]
   workflow_dispatch:
