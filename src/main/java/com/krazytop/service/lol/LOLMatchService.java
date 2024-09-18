@@ -60,8 +60,7 @@ public class LOLMatchService {
      */
     public void updateRemoteToLocalMatches(String puuid) {
         try {
-            //TODO count à 1 pour les tests
-            String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, 0, 1, apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
+            String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, 0, 100, apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
             ObjectMapper mapper = new ObjectMapper();
             List<String> matchIds = mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()), new TypeReference<>() {});
 
