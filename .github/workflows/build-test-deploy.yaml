@@ -1,0 +1,92 @@
+name: Build, Test, Push to SonarCloud and Deploy on App Engine
+
+on:
+  push:
+    branches: [ '**' ]
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 20
+          distribution: 'adopt'
+
+      - name: Build with Maven
+        run: mvn clean package
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+  sonarcloud:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 20
+          distribution: 'adopt'
+
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build and analyze
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=krazytop_Krazytop.gg-Backend -Pcoverage
+
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    needs: sonarcloud
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Add environment variables
+        env:
+          MONGO_DATABASE_URL: ${{ secrets.MONGO_DATABASE_URL }}
+          BUNGIE_CLIENT_ID: ${{ secrets.BUNGIE_CLIENT_ID }}
+          BUNGIE_CLIENT_SECRET: ${{ secrets.BUNGIE_CLIENT_SECRET }}
+        run: |
+          echo "  MONGO_DATABASE_URL: '$MONGO_DATABASE_URL'" >> app.yaml
+          echo "  BUNGIE_CLIENT_ID: '$BUNGIE_CLIENT_ID'" >> app.yaml
+          echo "  BUNGIE_CLIENT_SECRET: '$BUNGIE_CLIENT_SECRET'" >> app.yaml
+
+      - name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.APP_ENGINE_DEPLOY_KEY }}'
+
+      - name: Deploy to App Engine
+        id: deploy
+        run: |
+          gcloud app deploy dispatch.yaml app.yaml
