@@ -1,5 +1,5 @@
 dispatch:
-    - url: "api.krazytop.com/*"
+    - url: "api.krazytop.fr/*"
       service: default
-    - url: "krazytop.com/*"
+    - url: "krazytop.fr/*"
       service: frontend
