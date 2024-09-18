@@ -1,4 +1,4 @@
-name: Build and Deploy on App Engine
+name: Build, Test, Push to SonarCloud and Deploy on App Engine
 
 on:
   push:
