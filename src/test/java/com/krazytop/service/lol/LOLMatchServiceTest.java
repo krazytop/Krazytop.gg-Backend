@@ -1,16 +1,22 @@
 package com.krazytop.service.lol;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.krazytop.entity.lol.LOLMatchEntity;
+import com.krazytop.entity.riot.RIOTApiKeyEntity;
+import com.krazytop.repository.riot.RIOTApiKeyRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedConstruction;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.krazytop.repository.lol.LOLMatchRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.net.URL;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,6 +32,10 @@ class LOLMatchServiceTest {
 
     @Mock
     private LOLMatchRepository matchRepository;
+    @Mock
+    private RIOTApiKeyRepository apiKeyRepository;
+    @Mock
+    private ObjectMapper mapper;
 
     @Test
     void testGetMatchesCount_AllQueues_AllRoles() {
@@ -89,6 +99,18 @@ class LOLMatchServiceTest {
         when(matchRepository.findByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRoleAndQueueNameOrderByDatetimeDesc(anyString(), anyString(), anyString(), any())).thenReturn(page);
         assertFalse(matchService.getLocalMatches("puuid", 0, "ARAM", "JUNGLE").isEmpty());
         verify(matchRepository, times(1)).findByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRoleAndQueueNameOrderByDatetimeDesc(anyString(), anyString(), anyString(), any());
+    }
+
+    @Test
+    void testUpdateRemoteToLocalMatches() {
+        try (MockedConstruction<ObjectMapper> mapperConstruction = mockConstruction(ObjectMapper.class,
+                (mock, context) -> when(mock.readTree(any(URL.class))).thenReturn(mock.createArrayNode().add("MatchId")))) {
+            when(apiKeyRepository.findFirstByOrderByKeyAsc()).thenReturn(new RIOTApiKeyEntity("API_KEY"));
+            when(matchRepository.findFirstById(anyString())).thenReturn(new LOLMatchEntity());
+            matchService.updateRemoteToLocalMatches("puuid");
+            verify(matchRepository, times(1)).findFirstById(anyString());
+            verify(apiKeyRepository, times(1)).findFirstByOrderByKeyAsc();
+        }
     }
 
 }
