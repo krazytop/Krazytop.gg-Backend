@@ -33,12 +33,12 @@ public class RIOTApiKeyController {
     }
 
     @PostMapping("/riot/api-key/{key}")
-    public ResponseEntity<HttpStatus> setApiKey(@PathVariable String key) {
+    public ResponseEntity<String> setApiKey(@PathVariable String key) {
         LOGGER.info("Updating RIOT API key");
         riotApiKeyRepository.deleteAll();
         riotApiKeyRepository.save(new RIOTApiKeyEntity(key));
         LOGGER.info("RIOT API key updated");
-        return new ResponseEntity<>(HttpStatus.OK, HttpStatus.OK);
+        return new ResponseEntity<>("Api Key is successfully modified", HttpStatus.OK);
     }
 
 }
