@@ -32,6 +32,6 @@ public class LOLStatsController {
         return new ResponseEntity<>(latestMatchesResults, HttpStatus.OK);
     }
 
-    //TODO with queue & role ?
+    //TODO without restriction
 
 }
