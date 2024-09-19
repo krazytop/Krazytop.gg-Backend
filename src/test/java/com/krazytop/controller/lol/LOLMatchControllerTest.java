@@ -7,6 +7,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,21 +28,27 @@ class LOLMatchControllerTest {
     @Test
     void testGetLocalMatches() {
         when(matchService.getLocalMatches(anyString(), anyInt(), anyString(), anyString())).thenReturn(List.of(new LOLMatchEntity()));
-        assertEquals(1, Objects.requireNonNull(matchController.getLocalMatches("puuid", 1, "queue", "role").getBody()).size());
+        ResponseEntity<List<LOLMatchEntity>> response = matchController.getLocalMatches("puuid", 1, "queue", "role");
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(1, Objects.requireNonNull(response.getBody()).size());
         verify(matchService, times(1)).getLocalMatches(anyString(), anyInt(), anyString(), anyString());
     }
 
     @Test
     void testGetLocalMatchesCount() {
         when(matchService.getLocalMatchesCount(anyString(), anyString(), anyString())).thenReturn(1L);
-        assertEquals(1, matchController.getLocalMatchesCount("puuid", "queue", "role").getBody());
+        ResponseEntity<Long> response = matchController.getLocalMatchesCount("puuid", "queue", "role");
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(1, response.getBody());
         verify(matchService, times(1)).getLocalMatchesCount(anyString(), anyString(), anyString());
     }
 
     @Test
     void testUpdateRemoteToLocalMatches() {
         doNothing().when(matchService).updateRemoteToLocalMatches(anyString());
-        assertEquals(Boolean.TRUE, matchController.updateRemoteToLocalMatches("puuid").getBody());
+        ResponseEntity<Boolean> response = matchController.updateRemoteToLocalMatches("puuid");
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(Boolean.TRUE, response.getBody());
         verify(matchService, times(1)).updateRemoteToLocalMatches(anyString());
     }
 }

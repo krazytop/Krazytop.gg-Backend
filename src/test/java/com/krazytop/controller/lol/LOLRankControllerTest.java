@@ -7,6 +7,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,14 +28,18 @@ class LOLRankControllerTest {
     @Test
     void getLocalRank() {
         when(rankService.getLocalRank(anyString(), anyString())).thenReturn(new LOLRankEntity());
-        assertNotNull(rankController.getLocalRank("puuid", "queue").getBody());
+        ResponseEntity<LOLRankEntity> response = rankController.getLocalRank("puuid", "queue");
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
         verify(rankService, times(1)).getLocalRank(anyString(), anyString());
     }
 
     @Test
     void updateRemoteToLocalRank() {
         when(rankService.updateRemoteToLocalRank(anyString())).thenReturn(List.of(new LOLRankEntity()));
-        assertEquals(1, Objects.requireNonNull(rankController.updateRemoteToLocalRank("puuid").getBody()).size());
+        ResponseEntity<List<LOLRankEntity>> response = rankController.updateRemoteToLocalRank("puuid");
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(1, Objects.requireNonNull(response.getBody()).size());
         verify(rankService, times(1)).updateRemoteToLocalRank(anyString());
     }
 }

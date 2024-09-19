@@ -17,18 +17,18 @@ public class LOLNomenclatureManagementController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LOLNomenclatureManagementController.class);
 
-    private final LOLNomenclatureManagement lolNomenclatureManagement;
+    private final LOLNomenclatureManagement nomenclatureManagement;
 
     @Autowired
-    public LOLNomenclatureManagementController(LOLNomenclatureManagement lolNomenclatureManagement){
-        this.lolNomenclatureManagement = lolNomenclatureManagement;
+    public LOLNomenclatureManagementController(LOLNomenclatureManagement nomenclatureManagement){
+        this.nomenclatureManagement = nomenclatureManagement;
     }
 
     @PostMapping("/lol/nomenclature")
-    public ResponseEntity<HttpStatus> addAllNomenclature() {
+    public ResponseEntity<HttpStatus> updateNomenclatures() {
         LOGGER.info("Updating all lol nomenclature");
         try {
-            this.lolNomenclatureManagement.checkNomenclaturesToUpdate();
+            this.nomenclatureManagement.checkNomenclaturesToUpdate();
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (IOException | URISyntaxException e) {
             LOGGER.error("Error while updating lol nomenclatures : {}", e.getMessage());
