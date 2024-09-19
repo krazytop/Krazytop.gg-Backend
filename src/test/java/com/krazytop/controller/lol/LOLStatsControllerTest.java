@@ -23,7 +23,7 @@ class LOLStatsControllerTest {
     private LOLStatsService statsService;
 
     @Test
-    void getLatestMatchesResult() {
+    void testGetLatestMatchesResult() {
         when(statsService.getLatestMatchesResult(anyString(), anyString(), anyString())).thenReturn(List.of("VICTORY"));
         assertEquals(1, Objects.requireNonNull(statsController.getLatestMatchesResult("puuid", "queue", "role").getBody()).size());
         verify(statsService, times(1)).getLatestMatchesResult(anyString(), anyString(), anyString());

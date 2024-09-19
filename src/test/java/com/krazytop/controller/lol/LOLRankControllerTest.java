@@ -26,7 +26,7 @@ class LOLRankControllerTest {
     private LOLRankService rankService;
 
     @Test
-    void getLocalRank() {
+    void testGetLocalRank() {
         when(rankService.getLocalRank(anyString(), anyString())).thenReturn(new LOLRankEntity());
         ResponseEntity<LOLRankEntity> response = rankController.getLocalRank("puuid", "queue");
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -35,7 +35,7 @@ class LOLRankControllerTest {
     }
 
     @Test
-    void updateRemoteToLocalRank() {
+    void testUpdateRemoteToLocalRank() {
         when(rankService.updateRemoteToLocalRank(anyString())).thenReturn(List.of(new LOLRankEntity()));
         ResponseEntity<List<LOLRankEntity>> response = rankController.updateRemoteToLocalRank("puuid");
         assertEquals(HttpStatus.OK, response.getStatusCode());
