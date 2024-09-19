@@ -7,7 +7,6 @@ import com.krazytop.config.SpringConfiguration;
 import com.krazytop.nomenclature.lol.LOLQueueNomenclature;
 import com.krazytop.repository.lol.LOLQueueNomenclatureRepository;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
