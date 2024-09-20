@@ -30,7 +30,7 @@ public class LOLRankController {
     public ResponseEntity<LOLRankEntity> getLocalRank(@PathVariable String summonerId, @PathVariable String queueType) {
         LOGGER.info("Retrieving local rank");
         LOLRankEntity rank = lolRankService.getLocalRank(summonerId, queueType);
-        LOGGER.info("Recovered rank");
+        LOGGER.info("Rank recovered");
         return new ResponseEntity<>(rank, HttpStatus.OK);
     }
 

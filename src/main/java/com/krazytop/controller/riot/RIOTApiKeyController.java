@@ -26,19 +26,19 @@ public class RIOTApiKeyController {
 
     @GetMapping("/riot/api-key")
     public ResponseEntity<RIOTApiKeyEntity> getApiKey() {
-        LOGGER.info("Retrieving RIOT API key");
+        LOGGER.info("Retrieving api key");
         RIOTApiKeyEntity apiKey = riotApiKeyRepository.findFirstByOrderByKeyAsc();
-        LOGGER.info("RIOT API key recovered");
+        LOGGER.info("Api key recovered");
         return new ResponseEntity<>(apiKey, HttpStatus.OK);
     }
 
     @PostMapping("/riot/api-key/{key}")
     public ResponseEntity<String> setApiKey(@PathVariable String key) {
-        LOGGER.info("Updating RIOT API key");
+        LOGGER.info("Updating api key");
         riotApiKeyRepository.deleteAll();
         riotApiKeyRepository.save(new RIOTApiKeyEntity(key));
-        LOGGER.info("RIOT API key updated");
-        return new ResponseEntity<>("Api Key is successfully modified", HttpStatus.OK);
+        LOGGER.info("Api key updated");
+        return new ResponseEntity<>("Api key is successfully updated", HttpStatus.OK);
     }
 
 }

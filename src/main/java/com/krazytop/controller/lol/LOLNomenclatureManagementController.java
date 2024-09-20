@@ -26,15 +26,15 @@ public class LOLNomenclatureManagementController {
 
     @PostMapping("/lol/nomenclature")
     public ResponseEntity<String> updateNomenclatures() {
-        LOGGER.info("Updating all lol nomenclature");
+        LOGGER.info("Updating all nomenclatures");
         try {
             if (this.nomenclatureManagement.updateAllNomenclatures()) {
-                return new ResponseEntity<>("All nomenclatures are now up to date", HttpStatus.OK);
+                return new ResponseEntity<>("All nomenclatures are updated and up to date", HttpStatus.OK);
             } else {
                 return new ResponseEntity<>("All nomenclatures are already up to date", HttpStatus.NO_CONTENT);
             }
         } catch (IOException | URISyntaxException e) {
-            LOGGER.error("Error while updating lol nomenclatures : {}", e.getMessage());
+            LOGGER.error("Error while updating all nomenclatures : {}", e.getMessage());
             return new ResponseEntity<>("Error while updating nomenclatures", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
