@@ -17,22 +17,25 @@ public class LOLNomenclatureManagementController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LOLNomenclatureManagementController.class);
 
-    private final LOLNomenclatureManagement lolNomenclatureManagement;
+    private final LOLNomenclatureManagement nomenclatureManagement;
 
     @Autowired
-    public LOLNomenclatureManagementController(LOLNomenclatureManagement lolNomenclatureManagement){
-        this.lolNomenclatureManagement = lolNomenclatureManagement;
+    public LOLNomenclatureManagementController(LOLNomenclatureManagement nomenclatureManagement){
+        this.nomenclatureManagement = nomenclatureManagement;
     }
 
     @PostMapping("/lol/nomenclature")
-    public ResponseEntity<HttpStatus> addAllNomenclature() {
-        LOGGER.info("Updating all lol nomenclature");
+    public ResponseEntity<String> updateNomenclatures() {
+        LOGGER.info("Updating all nomenclatures");
         try {
-            this.lolNomenclatureManagement.checkNomenclaturesToUpdate();
-            return new ResponseEntity<>(HttpStatus.OK);
+            if (this.nomenclatureManagement.updateAllNomenclatures()) {
+                return new ResponseEntity<>("All nomenclatures are updated and up to date", HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("All nomenclatures are already up to date", HttpStatus.NO_CONTENT);
+            }
         } catch (IOException | URISyntaxException e) {
-            LOGGER.error("Error while updating lol nomenclatures : {}", e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            LOGGER.error("Error while updating all nomenclatures : {}", e.getMessage());
+            return new ResponseEntity<>("Error while updating nomenclatures", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ApplicationContextProvider implements ApplicationContextAware {
 
-    private static org.springframework.context.ApplicationContext context;
+    private static ApplicationContext context;
 
     public ApplicationContext getApplicationContext() {
         return context;

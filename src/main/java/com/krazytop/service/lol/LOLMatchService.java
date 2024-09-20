@@ -44,8 +44,9 @@ public class LOLMatchService {
 
     private void updateMatch(String matchId) throws URISyntaxException, IOException {
         String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/%s?api_key=%s", matchId, apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
-        JsonNode infoNode = new ObjectMapper().readTree(new URI(stringUrl).toURL()).get("info");
-        LOLMatchEntity match = new ObjectMapper().convertValue(infoNode, LOLMatchEntity.class);
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode infoNode = mapper.readTree(new URI(stringUrl).toURL()).get("info");
+        LOLMatchEntity match = mapper.convertValue(infoNode, LOLMatchEntity.class);
         match.setId(matchId);
         match.dispatchParticipantsInTeamsAndBuildSummoners();
         match.setRemake(match.getTeams().get(0).getParticipants().get(0).isGameEndedInEarlySurrender());
@@ -62,14 +63,15 @@ public class LOLMatchService {
         try {
             String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, 0, 100, apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
             ObjectMapper mapper = new ObjectMapper();
-            List<String> matchIds = mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()), new TypeReference<>() {});
-
+            JsonNode json = mapper.readTree(new URI(stringUrl).toURL());
+            List<String> matchIds = mapper.convertValue(json, new TypeReference<>() {});
             for (String matchId : matchIds) {
                 if (this.matchRepository.findFirstById(matchId) != null) {
                     break;
+                } else {
+                    this.updateMatch(matchId);
+                    Thread.sleep(2000);
                 }
-                this.updateMatch(matchId);
-                Thread.sleep(2000);
             }
         } catch (InterruptedException | URISyntaxException | IOException e) {
             LOGGER.error("Error while updating matches : {}", e.getMessage());

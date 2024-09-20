@@ -144,21 +144,26 @@ public class LOLNomenclatureManagement { //TODO need better deserialization
         return new ObjectMapper().convertValue(json, new TypeReference<>() {});
     }
 
-    public void checkNomenclaturesToUpdate() throws IOException, URISyntaxException {
+    public boolean updateAllNomenclatures() throws IOException, URISyntaxException {
         LOLVersionEntity lastVersion = this.getLastNomenclatureVersions();
         LOLVersionEntity dbVersion = this.versionRepository.findFirstByOrderByItemAsc();
+        boolean nomenclaturesUpdated = false;
         if (dbVersion == null || !Objects.equals(lastVersion.getItem(), dbVersion.getItem())) {
             this.updateItemNomenclature(lastVersion.getItem());
             this.updateRuneNomenclature(lastVersion.getItem());
             this.updateQueueNomenclature();
+            nomenclaturesUpdated = true;
         }
         if (dbVersion == null || !Objects.equals(lastVersion.getChampion(), dbVersion.getChampion())) {
             this.updateChampionNomenclature(lastVersion.getChampion());
+            nomenclaturesUpdated = true;
         }
         if (dbVersion == null || !Objects.equals(lastVersion.getSummoner(), dbVersion.getSummoner())) {
             this.updateSummonerSpellNomenclature(lastVersion.getSummoner());
+            nomenclaturesUpdated = true;
         }
         this.versionRepository.save(lastVersion);
+        return nomenclaturesUpdated;
     }
 
     private LOLVersionEntity getLastNomenclatureVersions() throws IOException, URISyntaxException {
