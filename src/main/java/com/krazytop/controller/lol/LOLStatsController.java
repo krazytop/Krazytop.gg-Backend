@@ -26,12 +26,15 @@ public class LOLStatsController {
 
     @GetMapping("/lol/stats/latest-matches-placement/{puuid}/{queue}/{role}")
     public ResponseEntity<List<String>> getLatestMatchesResult(@PathVariable String puuid, @PathVariable String queue, @PathVariable String role) {
-        LOGGER.info("Retrieving last matches results");
-        List<String> latestMatchesResults = lolStatsService.getLatestMatchesResult(puuid, queue, role);
-        LOGGER.info("Last matches results recovered");
-        return new ResponseEntity<>(latestMatchesResults, HttpStatus.OK);
+        LOGGER.info("Retrieving last LOL matches results");
+        try {
+            List<String> latestMatchesResults = lolStatsService.getLatestMatchesResult(puuid, queue, role);
+            LOGGER.info("Last LOL matches results Retrieved");
+            return new ResponseEntity<>(latestMatchesResults, HttpStatus.OK);
+        } catch (Exception e) {
+            LOGGER.error("An error occurred while retrieving last LOL matches results : {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
-
-    //TODO without restriction
 
 }

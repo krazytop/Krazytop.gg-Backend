@@ -9,9 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-
 @RestController
 public class LOLNomenclatureManagementController {
 
@@ -26,16 +23,16 @@ public class LOLNomenclatureManagementController {
 
     @PostMapping("/lol/nomenclature")
     public ResponseEntity<String> updateNomenclatures() {
-        LOGGER.info("Updating all nomenclatures");
+        LOGGER.info("Updating all LOL nomenclatures");
         try {
             if (this.nomenclatureManagement.updateAllNomenclatures()) {
-                return new ResponseEntity<>("All nomenclatures are updated and up to date", HttpStatus.OK);
+                return new ResponseEntity<>("All LOL nomenclatures are successfully updated", HttpStatus.OK);
             } else {
-                return new ResponseEntity<>("All nomenclatures are already up to date", HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>("All LOL nomenclatures are already up to date", HttpStatus.OK);
             }
-        } catch (IOException | URISyntaxException e) {
-            LOGGER.error("Error while updating all nomenclatures : {}", e.getMessage());
-            return new ResponseEntity<>("Error while updating nomenclatures", HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            LOGGER.error("Error while updating all LOL nomenclatures : {}", e.getMessage());
+            return new ResponseEntity<>("Error while updating all LOL nomenclatures", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

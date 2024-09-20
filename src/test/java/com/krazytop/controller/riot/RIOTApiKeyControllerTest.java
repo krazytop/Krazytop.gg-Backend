@@ -22,7 +22,7 @@ class RIOTApiKeyControllerTest {
     private RIOTApiKeyRepository apiKeyRepository;
 
     @Test
-    void getApiKey() {
+    void tesGetApiKey_OK() {
         when(apiKeyRepository.findFirstByOrderByKeyAsc()).thenReturn(new RIOTApiKeyEntity("API_KEY"));
         ResponseEntity<RIOTApiKeyEntity> response = apiKeyController.getApiKey();
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -31,9 +31,37 @@ class RIOTApiKeyControllerTest {
     }
 
     @Test
-    void setApiKey() {
+    void tesGetApiKey_NO_CONTENT() {
+        when(apiKeyRepository.findFirstByOrderByKeyAsc()).thenReturn(null);
+        ResponseEntity<RIOTApiKeyEntity> response = apiKeyController.getApiKey();
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(apiKeyRepository, times(1)).findFirstByOrderByKeyAsc();
+    }
+
+    @Test
+    void tesGetApiKey_ERROR() {
+        when(apiKeyRepository.findFirstByOrderByKeyAsc()).thenThrow(RuntimeException.class);
+        ResponseEntity<RIOTApiKeyEntity> response = apiKeyController.getApiKey();
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(apiKeyRepository, times(1)).findFirstByOrderByKeyAsc();
+    }
+
+    @Test
+    void testSetApiKey_OK() {
         ResponseEntity<String> response = apiKeyController.setApiKey("API_KEY");
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(apiKeyRepository, times(1)).save(any());
+        verify(apiKeyRepository, times(1)).deleteAll();
+    }
+
+    @Test
+    void testSetApiKey_ERROR() {
+        when(apiKeyRepository.save(any())).thenThrow(RuntimeException.class);
+        ResponseEntity<String> response = apiKeyController.setApiKey("API_KEY");
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNotNull(response.getBody());
         verify(apiKeyRepository, times(1)).save(any());
         verify(apiKeyRepository, times(1)).deleteAll();

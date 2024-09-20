@@ -61,7 +61,7 @@ public class LOLMatchService {
      */
     public void updateRemoteToLocalMatches(String puuid) {
         try {
-            String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, 0, 100, apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
+            String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, 0, 1, apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
             ObjectMapper mapper = new ObjectMapper();
             JsonNode json = mapper.readTree(new URI(stringUrl).toURL());
             List<String> matchIds = mapper.convertValue(json, new TypeReference<>() {});
@@ -84,6 +84,9 @@ public class LOLMatchService {
         return compatibleQueues.contains(match.getQueue().getId());
     }
 
+
+//    Query query = new Query().addCriteria(Criteria.where("teams.participants.summonerPuuid").is(puuid));
+//    query.addCriteria(Criteria.where("queueName").is(queue));
     public List<LOLMatchEntity> getMatches(String puuid, int pageNb, String queue, String role) {
         PageRequest pageRequest = PageRequest.of(pageNb, pageSize);
         if (queue.equals("ALL_QUEUES")) {

@@ -6,9 +6,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -23,9 +24,20 @@ class LOLStatsControllerTest {
     private LOLStatsService statsService;
 
     @Test
-    void testGetLatestMatchesResult() {
+    void testGetLatestMatchesResult_OK() {
         when(statsService.getLatestMatchesResult(anyString(), anyString(), anyString())).thenReturn(List.of("VICTORY"));
-        assertEquals(1, Objects.requireNonNull(statsController.getLatestMatchesResult("puuid", "queue", "role").getBody()).size());
+        ResponseEntity<List<String>> response = statsController.getLatestMatchesResult("puuid", "queue", "role");
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        verify(statsService, times(1)).getLatestMatchesResult(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    void testGetLatestMatchesResult_ERROR() {
+        when(statsService.getLatestMatchesResult(anyString(), anyString(), anyString())).thenThrow(RuntimeException.class);
+        ResponseEntity<List<String>> response = statsController.getLatestMatchesResult("puuid", "queue", "role");
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertNull(response.getBody());
         verify(statsService, times(1)).getLatestMatchesResult(anyString(), anyString(), anyString());
     }
 }

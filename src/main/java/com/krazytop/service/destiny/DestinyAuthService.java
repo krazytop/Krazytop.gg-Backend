@@ -16,31 +16,23 @@ import java.io.IOException;
 @Service
 public class DestinyAuthService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DestinyAuthService.class);
-
     @Value("${spring.data.bungie.client_id:'XXX'}")
     private String clientId;
     @Value("${spring.data.bungie.client_secret:'XXX'}")
     private String clientSecret;
 
-    public String getPlayerToken(String playerCode) {
-        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
-            HttpPost httpPost = new HttpPost("https://www.bungie.net/Platform/App/OAuth/Token/");
-            StringEntity requestEntity = new StringEntity("grant_type=authorization_code&code=" + playerCode);
-            return getStringRequest(httpclient, httpPost, requestEntity);
-        } catch (IOException e) {
-            return null;
-        }
+    public String getPlayerToken(String playerCode) throws IOException {
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost("https://www.bungie.net/Platform/App/OAuth/Token/");
+        StringEntity requestEntity = new StringEntity("grant_type=authorization_code&code=" + playerCode);
+        return getStringRequest(httpclient, httpPost, requestEntity);
     }
 
-    public String updatePlayerToken(String refreshPlayerToken) {
-        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
-            HttpPost httpPost = new HttpPost("https://www.bungie.net/Platform/App/OAuth/Token/");
-            StringEntity requestEntity = new StringEntity("grant_type=refresh_token&refresh_token=" + refreshPlayerToken);
-            return getStringRequest(httpclient, httpPost, requestEntity);
-        } catch (IOException e) {
-            return null;
-        }
+    public String updatePlayerToken(String refreshPlayerToken) throws IOException {
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost("https://www.bungie.net/Platform/App/OAuth/Token/");
+        StringEntity requestEntity = new StringEntity("grant_type=refresh_token&refresh_token=" + refreshPlayerToken);
+        return getStringRequest(httpclient, httpPost, requestEntity);
     }
 
     private String getStringRequest(CloseableHttpClient httpclient, HttpPost httpPost, StringEntity requestEntity) throws IOException {
@@ -50,15 +42,12 @@ public class DestinyAuthService {
         String encodedAuth = java.util.Base64.getEncoder().encodeToString(auth.getBytes());
         httpPost.addHeader("Authorization", "Basic " + encodedAuth);
         httpPost.addHeader("Content-Type", "application/x-www-form-urlencoded");
-        try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
-            int statusCode = response.getStatusLine().getStatusCode();
-
-            if (statusCode == 200 && response.getEntity() != null) {
-                return  EntityUtils.toString(response.getEntity());
-            } else {
-                LOGGER.error("Error while retrieve Bungie player token : {}", response);
-                return null;
-            }
+        CloseableHttpResponse response = httpclient.execute(httpPost);
+        int statusCode = response.getStatusLine().getStatusCode();
+        if (statusCode == 200 && response.getEntity() != null) {
+            return  EntityUtils.toString(response.getEntity());
+        } else {
+            throw new IOException(String.format("Error while retrieving or refreshing Bungie player token : %s", response));
         }
     }
 }

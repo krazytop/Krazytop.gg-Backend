@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 public class LOLRankController {
 
@@ -28,17 +26,32 @@ public class LOLRankController {
 
     @GetMapping("/lol/rank/{summonerId}/{queueType}")
     public ResponseEntity<LOLRankEntity> getLocalRank(@PathVariable String summonerId, @PathVariable String queueType) {
-        LOGGER.info("Retrieving local rank");
-        LOLRankEntity rank = lolRankService.getLocalRank(summonerId, queueType);
-        LOGGER.info("Rank recovered");
-        return new ResponseEntity<>(rank, HttpStatus.OK);
+        LOGGER.info("Retrieving LOL local rank");
+        try {
+            LOLRankEntity rank = lolRankService.getLocalRank(summonerId, queueType);
+            if (rank != null) {
+                LOGGER.info("LOL local rank retrieved");
+                return new ResponseEntity<>(rank, HttpStatus.OK);
+            } else {
+                LOGGER.info("LOL local rank not found");
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+        } catch (Exception e) {
+            LOGGER.error("An error occurred while retrieving LOL local rank : {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping("/lol/rank/{summonerId}")
-    public ResponseEntity<List<LOLRankEntity>> updateRemoteToLocalRank(@PathVariable String summonerId) {
-        LOGGER.info("Updating ranks");
-        List<LOLRankEntity> rank = lolRankService.updateRemoteToLocalRank(summonerId);
-        LOGGER.info("Ranks updated");
-        return new ResponseEntity<>(rank, HttpStatus.OK);
+    public ResponseEntity<String> updateRemoteToLocalRank(@PathVariable String summonerId) {
+        LOGGER.info("Updating LOL ranks");
+        try {
+            lolRankService.updateRemoteToLocalRank(summonerId);
+            LOGGER.info("LOL ranks successfully updated");
+            return new ResponseEntity<>("LOL ranks successfully updated", HttpStatus.OK);
+        } catch (Exception e) {
+            LOGGER.error("An error occurred while updating LOL ranks : {}", e.getMessage());
+            return new ResponseEntity<>("An error occurred while updating LOL ranks", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

@@ -10,6 +10,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -23,7 +26,7 @@ class RIOTSummonerControllerTest {
     private RIOTSummonerService summonerService;
 
     @Test
-    void tesGetLocalSummoner() {
+    void testGetLocalSummoner_OK() {
         when(summonerService.getLocalSummoner(anyString(), anyString(), anyString())).thenReturn(new RIOTSummonerEntity());
         ResponseEntity<RIOTSummonerEntity> response = summonerController.getLocalSummoner("region", "tag", "name");
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -32,7 +35,16 @@ class RIOTSummonerControllerTest {
     }
 
     @Test
-    void testGetRemoteSummoner() {
+    void testGetLocalSummoner_NO_CONTENT() {
+        when(summonerService.getLocalSummoner(anyString(), anyString(), anyString())).thenReturn(null);
+        ResponseEntity<RIOTSummonerEntity> response = summonerController.getLocalSummoner("region", "tag", "name");
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(summonerService, times(1)).getLocalSummoner(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    void testGetRemoteSummoner_OK() throws URISyntaxException, IOException {
         when(summonerService.getRemoteSummoner(anyString(), anyString(), anyString())).thenReturn(new RIOTSummonerEntity());
         ResponseEntity<RIOTSummonerEntity> response = summonerController.getRemoteSummoner("region", "tag", "name");
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -42,10 +54,38 @@ class RIOTSummonerControllerTest {
     }
 
     @Test
-    void testUpdateRemoteToLocalSummoner() {
-        when(summonerService.updateRemoteToLocalSummoner(anyString(), anyString(), anyString())).thenReturn(new RIOTSummonerEntity());
-        ResponseEntity<RIOTSummonerEntity> response = summonerController.updateRemoteToLocalSummoner("region", "tag", "name");
+    void testGetRemoteSummoner_NO_CONTENT() throws URISyntaxException, IOException {
+        when(summonerService.getRemoteSummoner(anyString(), anyString(), anyString())).thenReturn(null);
+        ResponseEntity<RIOTSummonerEntity> response = summonerController.getRemoteSummoner("region", "tag", "name");
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(summonerService, times(1)).getRemoteSummoner(anyString(), anyString(), anyString());
+
+    }
+
+    @Test
+    void testGetRemoteSummoner_ERROR() throws URISyntaxException, IOException {
+        when(summonerService.getRemoteSummoner(anyString(), anyString(), anyString())).thenThrow(RuntimeException.class);
+        ResponseEntity<RIOTSummonerEntity> response = summonerController.getRemoteSummoner("region", "tag", "name");
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(summonerService, times(1)).getRemoteSummoner(anyString(), anyString(), anyString());
+
+    }
+
+    @Test
+    void testUpdateRemoteToLocalSummoner_OK() throws URISyntaxException, IOException {
+        ResponseEntity<String> response = summonerController.updateRemoteToLocalSummoner("region", "tag", "name");
         assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        verify(summonerService, times(1)).updateRemoteToLocalSummoner(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    void testUpdateRemoteToLocalSummoner_ERROR() throws URISyntaxException, IOException {
+        doThrow(RuntimeException.class).when(summonerService).updateRemoteToLocalSummoner(anyString(), anyString(),anyString());
+        ResponseEntity<String> response = summonerController.updateRemoteToLocalSummoner("region", "tag", "name");
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNotNull(response.getBody());
         verify(summonerService, times(1)).updateRemoteToLocalSummoner(anyString(), anyString(), anyString());
 
