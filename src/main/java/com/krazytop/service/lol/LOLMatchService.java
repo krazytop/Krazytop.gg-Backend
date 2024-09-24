@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class LOLMatchService {
@@ -42,12 +43,13 @@ public class LOLMatchService {
         return this.getMatchesCount(puuid, queue, role);
     }
 
-    private void updateMatch(String matchId) throws URISyntaxException, IOException {
+    private void updateMatch(String matchId, String puuid) throws URISyntaxException, IOException {
         String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/%s?api_key=%s", matchId, apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
         ObjectMapper mapper = new ObjectMapper();
         JsonNode infoNode = mapper.readTree(new URI(stringUrl).toURL()).get("info");
         LOLMatchEntity match = mapper.convertValue(infoNode, LOLMatchEntity.class);
         match.setId(matchId);
+        match.getOwners().add(puuid);
         match.dispatchParticipantsInTeamsAndBuildSummoners();
         match.setRemake(match.getTeams().get(0).getParticipants().get(0).isGameEndedInEarlySurrender());
         if (this.checkIfQueueIsCompatible(match)) {
@@ -61,16 +63,21 @@ public class LOLMatchService {
      */
     public void updateRemoteToLocalMatches(String puuid) {
         try {
-            String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, 0, 1, apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
+            String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, 0, 100, apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
             ObjectMapper mapper = new ObjectMapper();
             JsonNode json = mapper.readTree(new URI(stringUrl).toURL());
             List<String> matchIds = mapper.convertValue(json, new TypeReference<>() {});
             for (String matchId : matchIds) {
-                if (this.matchRepository.findFirstById(matchId) != null) { //TODO si un autre a telechargé le match alors ça va s'arrêter alors que ce n'est pas lui
-                    break;
-                } else {
-                    this.updateMatch(matchId);
+                LOLMatchEntity existingMatch = this.matchRepository.findFirstById(matchId);
+                if (existingMatch == null) {
+                    this.updateMatch(matchId, puuid);
                     Thread.sleep(2000);
+                } else if (!existingMatch.getOwners().contains(puuid)) {
+                    existingMatch.getOwners().add(puuid);
+                    LOGGER.info("Updating match : {}", matchId);
+                    matchRepository.save(existingMatch);
+                } else {
+                    break;
                 }
             }
         } catch (InterruptedException | URISyntaxException | IOException e) {
