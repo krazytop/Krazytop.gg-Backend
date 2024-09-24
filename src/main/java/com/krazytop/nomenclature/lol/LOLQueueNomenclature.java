@@ -1,5 +1,6 @@
 package com.krazytop.nomenclature.lol;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -10,7 +11,8 @@ public class LOLQueueNomenclature {
 
     @JsonProperty("queueId")
     private String id;
-    @JsonProperty("description")
+    @JsonAlias("description")
+    @JsonProperty("name")
     private String name;
     private String map;
     private String notes;

@@ -1,6 +1,7 @@
 package com.krazytop.entity.lol;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.krazytop.config.SpringConfiguration;
@@ -28,8 +29,7 @@ public class LOLParticipantEntity {
     private int assists;
     @JsonProperty("deaths")
     private int deaths;
-    @JsonAlias("individualPosition")
-    @JsonProperty("role")
+    @JsonIgnore
     private String role;
     @JsonProperty("visionScore")
     private int visionScore;
@@ -161,4 +161,8 @@ public class LOLParticipantEntity {
         this.setChampion(championNomenclatureRepository.findFirstById(id));
     }
 
+    @JsonProperty("individualPosition")
+    private void unpackRole(String role) {
+        this.role = role;
+    }
 }

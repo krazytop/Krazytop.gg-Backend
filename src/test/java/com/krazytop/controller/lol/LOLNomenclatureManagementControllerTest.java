@@ -24,7 +24,7 @@ class LOLNomenclatureManagementControllerTest {
     private LOLNomenclatureManagement nomenclatureManagement;
 
     @Test
-    void testUpdateNomenclature_OK() throws IOException, URISyntaxException {
+    void testUpdateNomenclature_OK_NEED() throws IOException, URISyntaxException {
         when(nomenclatureManagement.updateAllNomenclatures()).thenReturn(true);
         ResponseEntity<String> response = nomenclatureManagementController.updateNomenclatures();
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -33,17 +33,17 @@ class LOLNomenclatureManagementControllerTest {
     }
 
     @Test
-    void testUpdateNomenclature_NOCONTENT() throws IOException, URISyntaxException {
+    void testUpdateNomenclature_OK_NO_NEED() throws IOException, URISyntaxException {
         when(nomenclatureManagement.updateAllNomenclatures()).thenReturn(false);
         ResponseEntity<String> response = nomenclatureManagementController.updateNomenclatures();
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         verify(nomenclatureManagement, times(1)).updateAllNomenclatures();
     }
 
     @Test
     void testUpdateNomenclature_ERROR() throws IOException, URISyntaxException {
-        when(nomenclatureManagement.updateAllNomenclatures()).thenThrow(IOException.class);
+        when(nomenclatureManagement.updateAllNomenclatures()).thenThrow(RuntimeException.class);
         ResponseEntity<String> response = nomenclatureManagementController.updateNomenclatures();
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNotNull(response.getBody());

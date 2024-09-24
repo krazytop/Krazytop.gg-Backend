@@ -27,18 +27,33 @@ public class RIOTApiKeyController {
     @GetMapping("/riot/api-key")
     public ResponseEntity<RIOTApiKeyEntity> getApiKey() {
         LOGGER.info("Retrieving api key");
-        RIOTApiKeyEntity apiKey = riotApiKeyRepository.findFirstByOrderByKeyAsc();
-        LOGGER.info("Api key recovered");
-        return new ResponseEntity<>(apiKey, HttpStatus.OK);
+        try {
+            RIOTApiKeyEntity apiKey = riotApiKeyRepository.findFirstByOrderByKeyAsc();
+            if (apiKey != null) {
+                LOGGER.info("RIOT api key successfully retrieved");
+                return new ResponseEntity<>(apiKey, HttpStatus.OK);
+            } else {
+                LOGGER.info("RIOT api key not found");
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+        } catch (Exception e) {
+            LOGGER.error("An error occurred while retrieving RIOT api key : {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping("/riot/api-key/{key}")
     public ResponseEntity<String> setApiKey(@PathVariable String key) {
         LOGGER.info("Updating api key");
-        riotApiKeyRepository.deleteAll();
-        riotApiKeyRepository.save(new RIOTApiKeyEntity(key));
-        LOGGER.info("Api key updated");
-        return new ResponseEntity<>("Api key is successfully updated", HttpStatus.OK);
+        try {
+            riotApiKeyRepository.deleteAll();
+            riotApiKeyRepository.save(new RIOTApiKeyEntity(key));
+            LOGGER.info("RIOT api key successfully updated");
+            return new ResponseEntity<>("RIOT api key successfully updated", HttpStatus.OK);
+        } catch (Exception e) {
+            LOGGER.error("An error occurred while updating RIOT api key : {}", e.getMessage());
+            return new ResponseEntity<>("An error occurred while updating RIOT api key", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }

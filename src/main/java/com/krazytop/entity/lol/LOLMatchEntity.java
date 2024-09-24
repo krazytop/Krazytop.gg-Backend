@@ -10,6 +10,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -35,6 +36,7 @@ public class LOLMatchEntity {
     private List<LOLParticipantEntity> participants;
     private LOLQueueNomenclature queue;
     private boolean remake;
+    private List<String> owners = new ArrayList<>();
 
     @JsonProperty("queueId")
     private void unpackQueue(String queueId) {

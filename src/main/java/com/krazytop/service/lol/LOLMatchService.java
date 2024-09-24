@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class LOLMatchService {
@@ -42,12 +43,13 @@ public class LOLMatchService {
         return this.getMatchesCount(puuid, queue, role);
     }
 
-    private void updateMatch(String matchId) throws URISyntaxException, IOException {
+    private void updateMatch(String matchId, String puuid) throws URISyntaxException, IOException {
         String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/%s?api_key=%s", matchId, apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
         ObjectMapper mapper = new ObjectMapper();
         JsonNode infoNode = mapper.readTree(new URI(stringUrl).toURL()).get("info");
         LOLMatchEntity match = mapper.convertValue(infoNode, LOLMatchEntity.class);
         match.setId(matchId);
+        match.getOwners().add(puuid);
         match.dispatchParticipantsInTeamsAndBuildSummoners();
         match.setRemake(match.getTeams().get(0).getParticipants().get(0).isGameEndedInEarlySurrender());
         if (this.checkIfQueueIsCompatible(match)) {
@@ -66,11 +68,16 @@ public class LOLMatchService {
             JsonNode json = mapper.readTree(new URI(stringUrl).toURL());
             List<String> matchIds = mapper.convertValue(json, new TypeReference<>() {});
             for (String matchId : matchIds) {
-                if (this.matchRepository.findFirstById(matchId) != null) {
-                    break;
-                } else {
-                    this.updateMatch(matchId);
+                LOLMatchEntity existingMatch = this.matchRepository.findFirstById(matchId);
+                if (existingMatch == null) {
+                    this.updateMatch(matchId, puuid);
                     Thread.sleep(2000);
+                } else if (!existingMatch.getOwners().contains(puuid)) {
+                    existingMatch.getOwners().add(puuid);
+                    LOGGER.info("Updating match : {}", matchId);
+                    matchRepository.save(existingMatch);
+                } else {
+                    break;
                 }
             }
         } catch (InterruptedException | URISyntaxException | IOException e) {
@@ -86,35 +93,61 @@ public class LOLMatchService {
 
     public List<LOLMatchEntity> getMatches(String puuid, int pageNb, String queue, String role) {
         PageRequest pageRequest = PageRequest.of(pageNb, pageSize);
-        if (queue.equals("ALL_QUEUES")) {
-            if (role.equals("ALL_ROLES")) {
-                return this.matchRepository.findByTeamsParticipantsSummonerPuuidOrderByDatetimeDesc(puuid, pageRequest).getContent();
+        if (queue.equals("all-queues")) {
+            if (role.equals("all-roles")) {
+                return this.matchRepository.findAll(puuid, pageRequest).getContent();
             } else {
-                return this.matchRepository.findByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRoleOrderByDatetimeDesc(puuid, role, pageRequest).getContent();
+                return this.matchRepository.findAllByRole(puuid, getRole(role), pageRequest).getContent();
             }
         } else {
-            if (role.equals("ALL_ROLES")) {
-                return this.matchRepository.findByTeamsParticipantsSummonerPuuidAndQueueNameOrderByDatetimeDesc(puuid, queue, pageRequest).getContent();
+            if (role.equals("all-roles")) {
+                return this.matchRepository.findAllByQueue(puuid, getQueueIds(queue), pageRequest).getContent();
             } else {
-                return this.matchRepository.findByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRoleAndQueueNameOrderByDatetimeDesc(puuid, queue, role, pageRequest).getContent();
+                return this.matchRepository.findAllByQueueAndByRole(puuid, getQueueIds(queue), getRole(role), pageRequest).getContent();
             }
         }
     }
 
     public Long getMatchesCount(String puuid, String queue, String role) {
-        if (queue.equals("ALL_QUEUES")) {
-            if (role.equals("ALL_ROLES")) {
-                return this.matchRepository.countByTeamsParticipantsSummonerPuuid(puuid);
+        if (queue.equals("all-queues")) {
+            if (role.equals("all-roles")) {
+                return this.matchRepository.countAll(puuid);
             } else {
-                return this.matchRepository.countByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRole(puuid, role);
+                return this.matchRepository.countAllByRole(puuid, getRole(role));
             }
         } else {
-            if (role.equals("ALL_ROLES")) {
-                return this.matchRepository.countByTeamsParticipantsSummonerPuuidAndQueueName(puuid, queue);
+            if (role.equals("all-roles")) {
+                return this.matchRepository.countAllByQueue(puuid, getQueueIds(queue));
             } else {
-                return this.matchRepository.countByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRoleAndQueueName(puuid, queue, role);
+                return this.matchRepository.countAllByQueueAndByRole(puuid, getQueueIds(queue), getRole(role));
             }
         }
+    }
+
+    private List<String> getQueueIds(String queueName) {
+        return switch (queueName) {
+            case "normal" -> List.of("14", "61", "400", "2", "430", "490");
+            case "solo-ranked" -> List.of("4", "420");
+            case "flex-ranked" -> List.of("6", "42", "440");
+            case "aram" -> List.of("65", "100", "450");
+            case "urf" -> List.of("76", "1900", "318", "1010");
+            case "nexus-blitz" -> List.of("1200", "1300");
+            case "one-for-all" -> List.of("70", "1020");
+            case "ultimate-spellbook" -> List.of("1400");
+            case "arena" -> List.of("1700", "1710");
+            default -> List.of();
+        };
+    }
+
+    private String getRole(String roleName) {
+        return switch (roleName) {
+            case "top" -> "TOP";
+            case "jungle" -> "JUNGLE";
+            case "middle" -> "MIDDLE";
+            case "bottom" -> "BOTTOM";
+            case "support" -> "UTILITIES";
+            default -> "";
+        };
     }
 
 }
