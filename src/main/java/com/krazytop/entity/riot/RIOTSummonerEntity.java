@@ -21,7 +21,8 @@ public class RIOTSummonerEntity {
     private String name;
     @JsonProperty("accountId")
     private String accountId;
-    @JsonProperty("summonerLevel")
+    @JsonAlias("summonerLevel")
+    @JsonProperty("level")
     private int level;
     @JsonAlias("profileIconId")
     @JsonProperty("icon")

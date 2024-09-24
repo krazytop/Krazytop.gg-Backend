@@ -6,27 +6,33 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
+import java.util.List;
+
 public interface LOLMatchRepository extends MongoRepository<LOLMatchEntity, String> {
 
-    Page<LOLMatchEntity> findByTeamsParticipantsSummonerPuuidOrderByDatetimeDesc(String puuid, PageRequest pageRequest);
+    @Query(value = "{'teams.participants': {$elemMatch: {'summoner.puuid': ?0}}}", sort = "{'datetime': -1}")
+    Page<LOLMatchEntity> findAll(String puuid, PageRequest pageRequest);
 
-    Page<LOLMatchEntity> findByTeamsParticipantsSummonerPuuidAndQueueNameOrderByDatetimeDesc(String puuid, String queueName, PageRequest pageRequest);
+    @Query(value = "{'teams.participants': {$elemMatch: {'summoner.puuid': ?0}}, 'queue._id':  {$in: ?1}}", sort = "{'datetime': -1}")
+    Page<LOLMatchEntity> findAllByQueue(String puuid, List<String> queueIds, PageRequest pageRequest);
 
     @Query(value = "{'teams.participants': {$elemMatch: {'summoner.puuid': ?0, 'role': ?1}}}", sort = "{'datetime': -1}")
-    Page<LOLMatchEntity> findByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRoleOrderByDatetimeDesc(String puuid, String role, PageRequest pageRequest);
+    Page<LOLMatchEntity> findAllByRole(String puuid, String role, PageRequest pageRequest);
 
-    @Query(value = "{'teams.participants': {$elemMatch: {'summoner.puuid': ?0, 'role': ?2}}, 'queue.name':  ?1}", sort = "{'datetime': -1}")
-    Page<LOLMatchEntity> findByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRoleAndQueueNameOrderByDatetimeDesc(String puuid, String queueName, String role, PageRequest pageRequest);
+    @Query(value = "{'teams.participants': {$elemMatch: {'summoner.puuid': ?0, 'role': ?2}}, 'queue._id':  {$in: ?1}}", sort = "{'datetime': -1}")
+    Page<LOLMatchEntity> findAllByQueueAndByRole(String puuid, List<String> queueIds, String role, PageRequest pageRequest);
 
     LOLMatchEntity findFirstById(String matchId);
 
-    Long countByTeamsParticipantsSummonerPuuid(String puuid);
+    @Query(value = "{'teams.participants': {$elemMatch: {'summoner.puuid': ?0}}}", sort = "{'datetime': -1}", count = true)
+    Long countAll(String puuid);
 
-    Long countByTeamsParticipantsSummonerPuuidAndQueueName(String puuid, String queueName);
+    @Query(value = "{'teams.participants': {$elemMatch: {'summoner.puuid': ?0}}, 'queue._id': {$in: ?1}}", sort = "{'datetime': -1}", count = true)
+    Long countAllByQueue(String puuid, List<String> queueIds);
 
     @Query(value = "{'teams.participants': {$elemMatch: {'summoner.puuid': ?0, 'role': ?1}}}", count = true)
-    Long countByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRole(String puuid, String role);
+    Long countAllByRole(String puuid, String role);
 
-    @Query(value = "{'teams.participants': {$elemMatch: {'summoner.puuid': ?0, 'role': ?2}}, 'queue.name':  ?1}", count = true)
-    Long countByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRoleAndQueueName(String puuid, String queueName, String role);
+    @Query(value = "{'teams.participants': {$elemMatch: {'summoner.puuid': ?0, 'role': ?2}}, 'queue._id':  {$in: ?1}}", count = true)
+    Long countAllByQueueAndByRole(String puuid, List<String> queueIds, String role);
 }

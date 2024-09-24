@@ -55,66 +55,66 @@ class LOLMatchServiceTest {
 
     @Test
     void testGetMatchesCount_AllQueues_AllRoles() {
-        when(matchRepository.countByTeamsParticipantsSummonerPuuid(anyString())).thenReturn(1L);
+        when(matchRepository.countAll(anyString())).thenReturn(1L);
         assertEquals(1L, matchService.getLocalMatchesCount("puuid", "ALL_QUEUES", "ALL_ROLES"));
-        verify(matchRepository, times(1)).countByTeamsParticipantsSummonerPuuid(anyString());
+        verify(matchRepository, times(1)).countAll(anyString());
     }
 
     @Test
     void testGetMatchesCount_AllQueues_SpecificRole() {
-        when(matchRepository.countByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRole(anyString(), anyString())).thenReturn(2L);
+        when(matchRepository.countAllByRole(anyString(), anyString())).thenReturn(2L);
         assertEquals(2L, matchService.getLocalMatchesCount("puuid", "ALL_QUEUES", "JUNGLE"));
-        verify(matchRepository, times(1)).countByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRole(anyString(), anyString());
+        verify(matchRepository, times(1)).countAllByRole(anyString(), anyString());
     }
 
     @Test
     void testGetMatchesCount_SpecificQueue_AllRoles() {
-        when(matchRepository.countByTeamsParticipantsSummonerPuuidAndQueueName(anyString(), anyString())).thenReturn(3L);
+        when(matchRepository.countAllByQueue(anyString(), anyList())).thenReturn(3L);
         assertEquals(3L, matchService.getLocalMatchesCount("puuid", "ARAM", "ALL_ROLES"));
-        verify(matchRepository, times(1)).countByTeamsParticipantsSummonerPuuidAndQueueName(anyString(), anyString());
+        verify(matchRepository, times(1)).countAllByQueue(anyString(), anyList());
     }
 
     @Test
     void testGetMatchesCount_SpecificQueue_SpecificRole() {
-        when(matchRepository.countByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRoleAndQueueName(anyString(), anyString(), anyString())).thenReturn(4L);
+        when(matchRepository.countAllByQueueAndByRole(anyString(), anyList(), anyString())).thenReturn(4L);
         assertEquals(4L, matchService.getLocalMatchesCount("puuid", "ARAM", "JUNGLE"));
-        verify(matchRepository, times(1)).countByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRoleAndQueueName(anyString(), anyString(), anyString());
+        verify(matchRepository, times(1)).countAllByQueueAndByRole(anyString(), anyList(), anyString());
     }
 
     @Test
     void testGetMatches_AllQueues_AllRoles() {
         ReflectionTestUtils.setField(matchService, "pageSize", 1);
         Page<LOLMatchEntity> page = new PageImpl<>(List.of(new LOLMatchEntity()));
-        when(matchRepository.findByTeamsParticipantsSummonerPuuidOrderByDatetimeDesc(anyString(), any())).thenReturn(page);
+        when(matchRepository.findAll(anyString(), any())).thenReturn(page);
         assertFalse(matchService.getLocalMatches("puuid", 0, "ALL_QUEUES", "ALL_ROLES").isEmpty());
-        verify(matchRepository, times(1)).findByTeamsParticipantsSummonerPuuidOrderByDatetimeDesc(anyString(), any());
+        verify(matchRepository, times(1)).findAll(anyString(), any());
     }
 
     @Test
     void testGetMatches_AllQueues_SpecificRole() {
         ReflectionTestUtils.setField(matchService, "pageSize", 1);
         Page<LOLMatchEntity> page = new PageImpl<>(List.of(new LOLMatchEntity()));
-        when(matchRepository.findByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRoleOrderByDatetimeDesc(anyString(), anyString(), any())).thenReturn(page);
+        when(matchRepository.findAllByRole(anyString(), anyString(), any())).thenReturn(page);
         assertFalse(matchService.getLocalMatches("puuid", 0, "ALL_QUEUES", "JUNGLE").isEmpty());
-        verify(matchRepository, times(1)).findByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRoleOrderByDatetimeDesc(anyString(), anyString(), any());
+        verify(matchRepository, times(1)).findAllByRole(anyString(), anyString(), any());
     }
 
     @Test
     void testGetMatches_SpecificQueue_AllRoles() {
         ReflectionTestUtils.setField(matchService, "pageSize", 1);
         Page<LOLMatchEntity> page = new PageImpl<>(List.of(new LOLMatchEntity()));
-        when(matchRepository.findByTeamsParticipantsSummonerPuuidAndQueueNameOrderByDatetimeDesc(anyString(), anyString(), any())).thenReturn(page);
+        when(matchRepository.findAllByQueue(anyString(), anyList(), any())).thenReturn(page);
         assertFalse(matchService.getLocalMatches("puuid", 0, "ARAM", "ALL_ROLES").isEmpty());
-        verify(matchRepository, times(1)).findByTeamsParticipantsSummonerPuuidAndQueueNameOrderByDatetimeDesc(anyString(), anyString(), any());
+        verify(matchRepository, times(1)).findAllByQueue(anyString(), anyList(), any());
     }
 
     @Test
     void testGetMatches_SpecificQueue_SpecificRole() {
         ReflectionTestUtils.setField(matchService, "pageSize", 1);
         Page<LOLMatchEntity> page = new PageImpl<>(List.of(new LOLMatchEntity()));
-        when(matchRepository.findByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRoleAndQueueNameOrderByDatetimeDesc(anyString(), anyString(), anyString(), any())).thenReturn(page);
+        when(matchRepository.findAllByQueueAndByRole(anyString(), anyList(), anyString(), any())).thenReturn(page);
         assertFalse(matchService.getLocalMatches("puuid", 0, "ARAM", "JUNGLE").isEmpty());
-        verify(matchRepository, times(1)).findByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRoleAndQueueNameOrderByDatetimeDesc(anyString(), anyString(), anyString(), any());
+        verify(matchRepository, times(1)).findAllByQueueAndByRole(anyString(), anyList(), anyString(), any());
     }
 
     private void mockRepositories(MockedStatic<SpringConfiguration> springConfigurationMock, String queueId) {

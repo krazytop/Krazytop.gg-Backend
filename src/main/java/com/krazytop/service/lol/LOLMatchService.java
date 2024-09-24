@@ -66,7 +66,7 @@ public class LOLMatchService {
             JsonNode json = mapper.readTree(new URI(stringUrl).toURL());
             List<String> matchIds = mapper.convertValue(json, new TypeReference<>() {});
             for (String matchId : matchIds) {
-                if (this.matchRepository.findFirstById(matchId) != null) {
+                if (this.matchRepository.findFirstById(matchId) != null) { //TODO si un autre a telechargé le match alors ça va s'arrêter alors que ce n'est pas lui
                     break;
                 } else {
                     this.updateMatch(matchId);
@@ -84,40 +84,63 @@ public class LOLMatchService {
         return compatibleQueues.contains(match.getQueue().getId());
     }
 
-
-//    Query query = new Query().addCriteria(Criteria.where("teams.participants.summonerPuuid").is(puuid));
-//    query.addCriteria(Criteria.where("queueName").is(queue));
     public List<LOLMatchEntity> getMatches(String puuid, int pageNb, String queue, String role) {
         PageRequest pageRequest = PageRequest.of(pageNb, pageSize);
-        if (queue.equals("ALL_QUEUES")) {
-            if (role.equals("ALL_ROLES")) {
-                return this.matchRepository.findByTeamsParticipantsSummonerPuuidOrderByDatetimeDesc(puuid, pageRequest).getContent();
+        if (queue.equals("all-queues")) {
+            if (role.equals("all-roles")) {
+                return this.matchRepository.findAll(puuid, pageRequest).getContent();
             } else {
-                return this.matchRepository.findByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRoleOrderByDatetimeDesc(puuid, role, pageRequest).getContent();
+                return this.matchRepository.findAllByRole(puuid, getRole(role), pageRequest).getContent();
             }
         } else {
-            if (role.equals("ALL_ROLES")) {
-                return this.matchRepository.findByTeamsParticipantsSummonerPuuidAndQueueNameOrderByDatetimeDesc(puuid, queue, pageRequest).getContent();
+            if (role.equals("all-roles")) {
+                return this.matchRepository.findAllByQueue(puuid, getQueueIds(queue), pageRequest).getContent();
             } else {
-                return this.matchRepository.findByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRoleAndQueueNameOrderByDatetimeDesc(puuid, queue, role, pageRequest).getContent();
+                return this.matchRepository.findAllByQueueAndByRole(puuid, getQueueIds(queue), getRole(role), pageRequest).getContent();
             }
         }
     }
 
     public Long getMatchesCount(String puuid, String queue, String role) {
-        if (queue.equals("ALL_QUEUES")) {
-            if (role.equals("ALL_ROLES")) {
-                return this.matchRepository.countByTeamsParticipantsSummonerPuuid(puuid);
+        if (queue.equals("all-queues")) {
+            if (role.equals("all-roles")) {
+                return this.matchRepository.countAll(puuid);
             } else {
-                return this.matchRepository.countByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRole(puuid, role);
+                return this.matchRepository.countAllByRole(puuid, getRole(role));
             }
         } else {
-            if (role.equals("ALL_ROLES")) {
-                return this.matchRepository.countByTeamsParticipantsSummonerPuuidAndQueueName(puuid, queue);
+            if (role.equals("all-roles")) {
+                return this.matchRepository.countAllByQueue(puuid, getQueueIds(queue));
             } else {
-                return this.matchRepository.countByTeamsParticipantsSummonerPuuidAndTeamsParticipantsRoleAndQueueName(puuid, queue, role);
+                return this.matchRepository.countAllByQueueAndByRole(puuid, getQueueIds(queue), getRole(role));
             }
         }
+    }
+
+    private List<String> getQueueIds(String queueName) {
+        return switch (queueName) {
+            case "normal" -> List.of("14", "61", "400", "2", "430", "490");
+            case "solo-ranked" -> List.of("4", "420");
+            case "flex-ranked" -> List.of("6", "42", "440");
+            case "aram" -> List.of("65", "100", "450");
+            case "urf" -> List.of("76", "1900", "318", "1010");
+            case "nexus-blitz" -> List.of("1200", "1300");
+            case "one-for-all" -> List.of("70", "1020");
+            case "ultimate-spellbook" -> List.of("1400");
+            case "arena" -> List.of("1700", "1710");
+            default -> List.of();
+        };
+    }
+
+    private String getRole(String roleName) {
+        return switch (roleName) {
+            case "top" -> "TOP";
+            case "jungle" -> "JUNGLE";
+            case "middle" -> "MIDDLE";
+            case "bottom" -> "BOTTOM";
+            case "support" -> "UTILITIES";
+            default -> "";
+        };
     }
 
 }
