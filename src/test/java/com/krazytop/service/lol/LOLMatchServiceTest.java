@@ -56,28 +56,28 @@ class LOLMatchServiceTest {
     @Test
     void testGetMatchesCount_AllQueues_AllRoles() {
         when(matchRepository.countAll(anyString())).thenReturn(1L);
-        assertEquals(1L, matchService.getLocalMatchesCount("puuid", "ALL_QUEUES", "ALL_ROLES"));
+        assertEquals(1L, matchService.getLocalMatchesCount("puuid", "all-queues", "all-roles"));
         verify(matchRepository, times(1)).countAll(anyString());
     }
 
     @Test
     void testGetMatchesCount_AllQueues_SpecificRole() {
         when(matchRepository.countAllByRole(anyString(), anyString())).thenReturn(2L);
-        assertEquals(2L, matchService.getLocalMatchesCount("puuid", "ALL_QUEUES", "JUNGLE"));
+        assertEquals(2L, matchService.getLocalMatchesCount("puuid", "all-queues", "jungle"));
         verify(matchRepository, times(1)).countAllByRole(anyString(), anyString());
     }
 
     @Test
     void testGetMatchesCount_SpecificQueue_AllRoles() {
         when(matchRepository.countAllByQueue(anyString(), anyList())).thenReturn(3L);
-        assertEquals(3L, matchService.getLocalMatchesCount("puuid", "ARAM", "ALL_ROLES"));
+        assertEquals(3L, matchService.getLocalMatchesCount("puuid", "aram", "all-roles"));
         verify(matchRepository, times(1)).countAllByQueue(anyString(), anyList());
     }
 
     @Test
     void testGetMatchesCount_SpecificQueue_SpecificRole() {
         when(matchRepository.countAllByQueueAndByRole(anyString(), anyList(), anyString())).thenReturn(4L);
-        assertEquals(4L, matchService.getLocalMatchesCount("puuid", "ARAM", "JUNGLE"));
+        assertEquals(4L, matchService.getLocalMatchesCount("puuid", "aram", "jungle"));
         verify(matchRepository, times(1)).countAllByQueueAndByRole(anyString(), anyList(), anyString());
     }
 
@@ -86,7 +86,7 @@ class LOLMatchServiceTest {
         ReflectionTestUtils.setField(matchService, "pageSize", 1);
         Page<LOLMatchEntity> page = new PageImpl<>(List.of(new LOLMatchEntity()));
         when(matchRepository.findAll(anyString(), any())).thenReturn(page);
-        assertFalse(matchService.getLocalMatches("puuid", 0, "ALL_QUEUES", "ALL_ROLES").isEmpty());
+        assertFalse(matchService.getLocalMatches("puuid", 0, "all-queues", "all-roles").isEmpty());
         verify(matchRepository, times(1)).findAll(anyString(), any());
     }
 
@@ -95,7 +95,7 @@ class LOLMatchServiceTest {
         ReflectionTestUtils.setField(matchService, "pageSize", 1);
         Page<LOLMatchEntity> page = new PageImpl<>(List.of(new LOLMatchEntity()));
         when(matchRepository.findAllByRole(anyString(), anyString(), any())).thenReturn(page);
-        assertFalse(matchService.getLocalMatches("puuid", 0, "ALL_QUEUES", "JUNGLE").isEmpty());
+        assertFalse(matchService.getLocalMatches("puuid", 0, "all-queues", "jungle").isEmpty());
         verify(matchRepository, times(1)).findAllByRole(anyString(), anyString(), any());
     }
 
@@ -104,7 +104,7 @@ class LOLMatchServiceTest {
         ReflectionTestUtils.setField(matchService, "pageSize", 1);
         Page<LOLMatchEntity> page = new PageImpl<>(List.of(new LOLMatchEntity()));
         when(matchRepository.findAllByQueue(anyString(), anyList(), any())).thenReturn(page);
-        assertFalse(matchService.getLocalMatches("puuid", 0, "ARAM", "ALL_ROLES").isEmpty());
+        assertFalse(matchService.getLocalMatches("puuid", 0, "aram", "all-roles").isEmpty());
         verify(matchRepository, times(1)).findAllByQueue(anyString(), anyList(), any());
     }
 
@@ -113,7 +113,7 @@ class LOLMatchServiceTest {
         ReflectionTestUtils.setField(matchService, "pageSize", 1);
         Page<LOLMatchEntity> page = new PageImpl<>(List.of(new LOLMatchEntity()));
         when(matchRepository.findAllByQueueAndByRole(anyString(), anyList(), anyString(), any())).thenReturn(page);
-        assertFalse(matchService.getLocalMatches("puuid", 0, "ARAM", "JUNGLE").isEmpty());
+        assertFalse(matchService.getLocalMatches("puuid", 0, "aram", "jungle").isEmpty());
         verify(matchRepository, times(1)).findAllByQueueAndByRole(anyString(), anyList(), anyString(), any());
     }
 

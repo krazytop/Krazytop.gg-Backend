@@ -51,8 +51,8 @@ class RIOTApiKeyControllerTest {
     @Test
     void testSetApiKey_OK() {
         ResponseEntity<String> response = apiKeyController.setApiKey("API_KEY");
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        assertNull(response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
         verify(apiKeyRepository, times(1)).save(any());
         verify(apiKeyRepository, times(1)).deleteAll();
     }
