@@ -36,6 +36,9 @@ public class LOLParticipantEntity {
     @JsonAlias("totalMinionsKilled")
     @JsonProperty("minions")
     private int minions;
+    @JsonAlias("neutralMinionsKilled")
+    @JsonProperty("neutralMinions")
+    private int neutralMinions;
     @JsonProperty("doubleKills")
     private int doubleKills;
     @JsonProperty("tripleKills")
