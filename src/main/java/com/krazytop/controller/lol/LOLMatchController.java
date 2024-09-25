@@ -19,18 +19,18 @@ public class LOLMatchController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LOLMatchController.class);
 
-    private final LOLMatchService lolMatchService;
+    private final LOLMatchService matchService;
 
     @Autowired
-    public LOLMatchController(LOLMatchService lolMatchService){
-        this.lolMatchService = lolMatchService;
+    public LOLMatchController(LOLMatchService matchService){
+        this.matchService = matchService;
     }
 
     @GetMapping("/lol/matches/{puuid}/{pageNb}/{queue}/{role}")
     public ResponseEntity<List<LOLMatchEntity>> getLocalMatches(@PathVariable String puuid, @PathVariable int pageNb, @PathVariable String queue, @PathVariable String role) {
         LOGGER.info("Retrieving LOL local matches");
         try {
-            List<LOLMatchEntity> matches = lolMatchService.getLocalMatches(puuid, pageNb, queue, role);
+            List<LOLMatchEntity> matches = matchService.getLocalMatches(puuid, pageNb, queue, role);
             LOGGER.info("LOL local matches successfully retrieved");
             return new ResponseEntity<>(matches, HttpStatus.OK);
         } catch (Exception e) {
@@ -43,7 +43,7 @@ public class LOLMatchController {
     public ResponseEntity<Long> getLocalMatchesCount(@PathVariable String puuid, @PathVariable String queue, @PathVariable String role) {
         LOGGER.info("Retrieving LOL local matches count");
         try {
-            Long matchesCount = lolMatchService.getLocalMatchesCount(puuid, queue, role);
+            Long matchesCount = matchService.getLocalMatchesCount(puuid, queue, role);
             LOGGER.info("LOL local matches count successfully retrieved");
             return new ResponseEntity<>(matchesCount, HttpStatus.OK);
         } catch (Exception e) {
@@ -56,7 +56,7 @@ public class LOLMatchController {
     public ResponseEntity<String> updateRemoteToLocalMatches(@PathVariable String puuid) {
         LOGGER.info("Updating LOL matches");
         try {
-            lolMatchService.updateRemoteToLocalMatches(puuid);
+            matchService.updateRemoteToLocalMatches(puuid);
             LOGGER.info("LOL matches successfully updated");
             return new ResponseEntity<>("LOL matches successfully updated", HttpStatus.OK);
         } catch (Exception e) {
