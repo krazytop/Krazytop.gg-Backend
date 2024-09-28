@@ -150,7 +150,7 @@ class LOLMatchServiceTest {
                 when(urlConstructor.toURL()).thenReturn(urlConstructorCount.getAndIncrement() == 0 ? matchIdsUrl : matchUrl))) {
 
             try (MockedStatic<SpringConfiguration> springConfigurationMock = mockStatic(SpringConfiguration.class)) {
-                this.mockRepositories(springConfigurationMock, "325");
+                this.mockRepositories(springConfigurationMock, "450");
 
                 matchService.updateRemoteToLocalMatches("puuid");
 
