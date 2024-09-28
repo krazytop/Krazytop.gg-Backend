@@ -1,0 +1,4 @@
+cron:
+  - description: "Check and update League of Legends nomenclatures if needed"
+    url: /lol/nomenclature
+    schedule: every 1 hours
