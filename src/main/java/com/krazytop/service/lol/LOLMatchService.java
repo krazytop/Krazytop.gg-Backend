@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Objects;
+import java.util.stream.Stream;
 
 @Service
 public class LOLMatchService {
@@ -87,7 +87,10 @@ public class LOLMatchService {
     }
 
     private boolean checkIfQueueIsCompatible(LOLMatchEntity match) {
-        List<String> compatibleQueues = List.of("325", "400", "420", "430", "440", "450", "490", "700", "720", "900", "1020", "1900");
+        List<String> compatibleQueues = Stream.of("normal", "solo-ranked", "flex-ranked", "aram", "urf", "nexus-blitz", "one-for-all", "ultimate-spellbook")
+                .map(this::getQueueIds)
+                .flatMap(List::stream)
+                .toList();
         return compatibleQueues.contains(match.getQueue().getId());
     }
 

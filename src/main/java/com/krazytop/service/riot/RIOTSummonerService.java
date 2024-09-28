@@ -43,6 +43,7 @@ public class RIOTSummonerService {
     }
 
     public RIOTSummonerEntity getRemoteSummoner(String region, String tag, String name) throws URISyntaxException, IOException {
+        name = name.replace(" ", "%20");
         ObjectMapper mapper = new ObjectMapper();
         String accountApiUrl = String.format("https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/%s/%s?api_key=%s", name, tag, this.apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
         RIOTAccountEntity account = mapper.convertValue(mapper.readTree(new URI(accountApiUrl).toURL()), RIOTAccountEntity.class);
