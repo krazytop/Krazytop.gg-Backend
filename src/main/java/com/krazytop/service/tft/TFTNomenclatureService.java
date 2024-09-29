@@ -1,4 +1,4 @@
-package com.krazytop.nomenclature_management;
+package com.krazytop.service.tft;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,9 +14,9 @@ import java.io.IOException;
 import java.util.List;
 
 @Service
-public class TFTNomenclatureManagement {
+public class TFTNomenclatureService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TFTNomenclatureManagement.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TFTNomenclatureService.class);
 
     private static final List<String> VERSIONS = List.of("set8", "set8_5", "set9", "set9_5");
     private static final String FOLDER = "/src/main/resources/data/tft/";
@@ -28,7 +28,7 @@ public class TFTNomenclatureManagement {
     private final TFTAugmentNomenclatureRepository augmentNomenclatureRepository;
 
     @Autowired
-    public TFTNomenclatureManagement(TFTTraitNomenclatureRepository traitNomenclatureRepository, TFTUnitNomenclatureRepository unitNomenclatureRepository, TFTQueueNomenclatureRepository queueNomenclatureRepository, TFTItemNomenclatureRepository itemNomenclatureRepository, TFTAugmentNomenclatureRepository augmentNomenclatureRepository) {
+    public TFTNomenclatureService(TFTTraitNomenclatureRepository traitNomenclatureRepository, TFTUnitNomenclatureRepository unitNomenclatureRepository, TFTQueueNomenclatureRepository queueNomenclatureRepository, TFTItemNomenclatureRepository itemNomenclatureRepository, TFTAugmentNomenclatureRepository augmentNomenclatureRepository) {
         this.traitNomenclatureRepository = traitNomenclatureRepository;
         this.unitNomenclatureRepository = unitNomenclatureRepository;
         this.queueNomenclatureRepository = queueNomenclatureRepository;

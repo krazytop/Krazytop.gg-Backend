@@ -1,6 +1,6 @@
 package com.krazytop;
 
-import com.krazytop.controller.lol.LOLNomenclatureManagementController;
+import com.krazytop.controller.lol.LOLNomenclatureController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -13,11 +13,11 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication(exclude={DataSourceAutoConfiguration.class})
 public class KrazytopBack {
 
-    private final LOLNomenclatureManagementController lolNomenclatureManagementController;
+    private final LOLNomenclatureController lolNomenclatureController;
 
     @Autowired
-    public KrazytopBack(LOLNomenclatureManagementController lolNomenclatureManagementController){
-        this.lolNomenclatureManagementController = lolNomenclatureManagementController;
+    public KrazytopBack(LOLNomenclatureController lolNomenclatureController){
+        this.lolNomenclatureController = lolNomenclatureController;
     }
 
     public static void main(String[] args) {
@@ -26,6 +26,6 @@ public class KrazytopBack {
 
     @Bean
     public ApplicationRunner startup() {
-        return args -> lolNomenclatureManagementController.updateNomenclatures();
+        return args -> lolNomenclatureController.updateNomenclatures();
     }
 }

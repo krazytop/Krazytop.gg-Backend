@@ -1,6 +1,6 @@
 package com.krazytop.controller.lol;
 
-import com.krazytop.nomenclature_management.LOLNomenclatureManagement;
+import com.krazytop.service.lol.LOLNomenclatureService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,37 +16,37 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class LOLNomenclatureManagementControllerTest {
+class LOLNomenclatureControllerTest {
 
     @InjectMocks
-    private LOLNomenclatureManagementController nomenclatureManagementController;
+    private LOLNomenclatureController nomenclatureController;
     @Mock
-    private LOLNomenclatureManagement nomenclatureManagement;
+    private LOLNomenclatureService nomenclatureService;
 
     @Test
     void testUpdateNomenclature_OK_NEED() throws IOException, URISyntaxException {
-        when(nomenclatureManagement.updateAllNomenclatures()).thenReturn(true);
-        ResponseEntity<String> response = nomenclatureManagementController.updateNomenclatures();
+        when(nomenclatureService.updateAllNomenclatures()).thenReturn(true);
+        ResponseEntity<String> response = nomenclatureController.updateNomenclatures();
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        verify(nomenclatureManagement, times(1)).updateAllNomenclatures();
+        verify(nomenclatureService, times(1)).updateAllNomenclatures();
     }
 
     @Test
     void testUpdateNomenclature_OK_NO_NEED() throws IOException, URISyntaxException {
-        when(nomenclatureManagement.updateAllNomenclatures()).thenReturn(false);
-        ResponseEntity<String> response = nomenclatureManagementController.updateNomenclatures();
+        when(nomenclatureService.updateAllNomenclatures()).thenReturn(false);
+        ResponseEntity<String> response = nomenclatureController.updateNomenclatures();
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        verify(nomenclatureManagement, times(1)).updateAllNomenclatures();
+        verify(nomenclatureService, times(1)).updateAllNomenclatures();
     }
 
     @Test
     void testUpdateNomenclature_ERROR() throws IOException, URISyntaxException {
-        when(nomenclatureManagement.updateAllNomenclatures()).thenThrow(RuntimeException.class);
-        ResponseEntity<String> response = nomenclatureManagementController.updateNomenclatures();
+        when(nomenclatureService.updateAllNomenclatures()).thenThrow(RuntimeException.class);
+        ResponseEntity<String> response = nomenclatureController.updateNomenclatures();
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNotNull(response.getBody());
-        verify(nomenclatureManagement, times(1)).updateAllNomenclatures();
+        verify(nomenclatureService, times(1)).updateAllNomenclatures();
     }
 }

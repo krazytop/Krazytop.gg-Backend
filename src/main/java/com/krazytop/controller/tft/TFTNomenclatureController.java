@@ -1,6 +1,6 @@
 package com.krazytop.controller.tft;
 
-import com.krazytop.nomenclature_management.TFTNomenclatureManagement;
+import com.krazytop.service.tft.TFTNomenclatureService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,21 +10,21 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class TFTNomenclatureManagementController {
+public class TFTNomenclatureController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TFTNomenclatureManagementController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TFTNomenclatureController.class);
 
-    private final TFTNomenclatureManagement tftNomenclatureManagement;
+    private final TFTNomenclatureService tftNomenclatureService;
 
     @Autowired
-    public TFTNomenclatureManagementController(TFTNomenclatureManagement tftNomenclatureManagement) {
-        this.tftNomenclatureManagement = tftNomenclatureManagement;
+    public TFTNomenclatureController(TFTNomenclatureService tftNomenclatureService) {
+        this.tftNomenclatureService = tftNomenclatureService;
     }
 
     @PostMapping("/tft/nomenclature/trait")
     public ResponseEntity<Boolean> updateTraitNomenclature() {
         LOGGER.info("Updating tft trait nomenclature");
-        boolean success = tftNomenclatureManagement.updateTraitNomenclature();
+        boolean success = tftNomenclatureService.updateTraitNomenclature();
         LOGGER.info("TFT Trait nomenclature updated");
         return new ResponseEntity<>(success, HttpStatus.OK);
     }
@@ -32,7 +32,7 @@ public class TFTNomenclatureManagementController {
     @PostMapping("/tft/nomenclature/unit")
     public ResponseEntity<Boolean> updateUnitNomenclature() {
         LOGGER.info("Updating tft unit nomenclature");
-        boolean success = tftNomenclatureManagement.updateUnitNomenclature();
+        boolean success = tftNomenclatureService.updateUnitNomenclature();
         LOGGER.info("TFT unit nomenclature updated");
         return new ResponseEntity<>(success, HttpStatus.OK);
     }
@@ -40,7 +40,7 @@ public class TFTNomenclatureManagementController {
     @PostMapping("/tft/nomenclature/queue")
     public ResponseEntity<Boolean> updateQueueNomenclature() {
         LOGGER.info("Updating tft queue nomenclature");
-        boolean success = tftNomenclatureManagement.updateQueueNomenclature();
+        boolean success = tftNomenclatureService.updateQueueNomenclature();
         LOGGER.info("TFT Queue nomenclature updated");
         return new ResponseEntity<>(success, HttpStatus.OK);
     }
@@ -48,7 +48,7 @@ public class TFTNomenclatureManagementController {
     @PostMapping("/tft/nomenclature/item")
     public ResponseEntity<Boolean> updateItemNomenclature() {
         LOGGER.info("Updating tft item nomenclature");
-        boolean success = tftNomenclatureManagement.updateItemNomenclature();
+        boolean success = tftNomenclatureService.updateItemNomenclature();
         LOGGER.info("TFT item nomenclature updated");
         return new ResponseEntity<>(success, HttpStatus.OK);
     }
@@ -56,7 +56,7 @@ public class TFTNomenclatureManagementController {
     @PostMapping("/tft/nomenclature/augment")
     public ResponseEntity<Boolean> updateAugmentNomenclature() {
         LOGGER.info("Updating tft augment nomenclature");
-        boolean success = tftNomenclatureManagement.updateAugmentNomenclature();
+        boolean success = tftNomenclatureService.updateAugmentNomenclature();
         LOGGER.info("TFT augment nomenclature updated");
         return new ResponseEntity<>(success, HttpStatus.OK);
     }
