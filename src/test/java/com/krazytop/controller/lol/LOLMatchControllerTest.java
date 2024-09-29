@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -61,7 +62,7 @@ class LOLMatchControllerTest {
     }
 
     @Test
-    void testUpdateRemoteToLocalMatches_OK() {
+    void testUpdateRemoteToLocalMatches_OK() throws IOException {
         ResponseEntity<String> response = matchController.updateRemoteToLocalMatches("puuid");
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -69,7 +70,7 @@ class LOLMatchControllerTest {
     }
 
     @Test
-    void testUpdateRemoteToLocalMatches_ERROR() {
+    void testUpdateRemoteToLocalMatches_ERROR() throws IOException {
         doThrow(RuntimeException.class).when(matchService).updateRemoteToLocalMatches(anyString());
         ResponseEntity<String> response = matchController.updateRemoteToLocalMatches("puuid");
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());

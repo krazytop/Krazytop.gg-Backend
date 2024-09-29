@@ -61,7 +61,7 @@ public class LOLMatchService {
     /**
      * Due to development API Key rate limit, we recover only and always 100 last matches
      */
-    public void updateRemoteToLocalMatches(String puuid) {
+    public void updateRemoteToLocalMatches(String puuid) throws IOException {
         try {
             String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, 0, 100, apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
             ObjectMapper mapper = new ObjectMapper();
@@ -83,6 +83,7 @@ public class LOLMatchService {
         } catch (InterruptedException | URISyntaxException | IOException e) {
             LOGGER.error("Error while updating matches : {}", e.getMessage());
             Thread.currentThread().interrupt();
+            throw new IOException(e);
         }
     }
 
