@@ -3,6 +3,7 @@ package com.krazytop.entity.lol;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
@@ -11,6 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 public class LOLVersionEntity {
 
+    @Id private String id = "1";
     private String item;
     private String rune;
     private String mastery;

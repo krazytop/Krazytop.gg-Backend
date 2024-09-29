@@ -3,7 +3,6 @@ package com.krazytop.service.lol;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.krazytop.entity.lol.LOLMasteryEntity;
 import com.krazytop.entity.lol.LOLVersionEntity;
 import com.krazytop.nomenclature.lol.*;
 import com.krazytop.repository.lol.*;
@@ -22,7 +21,7 @@ import java.util.*;
  * Only EUW & fr_FR for now
  */
 @Service
-public class LOLNomenclatureService { //TODO need better deserialization
+public class LOLNomenclatureService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LOLNomenclatureService.class);
 
@@ -44,7 +43,6 @@ public class LOLNomenclatureService { //TODO need better deserialization
     }
 
     private void updateQueueNomenclature() throws IOException, URISyntaxException {
-        queueNomenclatureRepository.deleteAll();
         String uri = "https://static.developer.riotgames.com/docs/lol/queues.json";
         URL url = new URI(uri).toURL();
         ObjectMapper mapper = new ObjectMapper();
@@ -53,8 +51,7 @@ public class LOLNomenclatureService { //TODO need better deserialization
         LOGGER.info("Update {} queue nomenclatures", queues.size());
     }
 
-    private void updateRuneNomenclature(String version) throws IOException, URISyntaxException {
-        runeNomenclatureRepository.deleteAll();
+    private void updateRuneNomenclature(String version) throws IOException, URISyntaxException { //TODO need better deserialization rune
         List<LOLRuneNomenclature> runes = new ArrayList<>();
         JsonNode json = new ObjectMapper().readTree(new URI(String.format("https://ddragon.leagueoflegends.com/cdn/%s/data/fr_FR/runesReforged.json", version)).toURL());
 
@@ -95,41 +92,21 @@ public class LOLNomenclatureService { //TODO need better deserialization
     }
 
     private void updateItemNomenclature(String version) throws IOException, URISyntaxException {
-        List<LOLItemNomenclature> items = new ArrayList<>();
-        Map<String, JsonNode> map = this.downloadJsonAndGetMap(String.format("https://ddragon.leagueoflegends.com/cdn/%s/data/fr_FR/item.json", version));
-        for (Map.Entry<String, JsonNode> entry : map.entrySet()) {
-            JsonNode value = entry.getValue();
-            LOLItemNomenclature item = new LOLItemNomenclature();
-            this.setBasicNomenclature(item, entry);
-            item.setPlainText(value.get("plaintext").asText());
-            item.setBaseGold(value.get("gold").get("base").asInt());
-            item.setTotalGold(value.get("gold").get("total").asInt());
-            item.setTags(this.getStringListFromNode(value.get("tags")));
-            item.setStats(this.getStringMapFromNode(value.get("stats")));
-            item.setToItems(this.getStringListFromNode(value.get("into")));
-            item.setFromItems(this.getStringListFromNode(value.get("from")));
-            items.add(item);
-        }
+        List<LOLItemNomenclature> items = this.downloadNewItems(String.format("https://ddragon.leagueoflegends.com/cdn/%s/data/fr_FR/item.json", version));
         itemNomenclatureRepository.saveAll(items);
         LOGGER.info("Update {} item nomenclatures", items.size());
     }
 
-    private List<String> getStringListFromNode(JsonNode node) {
-        return new ObjectMapper().convertValue(node, new TypeReference<>() {});
-    }
-
-    private Map<String, Integer> getStringMapFromNode(JsonNode node) {
-        return new ObjectMapper().convertValue(node, new TypeReference<>() {});
-    }
-
-    private Map<String, JsonNode> downloadJsonAndGetMap(String s) {
-        return null;
+    private List<LOLItemNomenclature> downloadNewItems(String stringUrl) throws IOException, URISyntaxException {
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, LOLItemNomenclature> nomenclaturesMap = mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()).get("data"), new TypeReference<>() {});
+        nomenclaturesMap.forEach((id, nomenclature) -> nomenclature.setId(id));
+        return nomenclaturesMap.values().stream().toList();
     }
 
     private List<LOLChampionNomenclature> downloadNewChampions(String stringUrl) throws IOException, URISyntaxException {
         ObjectMapper mapper = new ObjectMapper();
         Map<String, LOLChampionNomenclature> nomenclaturesMap = mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()).get("data"), new TypeReference<>() {});
-        nomenclaturesMap.forEach((id, nomenclature) -> nomenclature.setId(id));
         return nomenclaturesMap.values().stream().toList();
     }
 
@@ -169,14 +146,6 @@ public class LOLNomenclatureService { //TODO need better deserialization
         URL url = new URI(uri).toURL();
         ObjectMapper mapper = new ObjectMapper();
         return mapper.convertValue(mapper.readTree(url).get("n"), LOLVersionEntity.class);
-    }
-
-    private void setBasicNomenclature(LOLNomenclature nomenclature, Map.Entry<String, JsonNode> entry) {
-        JsonNode value = entry.getValue();
-        nomenclature.setId(value.get("key") != null ? value.get("key").asText() : entry.getKey());
-        nomenclature.setName(value.get("name").asText());
-        nomenclature.setImage(value.get("image").get("full").asText());
-        nomenclature.setDescription(value.get("blurb") != null ? value.get("blurb").asText() : value.get("description").asText());
     }
 
 }

@@ -8,15 +8,10 @@
       "description": "<mainText><stats><attention>+25</attention> vitesse de déplacement</stats><br><br></mainText>",
       "colloq": ";Boots of Speed;bottes de vitesse",
       "plaintext": "Augmente légèrement la vitesse de déplacement.",
+      "from": [
+        "3005"
+      ],
       "into": [
-        "3005",
-        "3047",
-        "3006",
-        "3009",
-        "3010",
-        "3020",
-        "3111",
-        "3117",
         "3158"
       ],
       "image": {
@@ -31,7 +26,7 @@
       "gold": {
         "base": 300,
         "purchasable": true,
-        "total": 300,
+        "total": 301,
         "sell": 210
       },
       "tags": [
