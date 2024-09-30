@@ -21,8 +21,6 @@ import java.util.Date;
 @Service
 public class RIOTSummonerService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RIOTSummonerService.class);
-
     private final RIOTSummonerRepository summonerRepository;
     private final RIOTApiKeyRepository apiKeyRepository;
 
