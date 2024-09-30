@@ -81,7 +81,6 @@ public class LOLMatchService {
                 }
             }
         } catch (InterruptedException | URISyntaxException | IOException e) {
-            LOGGER.error("Error while updating matches : {}", e.getMessage());
             Thread.currentThread().interrupt();
             throw new IOException(e);
         }
