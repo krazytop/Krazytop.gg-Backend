@@ -1,6 +1,5 @@
 package com.krazytop.nomenclature.clash_royal;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -14,13 +13,12 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CRCardRarityNomenclature {
 
-    @JsonProperty("name") @Id
+    @Id
+    @JsonProperty("name")
     private String name;
-    @JsonAlias("relative_level")
-    @JsonProperty("relativeLevel")
+    @JsonProperty("relative_level")
     private int relativeLevel;
-    @JsonAlias("upgrade_material_count")
-    @JsonProperty("upgradeCost")
+    @JsonProperty("upgrade_material_count")
     private List<Integer> upgradeCost;
 
 }

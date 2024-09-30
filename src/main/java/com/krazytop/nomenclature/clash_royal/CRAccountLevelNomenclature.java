@@ -1,6 +1,5 @@
 package com.krazytop.nomenclature.clash_royal;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -12,16 +11,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CRAccountLevelNomenclature {
 
-    @JsonAlias("name")
-    @JsonProperty("level") @Id
+    @Id
+    @JsonProperty("name")
     private int level;
-    @JsonAlias("exp_to_next_level")
-    @JsonProperty("expToNextLevel")
+    @JsonProperty("exp_to_next_level")
     private int expToNextLevel;
-    @JsonAlias("tower_level")
-    @JsonProperty("towerLevel")
+    @JsonProperty("tower_level")
     private int towerLevel;
-    @JsonAlias("summoner_level")
-    @JsonProperty("summonerLevel")
+    @JsonProperty("summoner_level")
     private int summonerLevel;
 }
