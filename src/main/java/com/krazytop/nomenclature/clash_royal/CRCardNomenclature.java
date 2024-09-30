@@ -1,16 +1,40 @@
 package com.krazytop.nomenclature.clash_royal;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document(collection = "CardNomenclature")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CRCardNomenclature {
 
+    @JsonProperty("id")
     private int id;
+    @JsonIgnore
     private String name;
-    private String type;
-    private int elixir;
+    @JsonIgnore
     private String description;
+    @JsonProperty("type")
+    private String type;
+    @JsonProperty("elixir")
+    private int elixir;
+    @JsonProperty("rarity")
     private String rarity;
+    @JsonProperty("image")
+    private String image;
+
+    @JsonProperty("key")
+    private void unpackKey(JsonNode node) {
+        this.image = String.format("%s.png", node.asText());
+    }
+
+    @JsonProperty("_lang")
+    private void unpackLang(JsonNode node) {
+        this.name = node.get("name").get("fr").asText();
+        this.description = node.get("description").get("fr").asText();
+    }
 }

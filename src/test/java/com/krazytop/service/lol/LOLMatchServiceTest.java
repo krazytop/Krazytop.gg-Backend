@@ -142,10 +142,10 @@ class LOLMatchServiceTest {
     }
 
     @Test
-    void testUpdateRemoteToLocalMatches_NewMatch_CompatibleQueue() throws MalformedURLException {
+    void testUpdateRemoteToLocalMatches_NewMatch_CompatibleQueue() {
         AtomicInteger urlConstructorCount = new AtomicInteger();
-        URL matchIdsUrl = new File(String.format("%s/src/test/resources/lol/match-ids.json", System.getProperty("user.dir"))).toURI().toURL();
-        URL matchUrl = new File(String.format("%s/src/test/resources/lol/match.json", System.getProperty("user.dir"))).toURI().toURL();
+        URL matchIdsUrl = getJson("match-ids");
+        URL matchUrl = getJson("match");
         try (MockedConstruction<URI> uriMock = mockConstruction(URI.class, (urlConstructor, context) ->
                 when(urlConstructor.toURL()).thenReturn(urlConstructorCount.getAndIncrement() == 0 ? matchIdsUrl : matchUrl))) {
 
@@ -163,10 +163,10 @@ class LOLMatchServiceTest {
     }
 
     @Test
-    void testUpdateRemoteToLocalMatches_NewMatch_IncompatibleQueue() throws MalformedURLException {
+    void testUpdateRemoteToLocalMatches_NewMatch_IncompatibleQueue() {
         AtomicInteger urlConstructorCount = new AtomicInteger();
-        URL matchIdsUrl = new File(String.format("%s/src/test/resources/lol/match-ids.json", System.getProperty("user.dir"))).toURI().toURL();
-        URL matchUrl = new File(String.format("%s/src/test/resources/lol/match.json", System.getProperty("user.dir"))).toURI().toURL();
+        URL matchIdsUrl = getJson("match-ids");
+        URL matchUrl = getJson("match");
         try (MockedConstruction<URI> uriMock = mockConstruction(URI.class, (urlConstructor, context) ->
                 when(urlConstructor.toURL()).thenReturn(urlConstructorCount.getAndIncrement() == 0 ? matchIdsUrl : matchUrl))) {
 
@@ -184,8 +184,8 @@ class LOLMatchServiceTest {
     }
 
     @Test
-    void testUpdateRemoteToLocalMatches_ExistingMatch() throws MalformedURLException {
-        URL matchIdsUrl = new File(String.format("%s/src/test/resources/lol/match-ids.json", System.getProperty("user.dir"))).toURI().toURL();
+    void testUpdateRemoteToLocalMatches_ExistingMatch() {
+        URL matchIdsUrl = getJson("match-ids");
         try (MockedConstruction<URI> uriMock = mockConstruction(URI.class, (urlConstructor, context) ->
                 when(urlConstructor.toURL()).thenReturn(matchIdsUrl))) {
 
@@ -212,6 +212,14 @@ class LOLMatchServiceTest {
             assertEquals(1, uriMock.constructed().size());
             verify(matchRepository, times(0)).findFirstById(anyString());
             verify(apiKeyRepository, times(1)).findFirstByOrderByKeyAsc();
+        }
+    }
+
+    private URL getJson(String fileName) {
+        try {
+            return new File(String.format("%s/src/test/resources/lol/%s.json", System.getProperty("user.dir"), fileName)).toURI().toURL();
+        } catch (MalformedURLException e) {
+            return null;
         }
     }
 }

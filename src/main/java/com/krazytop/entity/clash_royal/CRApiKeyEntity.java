@@ -1,19 +1,15 @@
 package com.krazytop.entity.clash_royal;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document(collection = "ApiKey")
+@AllArgsConstructor
 public class CRApiKeyEntity {
 
-    private String key;
+    @Id private String key;
 
-    public CRApiKeyEntity(String key){
-        this.key = key;
-    }
-
-    public String toString() {
-        return this.key;
-    }
 }

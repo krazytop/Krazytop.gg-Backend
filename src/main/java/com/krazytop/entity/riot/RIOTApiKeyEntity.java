@@ -2,6 +2,7 @@ package com.krazytop.entity.riot;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
@@ -9,6 +10,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 public class RIOTApiKeyEntity {
 
-    private String key;
+    @Id private String key;
 
 }

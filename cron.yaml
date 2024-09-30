@@ -3,3 +3,7 @@ cron:
     url: /lol/nomenclature
     schedule: every 1 hours
     target: default
+  - description: "Update Clash Royal nomenclatures"
+    url: /clash-royal/nomenclature
+    schedule: every 1 weeks
+    target: default
