@@ -1,6 +1,6 @@
 package com.krazytop.controller.clash_royal;
 
-import com.krazytop.nomenclature_management.CRNomenclatureManagement;
+import com.krazytop.service.clash_royal.CRNomenclatureService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,21 +11,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class CRNomenclatureManagementController {
+public class CRNomenclatureController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CRNomenclatureManagementController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CRNomenclatureController.class);
 
-    private final CRNomenclatureManagement crNomenclatureManagement;
+    private final CRNomenclatureService crNomenclatureService;
 
     @Autowired
-    public CRNomenclatureManagementController(CRNomenclatureManagement crNomenclatureManagement){
-        this.crNomenclatureManagement = crNomenclatureManagement;
+    public CRNomenclatureController(CRNomenclatureService crNomenclatureService){
+        this.crNomenclatureService = crNomenclatureService;
     }
 
     @PostMapping("/clash-royal/nomenclature/account-level")
     public ResponseEntity<Boolean> updateAccountLevelNomenclature() {
         LOGGER.info("Updating account level nomenclature");
-        boolean success = crNomenclatureManagement.updateAccountLevelNomenclature();
+        boolean success = crNomenclatureService.updateAccountLevelNomenclature();
         LOGGER.info("Account level nomenclature updated");
         return new ResponseEntity<>(success, HttpStatus.OK);
     }
@@ -33,7 +33,7 @@ public class CRNomenclatureManagementController {
     @PostMapping("/clash-royal/nomenclature/card")
     public ResponseEntity<Boolean> updateCardNomenclature() {
         LOGGER.info("Updating card nomenclature");
-        boolean success = crNomenclatureManagement.updateCardNomenclature();
+        boolean success = crNomenclatureService.updateCardNomenclature();
         LOGGER.info("Card nomenclature updated");
         return new ResponseEntity<>(success, HttpStatus.OK);
     }
@@ -41,7 +41,7 @@ public class CRNomenclatureManagementController {
     @PostMapping("/clash-royal/nomenclature/card-rarity")
     public ResponseEntity<Boolean> updateCardRarityNomenclature() {
         LOGGER.info("Updating card rarity nomenclature");
-        boolean success = crNomenclatureManagement.updateCardRarityNomenclature();
+        boolean success = crNomenclatureService.updateCardRarityNomenclature();
         LOGGER.info("Card rarity nomenclature updated");
         return new ResponseEntity<>(success, HttpStatus.OK);
     }
@@ -59,7 +59,7 @@ public class CRNomenclatureManagementController {
     @PostMapping("/clash-royal/api-key")
     public ResponseEntity<Boolean> updateApiKey(@RequestBody String apiKey) {
         LOGGER.info("Updating api key");
-        boolean success = crNomenclatureManagement.updateApiKey(apiKey);
+        boolean success = crNomenclatureService.updateApiKey(apiKey);
         LOGGER.info("Api key updated");
         return new ResponseEntity<>(success, HttpStatus.OK);
     }

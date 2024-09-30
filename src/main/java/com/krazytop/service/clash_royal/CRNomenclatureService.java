@@ -1,4 +1,4 @@
-package com.krazytop.nomenclature_management;
+package com.krazytop.service.clash_royal;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,9 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class CRNomenclatureManagement {
+public class CRNomenclatureService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CRNomenclatureManagement.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CRNomenclatureService.class);
 
     private static final String FOLDER = "/src/main/resources/data/clash-royal/";
 
@@ -33,7 +33,7 @@ public class CRNomenclatureManagement {
     private final CRApiKeyRepository apiKeyRepository;
 
     @Autowired
-    public CRNomenclatureManagement(CRAccountLevelNomenclatureRepository accountLevelRepository, CRCardNomenclatureRepository cardNomenclatureRepository, CRCardRarityNomenclatureRepository cardRarityNomenclatureRepository, CRApiKeyRepository apiKeyRepository) {
+    public CRNomenclatureService(CRAccountLevelNomenclatureRepository accountLevelRepository, CRCardNomenclatureRepository cardNomenclatureRepository, CRCardRarityNomenclatureRepository cardRarityNomenclatureRepository, CRApiKeyRepository apiKeyRepository) {
         this.accountLevelRepository = accountLevelRepository;
         this.cardNomenclatureRepository = cardNomenclatureRepository;
         this.cardRarityNomenclatureRepository = cardRarityNomenclatureRepository;
