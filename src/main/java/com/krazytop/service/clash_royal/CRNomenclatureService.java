@@ -1,7 +1,6 @@
 package com.krazytop.service.clash_royal;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.nomenclature.clash_royal.CRAccountLevelNomenclature;
 import com.krazytop.nomenclature.clash_royal.CRCardNomenclature;
@@ -14,11 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -37,28 +34,6 @@ public class CRNomenclatureService {
         this.accountLevelRepository = accountLevelRepository;
         this.cardNomenclatureRepository = cardNomenclatureRepository;
         this.cardRarityNomenclatureRepository = cardRarityNomenclatureRepository;
-    }
-
-    public boolean updateAccountLevelNomenclatureOLD() {
-        accountLevelRepository.deleteAll();
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            File itemFile = new File(getCurrentWorkingDirectory() + FOLDER + "/cr-account-levels.json");
-            JsonNode dataNode = objectMapper.readTree(itemFile);
-            List<CRAccountLevelNomenclature> accountLevels = new ArrayList<>();
-            for (JsonNode field : dataNode) {
-                CRAccountLevelNomenclature accountLevel = new CRAccountLevelNomenclature();
-                accountLevel.setLevel(field.get("name").asInt());
-                accountLevel.setTowerLevel(field.get("tower_level").asInt());
-                accountLevel.setExpToNextLevel(field.get("exp_to_next_level").asInt());
-                accountLevels.add(accountLevel);
-            }
-            accountLevelRepository.saveAll(accountLevels);
-            return true;
-        } catch (IOException e) {
-            LOGGER.error("Error while updating account level nomenclature : {}", e.getMessage());
-            return false;
-        }
     }
 
     private void updateCardRarityNomenclature() throws IOException, URISyntaxException {
