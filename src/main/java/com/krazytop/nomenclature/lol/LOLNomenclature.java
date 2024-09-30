@@ -15,7 +15,7 @@ public abstract class LOLNomenclature {
     private String name;
     @JsonIgnore
     private String image;
-    @JsonAlias("blurb")
+    @JsonAlias({"blurb", "shortDesc"})
     @JsonProperty("description")
     private String description;
 

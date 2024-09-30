@@ -1,7 +1,6 @@
 package com.krazytop.service.lol;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.entity.lol.LOLVersionEntity;
 import com.krazytop.nomenclature.lol.*;
@@ -51,30 +50,14 @@ public class LOLNomenclatureService {
         LOGGER.info("Update {} queue nomenclatures", queues.size());
     }
 
-    private void updateRuneNomenclature(String version) throws IOException, URISyntaxException { //TODO need better deserialization rune
+    private void updateRuneNomenclature(String version) throws IOException, URISyntaxException {
         List<LOLRuneNomenclature> runes = new ArrayList<>();
-        JsonNode json = new ObjectMapper().readTree(new URI(String.format("https://ddragon.leagueoflegends.com/cdn/%s/data/fr_FR/runesReforged.json", version)).toURL());
-
-        json.forEach(parentRuneNode -> {
-            LOLRuneNomenclature parentRune = new LOLRuneNomenclature();
-            parentRune.setName(parentRuneNode.get("name").asText());
-            parentRune.setId(parentRuneNode.get("id").asText());
-            parentRune.setImage(parentRuneNode.get("icon").asText());
-            runes.add(parentRune);
-            JsonNode slotsNode = parentRuneNode.path("slots");
-            for (JsonNode slotNode : slotsNode) {
-                JsonNode runesNode = slotNode.get("runes");
-                for (JsonNode runeNode : runesNode) {
-                    LOLRuneNomenclature rune = new LOLRuneNomenclature();
-                    rune.setName(runeNode.get("name").asText());
-                    rune.setId(runeNode.get("id").asText());
-                    rune.setImage(runeNode.get("icon").asText());
-                    rune.setDescription(runeNode.get("shortDesc").asText());
-                    rune.setLongDescription(runeNode.get("longDesc").asText());
-                    runes.add(rune);
-                }
-            }
-        });
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.readTree(new URI(String.format("https://ddragon.leagueoflegends.com/cdn/%s/data/fr_FR/runesReforged.json", version)).toURL())
+                .forEach(parentRuneNode -> {
+                    runes.add(mapper.convertValue(parentRuneNode, new TypeReference<>() {}));
+                    parentRuneNode.path("slots").forEach(slotNode -> slotNode.get("runes").forEach(runeNode -> runes.add(mapper.convertValue(runeNode, new TypeReference<>() {}))));
+                });
         runeNomenclatureRepository.saveAll(runes);
         LOGGER.info("Update {} rune nomenclatures", runes.size());
     }
