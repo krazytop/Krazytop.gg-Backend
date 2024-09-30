@@ -23,8 +23,6 @@ public class CRNomenclatureService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CRNomenclatureService.class);
 
-    private static final String FOLDER = "/src/main/resources/data/clash-royal/";
-
     private final CRAccountLevelNomenclatureRepository accountLevelRepository;
     private final CRCardNomenclatureRepository cardNomenclatureRepository;
     private final CRCardRarityNomenclatureRepository cardRarityNomenclatureRepository;
@@ -75,7 +73,4 @@ public class CRNomenclatureService {
         this.updateAccountLevelNomenclature();
     }
 
-    private String getCurrentWorkingDirectory() {
-        return System.getProperty("user.dir");
-    }
 }
