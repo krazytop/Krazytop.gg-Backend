@@ -2,11 +2,12 @@ package com.krazytop.service.lol;
 
 import com.krazytop.config.ApplicationContextProvider;
 import com.krazytop.config.SpringConfiguration;
+import com.krazytop.entity.api_key.ApiKeyEntity;
 import com.krazytop.entity.lol.LOLMasteryEntity;
-import com.krazytop.entity.riot.RIOTApiKeyEntity;
+import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.nomenclature.lol.*;
+import com.krazytop.repository.api_key.ApiKeyRepository;
 import com.krazytop.repository.lol.*;
-import com.krazytop.repository.riot.RIOTApiKeyRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -37,7 +38,7 @@ class LOLMasteryServiceTest {
     @Mock
     private LOLMasteryRepository masteryRepository;
     @Mock
-    private RIOTApiKeyRepository apiKeyRepository;
+    private ApiKeyRepository apiKeyRepository;
     @Mock
     private LOLChampionNomenclatureRepository championNomenclatureRepository;
 
@@ -58,7 +59,7 @@ class LOLMasteryServiceTest {
         when(mockApplicationContext.getBean(LOLChampionNomenclatureRepository.class)).thenReturn(championNomenclatureRepository);
 
         when(championNomenclatureRepository.findFirstById(anyString())).thenReturn(new LOLChampionNomenclature());
-        when(apiKeyRepository.findFirstByOrderByKeyAsc()).thenReturn(new RIOTApiKeyEntity("API_KEY"));
+        when(apiKeyRepository.findFirstByGame(GameEnum.RIOT)).thenReturn(new ApiKeyEntity(GameEnum.RIOT, "API_KEY"));
     }
 
     @Test
@@ -74,7 +75,7 @@ class LOLMasteryServiceTest {
 
                 assertEquals(1, uriMock.constructed().size());
                 verify(championNomenclatureRepository, times(1)).findFirstById(anyString());
-                verify(apiKeyRepository, times(1)).findFirstByOrderByKeyAsc();
+                verify(apiKeyRepository, times(1)).findFirstByGame(GameEnum.RIOT);
             }
         }
     }
@@ -84,13 +85,13 @@ class LOLMasteryServiceTest {
         try (MockedConstruction<URI> uriMock = mockConstruction(URI.class, (urlConstructor, context) ->
                 when(urlConstructor.toURL()).thenThrow(MalformedURLException.class))) {
 
-            when(apiKeyRepository.findFirstByOrderByKeyAsc()).thenReturn(new RIOTApiKeyEntity("API_KEY"));
+            when(apiKeyRepository.findFirstByGame(GameEnum.RIOT)).thenReturn(new ApiKeyEntity(GameEnum.RIOT, "API_KEY"));
 
             assertThrows(MalformedURLException.class, () -> masteryService.updateRemoteToLocalMasteries("puuid"));
 
             assertEquals(1, uriMock.constructed().size());
             verify(championNomenclatureRepository, times(0)).findFirstById(anyString());
-            verify(apiKeyRepository, times(1)).findFirstByOrderByKeyAsc();
+            verify(apiKeyRepository, times(1)).findFirstByGame(GameEnum.RIOT);
         }
     }
 }

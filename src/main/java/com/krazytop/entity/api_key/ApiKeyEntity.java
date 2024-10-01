@@ -1,5 +1,6 @@
-package com.krazytop.entity.clash_royal;
+package com.krazytop.entity.api_key;
 
+import com.krazytop.nomenclature.GameEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -8,8 +9,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @Document(collection = "ApiKey")
 @AllArgsConstructor
-public class CRApiKeyEntity {
+public class ApiKeyEntity {
 
-    @Id private String key;
+    @Id private GameEnum game;
+    private String key;
 
 }

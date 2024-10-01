@@ -39,6 +39,12 @@ public class MongoDbConfig {
         return new MongoProperties();
     }
 
+    @Bean(name = "apiKeyMongoProperties")
+    @ConfigurationProperties(prefix = "spring.data.mongodb.api-key")
+    public MongoProperties getApiKeyMongoProperties() {
+        return new MongoProperties();
+    }
+
     @Primary
     @Bean(name = "tftMongoTemplate")
     public MongoTemplate tftMongoTemplate() {
@@ -58,6 +64,11 @@ public class MongoDbConfig {
     @Bean(name = "clashRoyalMongoTemplate")
     public MongoTemplate clashRoyalMongoTemplate() {
         return new MongoTemplate(clashRoyalMongoDatabaseFactory(getClashRoyalMongoProperties()));
+    }
+
+    @Bean(name = "apiKeyMongoTemplate")
+    public MongoTemplate apiKeyMongoTemplate() {
+        return new MongoTemplate(apiKeyMongoDatabaseFactory(getApiKeyMongoProperties()));
     }
 
     @Primary
@@ -84,6 +95,13 @@ public class MongoDbConfig {
 
     @Bean
     public MongoDatabaseFactory clashRoyalMongoDatabaseFactory(MongoProperties mongo) {
+        return new SimpleMongoClientDatabaseFactory(
+                mongo.getUri()
+        );
+    }
+
+    @Bean
+    public MongoDatabaseFactory apiKeyMongoDatabaseFactory(MongoProperties mongo) {
         return new SimpleMongoClientDatabaseFactory(
                 mongo.getUri()
         );
