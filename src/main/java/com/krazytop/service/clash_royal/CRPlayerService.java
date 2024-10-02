@@ -11,6 +11,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -19,17 +20,11 @@ import java.util.Date;
 public class CRPlayerService {
 
     private final CRApiService apiService;
-    private final CRAccountLevelNomenclatureRepository accountLevelNomenclatureRepository;
-    private final CRCardNomenclatureRepository cardNomenclatureRepository;
-    private final CRCardRarityNomenclatureRepository cardRarityNomenclatureRepository;
     private final CRPlayerRepository playerRepository;
 
     @Autowired
-    public CRPlayerService(CRApiService apiService, CRAccountLevelNomenclatureRepository accountLevelNomenclatureRepository, CRCardNomenclatureRepository cardNomenclatureRepository, CRCardRarityNomenclatureRepository cardRarityNomenclatureRepository, CRPlayerRepository playerRepository) {
+    public CRPlayerService(CRApiService apiService, CRPlayerRepository playerRepository) {
         this.apiService = apiService;
-        this.accountLevelNomenclatureRepository = accountLevelNomenclatureRepository;
-        this.cardNomenclatureRepository = cardNomenclatureRepository;
-        this.cardRarityNomenclatureRepository = cardRarityNomenclatureRepository;
         this.playerRepository = playerRepository;
     }
 
@@ -37,74 +32,26 @@ public class CRPlayerService {
         return playerRepository.findFirstById(playerId);
     }
 
-    public CRPlayerEntity updateRemoteToLocalPlayer(String playerId) {
+    public CRPlayerEntity updateRemoteToLocalPlayer(String playerId) throws IOException {
         CRPlayerEntity remotePlayer = getRemotePlayer(playerId);
-        accountLevelEnrichment(remotePlayer);
-        leaguesEnrichment(remotePlayer);
         chestsEnrichment(remotePlayer);
-        badgeEnrichment(remotePlayer);
         remotePlayer.setUpdateDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
         return playerRepository.save(remotePlayer);
     }
 
-    public CRPlayerEntity getRemotePlayer(String playerId) {
+    public CRPlayerEntity getRemotePlayer(String playerId) throws IOException {
         String apiUrl = "https://proxy.royaleapi.dev/v1/players/%23" + playerId;
         CRPlayerEntity player = apiService.callCrApi(apiUrl, CRPlayerEntity.class);
-        if (player != null) {
-            cardEnrichment(player);
+        if (player != null) {//TODO prendre playerId
             player.setId(player.getId().replace("#", ""));
         }
         return player;
     }
 
-    private void accountLevelEnrichment(CRPlayerEntity player) {
-        CRAccountLevelEntity accountLevel = new ModelMapper().map(accountLevelNomenclatureRepository.findFirstByLevel(player.getExpLevel()), CRAccountLevelEntity.class);
-        accountLevel.setCurrentExp(player.getExpPoints());
-        player.setAccountLevel(accountLevel);
-    }
-
-    private void leaguesEnrichment(CRPlayerEntity player) {
-        CRLeagueEntity currentSeason = new CRLeagueEntity();
-        currentSeason.setLeagueNumber(player.getCurrentPathOfLegendSeasonResult().getLeagueNumber());
-        currentSeason.setRank(player.getCurrentPathOfLegendSeasonResult().getRank());
-        currentSeason.setTrophies(player.getCurrentPathOfLegendSeasonResult().getTrophies());
-        CRLeagueEntity previousSeason = new CRLeagueEntity();
-        previousSeason.setLeagueNumber(player.getLastPathOfLegendSeasonResult().getLeagueNumber());
-        previousSeason.setRank(player.getLastPathOfLegendSeasonResult().getRank());
-        previousSeason.setTrophies(player.getLastPathOfLegendSeasonResult().getTrophies());
-        CRLeagueEntity bestSeason = new CRLeagueEntity();
-        bestSeason.setLeagueNumber(player.getBestPathOfLegendSeasonResult().getLeagueNumber());
-        bestSeason.setRank(player.getBestPathOfLegendSeasonResult().getRank());
-        bestSeason.setTrophies(player.getBestPathOfLegendSeasonResult().getTrophies());
-        CRLeaguesEntity leagues = new CRLeaguesEntity();
-        leagues.setCurrentSeason(currentSeason);
-        leagues.setPreviousSeason(previousSeason);
-        leagues.setBestSeason(bestSeason);
-        player.setSeasonsLeagues(leagues);
-    }
-
-    private void cardEnrichment(CRPlayerEntity player) {
-        for (CRCardEntity card : player.getCards()) {
-            CRCardNomenclature cardNomenclature = cardNomenclatureRepository.findFirstById(card.getId());
-            if (cardNomenclature != null) { //TODO maj des cartes au fil du temps
-                CRCardRarityNomenclature rarity = cardRarityNomenclatureRepository.findFirstByName(cardNomenclature.getRarity());
-                card.setUpgradeCost(rarity.getUpgradeCost().get(card.getLevel() -1));
-                card.setLevel(card.getLevel() + rarity.getRelativeLevel());
-                new ModelMapper().map(cardNomenclature, card);
-            }
-        }
-    }
-
-    private void chestsEnrichment(CRPlayerEntity player) {
+    private void chestsEnrichment(CRPlayerEntity player) throws IOException {
         String apiUrl = "https://proxy.royaleapi.dev/v1/players/%23" + player.getId() + "/upcomingchests";
         CRUpcomingChestsEntity chest = apiService.callCrApi(apiUrl, CRUpcomingChestsEntity.class);
         player.setUpcomingChests(chest.getChests());
-    }
-
-    private void badgeEnrichment(CRPlayerEntity player) {
-        for (CRBadgeEntity badge : player.getBadges()) {
-            badge.setImage(badge.getIconUrls().getImage());
-        }
     }
 
 }

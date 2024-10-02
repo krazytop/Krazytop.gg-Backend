@@ -30,7 +30,7 @@ public class CRApiService {
     public <T> T callCrApi(String apiUrl, Class<T> responseTypeClass) throws IOException {
         try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
             HttpGet httpGet = new HttpGet(apiUrl);
-            httpGet.addHeader("Authorization", "Bearer " + apiKeyRepository.findFirstByGame(GameEnum.CLASH_ROYAL));
+            httpGet.addHeader("Authorization", "Bearer " + apiKeyRepository.findFirstByGame(GameEnum.CLASH_ROYAL).getKey());
             try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
                 int statusCode = response.getStatusLine().getStatusCode();
 

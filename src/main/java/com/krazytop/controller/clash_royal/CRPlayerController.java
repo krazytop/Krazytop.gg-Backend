@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+
 @RestController
 public class CRPlayerController {
 
@@ -33,7 +35,7 @@ public class CRPlayerController {
     }
 
     @GetMapping("/clash-royal/player/remote/{playerId}")
-    public ResponseEntity<CRPlayerEntity> getRemotePlayer(@PathVariable String playerId) {
+    public ResponseEntity<CRPlayerEntity> getRemotePlayer(@PathVariable String playerId) throws IOException {
         LOGGER.info("Retrieving remote player");
         CRPlayerEntity player = crPlayerService.getRemotePlayer(playerId);
         LOGGER.info("Remote player recovered");
@@ -41,7 +43,7 @@ public class CRPlayerController {
     }
 
     @PostMapping("/clash-royal/player/update/{playerId}")
-    public ResponseEntity<CRPlayerEntity> updateRemoteToLocalPlayer(@PathVariable String playerId) {
+    public ResponseEntity<CRPlayerEntity> updateRemoteToLocalPlayer(@PathVariable String playerId) throws IOException {
         LOGGER.info("Updating player");
         CRPlayerEntity player = crPlayerService.updateRemoteToLocalPlayer(playerId);
         LOGGER.info("Player updated");

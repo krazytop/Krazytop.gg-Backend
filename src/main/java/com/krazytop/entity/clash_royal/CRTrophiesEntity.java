@@ -10,10 +10,8 @@ public class CRTrophiesEntity {
 
     @JsonProperty("currentSeason")
     private CRTrophyEntity currentSeason;
-
     @JsonProperty("previousSeason")
     private CRTrophyEntity previousSeason;
-
     @JsonProperty("bestSeason")
     private CRTrophyEntity bestSeason;
 
