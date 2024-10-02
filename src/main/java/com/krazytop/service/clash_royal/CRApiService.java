@@ -27,7 +27,7 @@ public class CRApiService {
         this.apiKeyRepository = apiKeyRepository;
     }
 
-    public <T> T callCrApi(String apiUrl, Class<T> responseTypeClass) {
+    public <T> T callCrApi(String apiUrl, Class<T> responseTypeClass) throws IOException {
         try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
             HttpGet httpGet = new HttpGet(apiUrl);
             httpGet.addHeader("Authorization", "Bearer " + apiKeyRepository.findFirstByGame(GameEnum.CLASH_ROYAL));
@@ -42,8 +42,6 @@ public class CRApiService {
                     return null;
                 }
             }
-        } catch (IOException e) {
-            return null;
         }
     }
 

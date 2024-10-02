@@ -6,7 +6,6 @@ import com.krazytop.repository.api_key.ApiKeyRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,27 +42,23 @@ public class ApiKeyController {
 
     @PostMapping("/api-key/riot/{key}")
     public ResponseEntity<String> setRIOTApiKey(@PathVariable String key) {
-        LOGGER.info("Updating RIOT API key");
-        try {
-            apiKeyRepository.save(new ApiKeyEntity(GameEnum.RIOT, key));
-            LOGGER.info("RIOT API key successfully updated");
-            return new ResponseEntity<>("RIOT API key successfully updated", HttpStatus.OK);
-        } catch (Exception e) {
-            LOGGER.error("An error occurred while updating RIOT API key : {}", e.getMessage());
-            return new ResponseEntity<>("An error occurred while updating RIOT API key", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return setApiKey(key, GameEnum.RIOT);
     }
 
     @PostMapping("/api-key/clash-royal/{key}")
     public ResponseEntity<String> setCRApiKey(@PathVariable String key) {
-        LOGGER.info("Updating CR API key");
+        return setApiKey(key, GameEnum.CLASH_ROYAL);
+    }
+
+    public ResponseEntity<String> setApiKey(String key, GameEnum game) {
+        LOGGER.info("Updating {} API key", game);
         try {
             apiKeyRepository.save(new ApiKeyEntity(GameEnum.CLASH_ROYAL, key));
-            LOGGER.info("CR API key successfully updated");
-            return new ResponseEntity<>("CR API key successfully updated", HttpStatus.OK);
+            LOGGER.info("{} API key successfully updated", game);
+            return new ResponseEntity<>(String.format("%s API key successfully updated", game), HttpStatus.OK);
         } catch (Exception e) {
-            LOGGER.error("An error occurred while updating CR API key : {}", e.getMessage());
-            return new ResponseEntity<>("An error occurred while updating CR API key", HttpStatus.INTERNAL_SERVER_ERROR);
+            LOGGER.error("An error occurred while updating {} API key : {}", game, e.getMessage());
+            return new ResponseEntity<>(String.format("An error occurred while updating %s API key", game), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

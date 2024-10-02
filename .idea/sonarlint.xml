@@ -3,6 +3,6 @@
   <component name="SonarLintProjectSettings">
     <option name="bindingEnabled" value="true" />
     <option name="projectKey" value="krazytop_Krazytop.gg-Backend" />
-    <option name="serverId" value="Krazytop.GG" />
+    <option name="serverId" value="Krazytop" />
   </component>
 </project>

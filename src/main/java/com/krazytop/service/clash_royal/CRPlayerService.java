@@ -48,7 +48,7 @@ public class CRPlayerService {
     }
 
     public CRPlayerEntity getRemotePlayer(String playerId) {
-        String apiUrl = CRPlayerEntity.getUrl("%23" + playerId);
+        String apiUrl = "https://proxy.royaleapi.dev/v1/players/%23" + playerId;
         CRPlayerEntity player = apiService.callCrApi(apiUrl, CRPlayerEntity.class);
         if (player != null) {
             cardEnrichment(player);
@@ -96,7 +96,7 @@ public class CRPlayerService {
     }
 
     private void chestsEnrichment(CRPlayerEntity player) {
-        String apiUrl = CRUpcomingChestsEntity.getUrl("%23" + player.getId());
+        String apiUrl = "https://proxy.royaleapi.dev/v1/players/%23" + player.getId() + "/upcomingchests";
         CRUpcomingChestsEntity chest = apiService.callCrApi(apiUrl, CRUpcomingChestsEntity.class);
         player.setUpcomingChests(chest.getChests());
     }
