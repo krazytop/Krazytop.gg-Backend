@@ -33,7 +33,7 @@ public class RIOTSummonerController {
                 LOGGER.info("RIOT local summoner retrieved");
                 return new ResponseEntity<>(summoner, HttpStatus.OK);
             } else {
-                LOGGER.info("RIOT Local summoner not found");
+                LOGGER.info("RIOT local summoner not found");
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
         } catch (Exception e) {
@@ -48,10 +48,10 @@ public class RIOTSummonerController {
         try {
             RIOTSummonerEntity summoner = riotSummonerService.getRemoteSummoner(region, tag, name);
             if (summoner != null) {
-                LOGGER.info("RIOT Remote summoner successfully retrieved");
+                LOGGER.info("RIOT remote summoner successfully retrieved");
                 return new ResponseEntity<>(summoner, HttpStatus.OK);
             } else {
-                LOGGER.info("RIOT Remote summoner not found");
+                LOGGER.info("RIOT remote summoner not found");
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
         } catch (Exception e) {

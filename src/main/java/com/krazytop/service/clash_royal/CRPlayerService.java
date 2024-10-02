@@ -42,8 +42,8 @@ public class CRPlayerService {
     public CRPlayerEntity getRemotePlayer(String playerId) throws IOException {
         String apiUrl = "https://proxy.royaleapi.dev/v1/players/%23" + playerId;
         CRPlayerEntity player = apiService.callCrApi(apiUrl, CRPlayerEntity.class);
-        if (player != null) {//TODO prendre playerId
-            player.setId(player.getId().replace("#", ""));
+        if (player != null) {
+            player.setId(playerId);
         }
         return player;
     }
