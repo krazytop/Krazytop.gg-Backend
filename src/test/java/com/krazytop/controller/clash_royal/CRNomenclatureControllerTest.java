@@ -21,6 +21,7 @@ class CRNomenclatureControllerTest {
 
     @InjectMocks
     private CRNomenclatureController nomenclatureController;
+
     @Mock
     private CRNomenclatureService nomenclatureService;
 

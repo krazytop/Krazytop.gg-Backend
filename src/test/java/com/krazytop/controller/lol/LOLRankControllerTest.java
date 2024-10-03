@@ -22,6 +22,7 @@ class LOLRankControllerTest {
 
     @InjectMocks
     private LOLRankController rankController;
+
     @Mock
     private LOLRankService rankService;
 

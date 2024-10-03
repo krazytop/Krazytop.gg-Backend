@@ -23,6 +23,7 @@ class LOLMasteryControllerTest {
 
     @InjectMocks
     private LOLMasteryController masteryController;
+
     @Mock
     private LOLMasteryService masteryService;
 

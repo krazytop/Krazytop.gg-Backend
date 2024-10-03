@@ -28,6 +28,7 @@ class LOLNomenclatureServiceTest {
 
     @InjectMocks
     private LOLNomenclatureService nomenclatureService;
+
     @Mock
     private LOLVersionRepository versionRepository;
     @Mock

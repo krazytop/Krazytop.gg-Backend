@@ -22,6 +22,7 @@ class LOLMatchControllerTest {
 
     @InjectMocks
     private LOLMatchController matchController;
+
     @Mock
     private LOLMatchService matchService;
 

@@ -22,6 +22,7 @@ class ApiKeyControllerTest {
 
     @InjectMocks
     private ApiKeyController apiKeyController;
+
     @Mock
     private ApiKeyRepository apiKeyRepository;
 

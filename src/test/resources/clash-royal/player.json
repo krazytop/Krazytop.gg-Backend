@@ -1,0 +1,169 @@
+{
+  "tag": "#29UR0L2J",
+  "name": "Krazytop",
+  "expLevel": 51,
+  "trophies": 7737,
+  "bestTrophies": 7764,
+  "wins": 4702,
+  "losses": 3428,
+  "battleCount": 8130,
+  "threeCrownWins": 1934,
+  "challengeCardsWon": 8671,
+  "challengeMaxWins": 12,
+  "tournamentCardsWon": 875,
+  "tournamentBattleCount": 1189,
+  "role": "member",
+  "donations": 184,
+  "donationsReceived": 200,
+  "totalDonations": 85991,
+  "warDayWins": 43,
+  "clanCardsCollected": 52054,
+  "clan": {
+    "tag": "#9CYPG92U",
+    "name": "Gard National",
+    "badgeId": 16000078
+  },
+  "arena": {
+    "id": 54000017,
+    "name": "Boot Camp"
+  },
+  "leagueStatistics": {
+    "currentSeason": {
+      "trophies": 7737
+    },
+    "previousSeason": {
+      "id": "2024-08",
+      "trophies": 5059
+    },
+    "bestSeason": {
+      "id": "2021-12",
+      "trophies": 6022
+    }
+  },
+  "badges": [
+    {
+      "name": "YearsPlayed",
+      "level": 8,
+      "maxLevel": 9,
+      "progress": 3144,
+      "target": 3285,
+      "iconUrls": {
+        "large": "https://api-assets.clashroyale.com/playerbadges/512/T9iTL2NzRUCMK5KoV3p9to5vxhUUvsooT-DMxwIvSCg.png"
+      }
+    }
+  ],
+  "achievements": [
+    {
+      "name": "Team Player",
+      "stars": 3,
+      "value": 331,
+      "target": 1,
+      "info": "Join a Clan",
+      "completionInfo": null
+    }
+  ],
+  "cards": [
+    {
+      "name": "Skeletons",
+      "id": 26000010,
+      "level": 13,
+      "evolutionLevel": 1,
+      "maxLevel": 14,
+      "maxEvolutionLevel": 1,
+      "rarity": "common",
+      "count": 3010,
+      "elixirCost": 1,
+      "iconUrls": {
+        "medium": "https://api-assets.clashroyale.com/cards/300/oO7iKMU5m0cdxhYPZA3nWQiAUh2yoGgdThLWB1rVSec.png",
+        "evolutionMedium": "https://api-assets.clashroyale.com/cardevolutions/300/oO7iKMU5m0cdxhYPZA3nWQiAUh2yoGgdThLWB1rVSec.png"
+      }
+    }
+  ],
+  "supportCards": [
+    {
+      "name": "Tower Princess",
+      "id": 159000000,
+      "level": 14,
+      "maxLevel": 14,
+      "rarity": "common",
+      "count": 0,
+      "iconUrls": {
+        "medium": "https://api-assets.clashroyale.com/cards/300/Nzo5Gjbh7NG6O3Hyu7ev54Pu5zK7vDMR2fbpGdVsS64.png"
+      }
+    }
+  ],
+  "currentDeck": [
+    {
+      "name": "Skeletons",
+      "id": 26000010,
+      "level": 13,
+      "evolutionLevel": 1,
+      "maxLevel": 14,
+      "maxEvolutionLevel": 1,
+      "rarity": "common",
+      "count": 3010,
+      "elixirCost": 1,
+      "iconUrls": {
+        "medium": "https://api-assets.clashroyale.com/cards/300/oO7iKMU5m0cdxhYPZA3nWQiAUh2yoGgdThLWB1rVSec.png",
+        "evolutionMedium": "https://api-assets.clashroyale.com/cardevolutions/300/oO7iKMU5m0cdxhYPZA3nWQiAUh2yoGgdThLWB1rVSec.png"
+      }
+    }
+  ],
+  "currentDeckSupportCards": [
+    {
+      "name": "Tower Princess",
+      "id": 159000000,
+      "level": 14,
+      "maxLevel": 14,
+      "rarity": "common",
+      "count": 0,
+      "iconUrls": {
+        "medium": "https://api-assets.clashroyale.com/cards/300/Nzo5Gjbh7NG6O3Hyu7ev54Pu5zK7vDMR2fbpGdVsS64.png"
+      }
+    }
+  ],
+  "currentFavouriteCard": {
+    "name": "Skeletons",
+    "id": 26000010,
+    "level": 13,
+    "evolutionLevel": 1,
+    "maxLevel": 14,
+    "maxEvolutionLevel": 1,
+    "rarity": "common",
+    "count": 3010,
+    "elixirCost": 1,
+    "iconUrls": {
+      "medium": "https://api-assets.clashroyale.com/cards/300/oO7iKMU5m0cdxhYPZA3nWQiAUh2yoGgdThLWB1rVSec.png",
+      "evolutionMedium": "https://api-assets.clashroyale.com/cardevolutions/300/oO7iKMU5m0cdxhYPZA3nWQiAUh2yoGgdThLWB1rVSec.png"
+    }
+  },
+  "starPoints": 25750,
+  "expPoints": 12730,
+  "legacyTrophyRoadHighScore": 6022,
+  "currentPathOfLegendSeasonResult": {
+    "leagueNumber": 1,
+    "trophies": 0,
+    "rank": null
+  },
+  "lastPathOfLegendSeasonResult": {
+    "leagueNumber": 1,
+    "trophies": 0,
+    "rank": null
+  },
+  "bestPathOfLegendSeasonResult": {
+    "leagueNumber": 2,
+    "trophies": 0,
+    "rank": null
+  },
+  "progress": {
+    "goblin-road": {
+      "arena": {
+        "id": 168000004,
+        "name": "Goblins 5"
+      },
+      "trophies": 4021,
+      "bestTrophies": 4021
+    }
+  },
+  "totalExpPoints": 441500
+}

@@ -21,6 +21,7 @@ class CRPlayerControllerTest {
 
     @InjectMocks
     private CRPlayerController playerController;
+
     @Mock
     private CRPlayerService playerService;
 

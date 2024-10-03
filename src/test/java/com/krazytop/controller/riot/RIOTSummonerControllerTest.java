@@ -22,6 +22,7 @@ class RIOTSummonerControllerTest {
 
     @InjectMocks
     private RIOTSummonerController summonerController;
+
     @Mock
     private RIOTSummonerService summonerService;
 
