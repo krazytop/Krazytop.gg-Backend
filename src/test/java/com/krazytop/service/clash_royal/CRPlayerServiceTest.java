@@ -3,6 +3,9 @@ package com.krazytop.service.clash_royal;
 import com.krazytop.config.ApplicationContextProvider;
 import com.krazytop.config.SpringConfiguration;
 import com.krazytop.entity.api_key.ApiKeyEntity;
+import com.krazytop.entity.clash_royal.CRBadgeEntity;
+import com.krazytop.entity.clash_royal.CRCardEntity;
+import com.krazytop.entity.clash_royal.CRClanEntity;
 import com.krazytop.entity.clash_royal.CRPlayerEntity;
 import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.nomenclature.clash_royal.CRAccountLevelNomenclature;
@@ -114,10 +117,77 @@ class CRPlayerServiceTest {
         assertNotNull(player);
         assertEquals("29UR0L2J", player.getId());
         assertEquals("Krazytop", player.getName());
-        assertEquals("Krazytop", player.getUpdateDate());
-        assertEquals("Krazytop", player.getName());
-        assertEquals("Krazytop", player.getName());
+        assertEquals("Krazytop", player.getBestTrophies());
+        assertEquals("Krazytop", player.getChallengeCardsWon());
+        assertEquals("Krazytop", player.getThreeCrownWins());
+        assertEquals("Krazytop", player.getExpPoints());
+        assertEquals("Krazytop", player.getLosses());
+        assertEquals("Krazytop", player.getWins());
+        assertEquals("Krazytop", player.getClanWarCardsWon());
+        assertEquals("Krazytop", player.getStarPoints());
+        assertEquals("Krazytop", player.getTotalDonations());
+        assertNotNull(player.getUpdateDate());
+        verifyClan(player.getClan());
+        verifyAccountLevelNomenclature(player.getAccountLevelNomenclature());
+        verifyCard(player.getCurrentFavouriteCard());
+        verifyArenaNomenclature(player.getArenaNomenclature());
+        List<CRBadgeEntity> badges = player.getBadges();
+        assertFalse(badges.isEmpty());
+        verifyBadge(badges.get(0));
+        List<CRCardEntity> cards = player.getCards();
+        assertFalse(cards.isEmpty());
+        verifyCard(cards.get(0));
     }
+
+    private void verifyBadge(CRBadgeEntity badge) {
+        assertEquals("Krazytop", badge.getImage());
+        assertEquals("Krazytop", badge.getName());
+        assertEquals("Krazytop", badge.getLevel());
+        assertEquals("Krazytop", badge.getTarget());
+        assertEquals("Krazytop", badge.getProgress());
+        assertEquals("Krazytop", badge.getMaxLevel());
+    }
+
+    private void verifyAccountLevelNomenclature(CRAccountLevelNomenclature accountLevelNomenclature) {
+        assertNotNull(accountLevelNomenclature);
+        assertEquals("Krazytop", accountLevelNomenclature.getLevel());
+        assertEquals("Krazytop", accountLevelNomenclature.getExpToNextLevel());
+        assertEquals("Krazytop", accountLevelNomenclature.getTowerLevel());
+        assertEquals("Krazytop", accountLevelNomenclature.getSummonerLevel());
+    }
+
+    private void verifyClan(CRClanEntity clan) {
+        assertNotNull(clan);
+        assertEquals("Krazytop", clan.getId());
+        assertEquals("Krazytop", clan.getName());
+        assertEquals("Krazytop", clan.getBadge());
+    }
+
+    private void verifyArenaNomenclature(CRArenaNomenclature arenaNomenclature) {
+        assertNotNull(arenaNomenclature);
+        assertEquals("Krazytop", arenaNomenclature.getImage());
+        assertEquals("Krazytop", arenaNomenclature.getName());
+        assertEquals("Krazytop", arenaNomenclature.getId());
+    }
+
+    private void verifyCard(CRCardEntity card) {
+        assertNotNull(card);
+        assertEquals(1, card.getLevel());
+        assertEquals(1, card.getCount());
+        assertEquals(1, card.getUpgradeCost());
+        assertEquals(1, card.getEvolutionLevel());
+        assertEquals(1, card.getStarLevel());
+        CRCardNomenclature nomenclature = card.getNomenclature();
+        assertNotNull(nomenclature);
+        assertEquals(1, nomenclature.getRarity());
+        assertEquals(1, nomenclature.getImage());
+        assertEquals(1, nomenclature.getType());
+        assertEquals(1, nomenclature.getDescription());
+        assertEquals(1, nomenclature.getName());
+        assertEquals(1, nomenclature.getId());
+        assertEquals(1, nomenclature.getElixir());
+    }
+
 /*
     @Test
     void testUpdateRemoteToLocalPlayer_IOException() {

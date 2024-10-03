@@ -25,10 +25,11 @@ import java.util.List;
 public class CRPlayerEntity {
 
     @JsonAlias("tag")
+    @JsonProperty("id")
     private String id;
     @JsonProperty("name")
     private String name;
-    @JsonIgnore
+    @JsonProperty("accountLevelNomenclature")
     private CRAccountLevelNomenclature accountLevelNomenclature;
     @JsonProperty("starPoints")
     private int starPoints;
@@ -50,8 +51,8 @@ public class CRPlayerEntity {
     private int totalDonations;
     @JsonProperty("clan")
     private CRClanEntity clan;
-    @JsonIgnore
-    private CRArenaNomenclature arena;
+    @JsonProperty("arenaNomenclature")
+    private CRArenaNomenclature arenaNomenclature;
     @JsonProperty("badges")
     private List<CRBadgeEntity> badges;
     @JsonProperty("cards")
@@ -62,17 +63,17 @@ public class CRPlayerEntity {
     private CRCardEntity currentFavouriteCard;
     @JsonProperty("leagueStatistics")
     private CRTrophiesEntity seasonsTrophies;
-    @JsonIgnore
+    @JsonProperty("updateDate")
     private Date updateDate;
-    @JsonIgnore
+    @JsonProperty("upcomingChests")
     private List<CRChestEntity> upcomingChests;
-    @JsonIgnore
+    @JsonProperty("seasonsLeagues")
     private CRLeaguesEntity seasonsLeagues = new CRLeaguesEntity();
 
     @JsonProperty("arena")
     private void unpackArena(JsonNode node) {
         CRArenaNomenclatureRepository arenaNomenclatureRepository = SpringConfiguration.contextProvider().getApplicationContext().getBean(CRArenaNomenclatureRepository.class);
-        this.arena = arenaNomenclatureRepository.findFirstById(node.asInt());
+        this.arenaNomenclature = arenaNomenclatureRepository.findFirstById(node.asInt());
     }
 
     @JsonProperty("currentPathOfLegendSeasonResult")
