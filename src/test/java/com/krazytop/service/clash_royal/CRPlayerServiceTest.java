@@ -202,19 +202,4 @@ class CRPlayerServiceTest {
         assertEquals(9, chest.getIndex());
     }
 
-/*
-    @Test
-    void testUpdateRemoteToLocalPlayer_IOException() {
-        try (MockedConstruction<URI> uriMock = mockConstruction(URI.class, (urlConstructor, context) ->
-                when(urlConstructor.toURL()).thenThrow(MalformedURLException.class))) {
-
-            when(apiKeyRepository.findFirstByGame(GameEnum.RIOT)).thenReturn(new ApiKeyEntity(GameEnum.RIOT, "API_KEY"));
-
-            assertThrows(MalformedURLException.class, () -> masteryService.updateRemoteToLocalMasteries("puuid"));
-
-            assertEquals(1, uriMock.constructed().size());
-            verify(championNomenclatureRepository, times(0)).findFirstById(anyString());
-            verify(apiKeyRepository, times(1)).findFirstByGame(GameEnum.RIOT);
-        }
-    }*/
 }
