@@ -9,7 +9,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +35,7 @@ public class CRPlayerService {
 
     public void updateRemoteToLocalPlayer(String playerId) throws IOException {
         CRPlayerEntity remotePlayer = getRemotePlayer(playerId);
-        //chestsEnrichment(remotePlayer);
+        chestsEnrichment(remotePlayer);
         remotePlayer.setUpdateDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
         playerRepository.save(remotePlayer);
     }

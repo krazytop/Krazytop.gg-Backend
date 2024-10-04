@@ -44,13 +44,21 @@ class CRPlayerControllerTest {
     }
 
     @Test
+    void testGetLocalPlayer_ERROR() {
+        when(playerService.getLocalPlayer(anyString())).thenThrow(RuntimeException.class);
+        ResponseEntity<CRPlayerEntity> response = playerController.getLocalPlayer("playerId");
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(playerService, times(1)).getLocalPlayer(anyString());
+    }
+
+    @Test
     void testGetRemotePlayer_OK() throws IOException {
         when(playerService.getRemotePlayer(anyString())).thenReturn(new CRPlayerEntity());
         ResponseEntity<CRPlayerEntity> response = playerController.getRemotePlayer("playerId");
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         verify(playerService, times(1)).getRemotePlayer(anyString());
-
     }
 
     @Test
@@ -60,7 +68,6 @@ class CRPlayerControllerTest {
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         assertNull(response.getBody());
         verify(playerService, times(1)).getRemotePlayer(anyString());
-
     }
 
     @Test
@@ -70,7 +77,6 @@ class CRPlayerControllerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNull(response.getBody());
         verify(playerService, times(1)).getRemotePlayer(anyString());
-
     }
 
     @Test
@@ -88,6 +94,5 @@ class CRPlayerControllerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNotNull(response.getBody());
         verify(playerService, times(1)).updateRemoteToLocalPlayer(anyString());
-
     }
 }

@@ -71,6 +71,7 @@
       "maxLevel": 14,
       "maxEvolutionLevel": 1,
       "rarity": "common",
+      "starLevel": 2,
       "count": 3010,
       "elixirCost": 1,
       "iconUrls": {
@@ -101,6 +102,7 @@
       "maxLevel": 14,
       "maxEvolutionLevel": 1,
       "rarity": "common",
+      "starLevel": 2,
       "count": 3010,
       "elixirCost": 1,
       "iconUrls": {
@@ -130,6 +132,7 @@
     "maxLevel": 14,
     "maxEvolutionLevel": 1,
     "rarity": "common",
+    "starLevel": 2,
     "count": 3010,
     "elixirCost": 1,
     "iconUrls": {
@@ -141,13 +144,13 @@
   "expPoints": 12730,
   "legacyTrophyRoadHighScore": 6022,
   "currentPathOfLegendSeasonResult": {
-    "leagueNumber": 1,
-    "trophies": 0,
+    "leagueNumber": 2,
+    "trophies": 3,
     "rank": null
   },
   "lastPathOfLegendSeasonResult": {
-    "leagueNumber": 1,
-    "trophies": 0,
+    "leagueNumber": 5,
+    "trophies": 4,
     "rank": null
   },
   "bestPathOfLegendSeasonResult": {
