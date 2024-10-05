@@ -1,6 +1,7 @@
 package com.krazytop.service.riot;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.krazytop.entity.api_key.ApiKeyEntity;
 import com.krazytop.entity.riot.RIOTAccountEntity;
 import com.krazytop.entity.riot.RIOTSummonerEntity;
 import com.krazytop.nomenclature.GameEnum;
@@ -41,16 +42,14 @@ public class RIOTSummonerService {
     public RIOTSummonerEntity getRemoteSummoner(String region, String tag, String name) throws URISyntaxException, IOException {
         name = name.replace(" ", "%20");
         ObjectMapper mapper = new ObjectMapper();
-        String accountApiUrl = String.format("https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/%s/%s?api_key=%s", name, tag, this.apiKeyRepository.findFirstByGame(GameEnum.RIOT).getKey());
+        ApiKeyEntity apiKey = this.apiKeyRepository.findFirstByGame(GameEnum.RIOT);
+        String accountApiUrl = String.format("https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/%s/%s?api_key=%s", name, tag, apiKey.getKey());
         RIOTAccountEntity account = mapper.convertValue(mapper.readTree(new URI(accountApiUrl).toURL()), RIOTAccountEntity.class);
-        String summonerApiUrl = String.format("https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/%s?api_key=%s", account.getPuuid(), this.apiKeyRepository.findFirstByGame(GameEnum.RIOT).getKey());
+        String summonerApiUrl = String.format("https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/%s?api_key=%s", account.getPuuid(), apiKey.getKey());
         RIOTSummonerEntity summoner = mapper.convertValue(mapper.readTree(new URI(summonerApiUrl).toURL()), RIOTSummonerEntity.class);
-
-        if (summoner != null) {
-            summoner.setRegion(region);
-            summoner.setName(account.getName());
-            summoner.setTag(account.getTag());
-        }
+        summoner.setRegion(region);
+        summoner.setName(account.getName());
+        summoner.setTag(account.getTag());
         return summoner;
     }
 
