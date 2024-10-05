@@ -82,31 +82,29 @@ class CRPlayerServiceTest {
     void testUpdateRemoteToLocalPlayer_OK() throws IOException {
         FileInputStream playerInputStream = new FileInputStream(String.format("%s/src/test/resources/clash-royal/player.json", System.getProperty("user.dir")));
         FileInputStream upcomingChestsInputStream = new FileInputStream(String.format("%s/src/test/resources/clash-royal/upcoming-chests.json", System.getProperty("user.dir")));
-        try (MockedStatic<SpringConfiguration> springConfigurationMock = mockStatic(SpringConfiguration.class)) {
-            try (MockedStatic<HttpClients> httpClientsMock = mockStatic(HttpClients.class)) {
-                try (CloseableHttpClient closeableHttpClient = mock(CloseableHttpClient.class)) {
-                    httpClientsMock.when(HttpClients::createDefault).thenReturn(closeableHttpClient);
-                    CloseableHttpResponse response = mock(CloseableHttpResponse.class);
-                    when(closeableHttpClient.execute(any())).thenReturn(response);
-                    HttpEntity httpEntity = mock(HttpEntity.class);
-                    when(response.getEntity()).thenReturn(httpEntity);
-                    when(httpEntity.getContent()).thenReturn(playerInputStream).thenReturn(upcomingChestsInputStream);
+        try (MockedStatic<SpringConfiguration> springConfigurationMock = mockStatic(SpringConfiguration.class);
+             MockedStatic<HttpClients> httpClientsMock = mockStatic(HttpClients.class);
+             CloseableHttpClient closeableHttpClient = mock(CloseableHttpClient.class)) {
+            httpClientsMock.when(HttpClients::createDefault).thenReturn(closeableHttpClient);
+            CloseableHttpResponse response = mock(CloseableHttpResponse.class);
+            when(closeableHttpClient.execute(any())).thenReturn(response);
+            HttpEntity httpEntity = mock(HttpEntity.class);
+            when(response.getEntity()).thenReturn(httpEntity);
+            when(httpEntity.getContent()).thenReturn(playerInputStream).thenReturn(upcomingChestsInputStream);
 
-                    this.mockRepositories(springConfigurationMock);
-                    ArgumentCaptor<CRPlayerEntity> playerArgumentCaptor = ArgumentCaptor.forClass(CRPlayerEntity.class);
+            this.mockRepositories(springConfigurationMock);
+            ArgumentCaptor<CRPlayerEntity> playerArgumentCaptor = ArgumentCaptor.forClass(CRPlayerEntity.class);
 
-                    assertDoesNotThrow(() -> playerService.updateRemoteToLocalPlayer("29UR0L2J"));
+            assertDoesNotThrow(() -> playerService.updateRemoteToLocalPlayer("29UR0L2J"));
 
-                    verify(arenaNomenclatureRepository, times(1)).findFirstById(anyInt());
-                    verify(cardNomenclatureRepository, times(3)).findFirstById(anyInt());
-                    verify(cardRarityNomenclatureRepository, times(3)).findFirstByName(anyString());
-                    verify(accountLevelNomenclatureRepository, times(1)).findFirstByLevel(anyInt());
-                    verify(apiKeyRepository, times(2)).findFirstByGame(GameEnum.CLASH_ROYAL);
-                    verify(playerRepository, times(1)).save(playerArgumentCaptor.capture());
+            verify(arenaNomenclatureRepository, times(1)).findFirstById(anyInt());
+            verify(cardNomenclatureRepository, times(3)).findFirstById(anyInt());
+            verify(cardRarityNomenclatureRepository, times(3)).findFirstByName(anyString());
+            verify(accountLevelNomenclatureRepository, times(1)).findFirstByLevel(anyInt());
+            verify(apiKeyRepository, times(2)).findFirstByGame(GameEnum.CLASH_ROYAL);
+            verify(playerRepository, times(1)).save(playerArgumentCaptor.capture());
 
-                    verifyPlayer(playerArgumentCaptor);
-                }
-            }
+            verifyPlayer(playerArgumentCaptor);
         }
     }
 
@@ -201,5 +199,4 @@ class CRPlayerServiceTest {
         assertEquals("Golden Chest", chest.getName());
         assertEquals(9, chest.getIndex());
     }
-
 }

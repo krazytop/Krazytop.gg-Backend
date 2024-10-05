@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Base64;
 
 @Service
 public class DestinyAuthService {
@@ -37,9 +38,9 @@ public class DestinyAuthService {
 
     private String getStringRequest(CloseableHttpClient httpclient, HttpPost httpPost, StringEntity requestEntity) throws IOException {
         httpPost.setEntity(requestEntity);
-        String auth = clientId + ":" + clientSecret;
+        String auth = String.format("%s:%s", clientId, clientSecret);
 
-        String encodedAuth = java.util.Base64.getEncoder().encodeToString(auth.getBytes());
+        String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
         httpPost.addHeader("Authorization", "Basic " + encodedAuth);
         httpPost.addHeader("Content-Type", "application/x-www-form-urlencoded");
         CloseableHttpResponse response = httpclient.execute(httpPost);

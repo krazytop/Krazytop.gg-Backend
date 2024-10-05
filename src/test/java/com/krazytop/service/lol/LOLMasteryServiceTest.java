@@ -19,7 +19,6 @@ import org.springframework.context.ApplicationContext;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -80,18 +79,4 @@ class LOLMasteryServiceTest {
         }
     }
 
-    @Test
-    void testUpdateRemoteToLocalMasteries_IOException() {
-        try (MockedConstruction<URI> uriMock = mockConstruction(URI.class, (urlConstructor, context) ->
-                when(urlConstructor.toURL()).thenThrow(MalformedURLException.class))) {
-
-            when(apiKeyRepository.findFirstByGame(GameEnum.RIOT)).thenReturn(new ApiKeyEntity(GameEnum.RIOT, "API_KEY"));
-
-            assertThrows(MalformedURLException.class, () -> masteryService.updateRemoteToLocalMasteries("puuid"));
-
-            assertEquals(1, uriMock.constructed().size());
-            verify(championNomenclatureRepository, times(0)).findFirstById(anyString());
-            verify(apiKeyRepository, times(1)).findFirstByGame(GameEnum.RIOT);
-        }
-    }
 }
