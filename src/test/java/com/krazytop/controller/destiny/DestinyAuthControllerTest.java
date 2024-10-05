@@ -21,6 +21,7 @@ class DestinyAuthControllerTest {
 
     @InjectMocks
     private DestinyAuthController authController;
+
     @Mock
     private DestinyAuthService authService;
 

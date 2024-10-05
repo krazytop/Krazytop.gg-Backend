@@ -10,10 +10,8 @@ public class CRClanEntity {
 
     @JsonProperty("tag")
     private String id;
-
     @JsonProperty("name")
     private String name;
-
     @JsonProperty("badgeId")
     private int badge;
 }

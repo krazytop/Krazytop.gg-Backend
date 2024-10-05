@@ -20,6 +20,7 @@ class LOLNomenclatureControllerTest {
 
     @InjectMocks
     private LOLNomenclatureController nomenclatureController;
+
     @Mock
     private LOLNomenclatureService nomenclatureService;
 

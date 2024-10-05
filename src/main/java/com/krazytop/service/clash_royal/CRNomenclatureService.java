@@ -1,13 +1,13 @@
 package com.krazytop.service.clash_royal;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.krazytop.entity.clash_royal.CRApiKeyEntity;
 import com.krazytop.nomenclature.clash_royal.CRAccountLevelNomenclature;
+import com.krazytop.nomenclature.clash_royal.CRArenaNomenclature;
 import com.krazytop.nomenclature.clash_royal.CRCardNomenclature;
 import com.krazytop.nomenclature.clash_royal.CRCardRarityNomenclature;
 import com.krazytop.repository.clash_royal.CRAccountLevelNomenclatureRepository;
-import com.krazytop.repository.clash_royal.CRApiKeyRepository;
+import com.krazytop.repository.clash_royal.CRArenaNomenclatureRepository;
 import com.krazytop.repository.clash_royal.CRCardNomenclatureRepository;
 import com.krazytop.repository.clash_royal.CRCardRarityNomenclatureRepository;
 import org.slf4j.Logger;
@@ -15,9 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 @Service
@@ -25,103 +25,56 @@ public class CRNomenclatureService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CRNomenclatureService.class);
 
-    private static final String FOLDER = "/src/main/resources/data/clash-royal/";
-
     private final CRAccountLevelNomenclatureRepository accountLevelRepository;
     private final CRCardNomenclatureRepository cardNomenclatureRepository;
     private final CRCardRarityNomenclatureRepository cardRarityNomenclatureRepository;
-    private final CRApiKeyRepository apiKeyRepository;
+    private final CRArenaNomenclatureRepository arenaNomenclatureRepository;
 
     @Autowired
-    public CRNomenclatureService(CRAccountLevelNomenclatureRepository accountLevelRepository, CRCardNomenclatureRepository cardNomenclatureRepository, CRCardRarityNomenclatureRepository cardRarityNomenclatureRepository, CRApiKeyRepository apiKeyRepository) {
+    public CRNomenclatureService(CRAccountLevelNomenclatureRepository accountLevelRepository, CRCardNomenclatureRepository cardNomenclatureRepository, CRCardRarityNomenclatureRepository cardRarityNomenclatureRepository, CRArenaNomenclatureRepository arenaNomenclatureRepository) {
         this.accountLevelRepository = accountLevelRepository;
         this.cardNomenclatureRepository = cardNomenclatureRepository;
         this.cardRarityNomenclatureRepository = cardRarityNomenclatureRepository;
-        this.apiKeyRepository = apiKeyRepository;
+        this.arenaNomenclatureRepository = arenaNomenclatureRepository;
     }
 
-    public boolean updateAccountLevelNomenclature() {
-        accountLevelRepository.deleteAll();
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            File itemFile = new File(getCurrentWorkingDirectory() + FOLDER + "/cr-account-levels.json");
-            JsonNode dataNode = objectMapper.readTree(itemFile);
-            List<CRAccountLevelNomenclature> accountLevels = new ArrayList<>();
-            for (JsonNode field : dataNode) {
-                CRAccountLevelNomenclature accountLevel = new CRAccountLevelNomenclature();
-                accountLevel.setLevel(field.get("name").asInt());
-                accountLevel.setTowerLevel(field.get("tower_level").asInt());
-                accountLevel.setExpToNextLevel(field.get("exp_to_next_level").asInt());
-                accountLevels.add(accountLevel);
-            }
-            accountLevelRepository.saveAll(accountLevels);
-            return true;
-        } catch (IOException e) {
-            LOGGER.error("Error while updating account level nomenclature : {}", e.getMessage());
-            return false;
-        }
+    private void updateCardRarityNomenclature() throws IOException, URISyntaxException {
+        String url = "https://royaleapi.github.io/cr-api-data/json/rarities.json";
+        ObjectMapper mapper = new ObjectMapper();
+        List<CRCardRarityNomenclature> nomenclatures = mapper.convertValue(mapper.readTree(new URI(url).toURL()), new TypeReference<>() {});
+        cardRarityNomenclatureRepository.saveAll(nomenclatures);
+        LOGGER.info("Update {} card rarity nomenclatures", nomenclatures.size());
     }
 
-    public boolean updateCardNomenclature() {
-        cardNomenclatureRepository.deleteAll();
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            File itemFile = new File(getCurrentWorkingDirectory() + FOLDER + "/cr-cards.json");
-            JsonNode dataNode = objectMapper.readTree(itemFile);
-            List<CRCardNomenclature> cards = new ArrayList<>();
-            for (JsonNode field : dataNode) {
-                CRCardNomenclature card = new CRCardNomenclature();
-                card.setId(field.get("id").asInt());
-                card.setName(field.get("name").asText());
-                card.setType(field.get("type").asText());
-                card.setRarity(field.get("rarity").asText());
-                card.setElixir(field.get("elixir").asInt());
-                card.setDescription(field.get("description").asText());
-                cards.add(card);
-            }
-            cardNomenclatureRepository.saveAll(cards);
-            return true;
-        } catch (IOException e) {
-            LOGGER.error("Error while updating card nomenclature : {}", e.getMessage());
-            return false;
-        }
+    private void updateCardNomenclature() throws IOException, URISyntaxException {
+        String url = "https://royaleapi.github.io/cr-api-data/json/cards_i18n.json";
+        ObjectMapper mapper = new ObjectMapper();
+        List<CRCardNomenclature> nomenclatures = mapper.convertValue(mapper.readTree(new URI(url).toURL()), new TypeReference<>() {});
+        cardNomenclatureRepository.saveAll(nomenclatures);
+        LOGGER.info("Update {} card nomenclatures", nomenclatures.size());
     }
 
-    public boolean updateCardRarityNomenclature() {
-        cardRarityNomenclatureRepository.deleteAll();
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            File itemFile = new File(getCurrentWorkingDirectory() + FOLDER + "/cr-cards-rarity.json");
-            JsonNode dataNode = objectMapper.readTree(itemFile);
-            List<CRCardRarityNomenclature> rarities = new ArrayList<>();
-            for (JsonNode field : dataNode) {
-                CRCardRarityNomenclature rarity = new CRCardRarityNomenclature();
-                rarity.setRelativeLevel(field.get("relative_level").asInt());
-                rarity.setName(field.get("name").asText());
-
-                List<Integer> upgradeCostsList = new ArrayList<>();
-                JsonNode upgradeCardsCostArray = field.get("upgrade_material_count");
-                for (JsonNode costNode : upgradeCardsCostArray) {
-                    upgradeCostsList.add(costNode.asInt());
-                }
-                rarity.setUpgradeCost(upgradeCostsList);
-                rarities.add(rarity);
-            }
-            cardRarityNomenclatureRepository.saveAll(rarities);
-            return true;
-        } catch (IOException e) {
-            LOGGER.error("Error while updating card nomenclature : {}", e.getMessage());
-            return false;
-        }
+    private void updateAccountLevelNomenclature() throws IOException, URISyntaxException {
+        String url = "https://royaleapi.github.io/cr-api-data/json/exp_levels.json";
+        ObjectMapper mapper = new ObjectMapper();
+        List<CRAccountLevelNomenclature> nomenclatures = mapper.convertValue(mapper.readTree(new URI(url).toURL()), new TypeReference<>() {});
+        accountLevelRepository.saveAll(nomenclatures);
+        LOGGER.info("Update {} account level nomenclatures", nomenclatures.size());
     }
 
-    public boolean updateApiKey(String apiKey) {
-        apiKeyRepository.deleteAll();
-        apiKeyRepository.save(new CRApiKeyEntity(apiKey));
-        return true;
+    private void updateArenaNomenclature() throws IOException, URISyntaxException {
+        String url = "https://royaleapi.github.io/cr-api-data/json/arenas.json";
+        ObjectMapper mapper = new ObjectMapper();
+        List<CRArenaNomenclature> nomenclatures = mapper.convertValue(mapper.readTree(new URI(url).toURL()), new TypeReference<>() {});
+        arenaNomenclatureRepository.saveAll(nomenclatures);
+        LOGGER.info("Update {} arena nomenclatures", nomenclatures.size());
     }
 
-    private String getCurrentWorkingDirectory() {
-        return System.getProperty("user.dir");
+    public void updateAllNomenclatures() throws IOException, URISyntaxException {
+        this.updateCardRarityNomenclature();
+        this.updateCardNomenclature();
+        this.updateAccountLevelNomenclature();
+        this.updateArenaNomenclature();
     }
+
 }

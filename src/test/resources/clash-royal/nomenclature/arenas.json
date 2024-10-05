@@ -1,0 +1,51 @@
+[
+  {
+    "name": "Arena13",
+    "arena": 13,
+    "chest_arena": "Arena13",
+    "tv_arena": "Arena13",
+    "is_in_use": true,
+    "lose_trophy_percentage": {
+      "0": 100,
+      "1": 100
+    },
+    "lose_trophy_score": {
+      "0": 4200,
+      "1": 4600
+    },
+    "trophy_limit": 4200,
+    "demote_trophy_limit": 4200,
+    "chest_reward_multiplier": 470,
+    "shop_chest_reward_multiplier": 100,
+    "request_size": 40,
+    "max_donation_count_common": 8,
+    "max_donation_count_rare": 1,
+    "max_donation_count_epic": 1,
+    "icon_swf": "sc/ui_arena_icon_season_10.sc",
+    "icon_export_name": "arena_heist_season",
+    "matchmaking_min_trophy_delta": 40,
+    "matchmaking_max_trophy_delta": 100,
+    "matchmaking_max_seconds": 60,
+    "pvp_location": "PvP_heist_arena",
+    "team_vs_team_location": "TeamVsTeam_heist_arena",
+    "daily_donation_capacity_limit": 360,
+    "battle_reward_gold": 44,
+    "reached_boost": "ChestSpeedUp",
+    "boost_time_h": 24,
+    "bg_glow": true,
+    "min_scale": 90,
+    "league_badge_offset_y": -40,
+    "chest_wildcards_enabled": true,
+    "chest_wildcard_percent100_common": 500,
+    "chest_wildcard_percent100_rare": 500,
+    "chest_wildcard_percent100_epic": 500,
+    "chest_wildcard_percent100_legendary": 500,
+    "required_king_level": 20,
+    "id": 54000055,
+    "key": "arena13",
+    "title": "Arena 13",
+    "subtitle": "Rascal's Hideout",
+    "arena_id": 13,
+    "league_id": 0
+  }
+]

@@ -17,35 +17,60 @@ public class CRPlayerController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CRPlayerController.class);
 
-    private final CRPlayerService crPlayerService;
+    private final CRPlayerService playerService;
 
     @Autowired
-    public CRPlayerController(CRPlayerService crPlayerService){
-        this.crPlayerService = crPlayerService;
+    public CRPlayerController(CRPlayerService playerService){
+        this.playerService = playerService;
     }
 
     @GetMapping("/clash-royal/player/local/{playerId}")
     public ResponseEntity<CRPlayerEntity> getLocalPlayer(@PathVariable String playerId) {
-        LOGGER.info("Retrieving local player");
-        CRPlayerEntity player = crPlayerService.getLocalPlayer(playerId);
-        LOGGER.info("Local player recovered");
-        return new ResponseEntity<>(player, HttpStatus.OK);
+        LOGGER.info("Retrieving CR local player");
+        try {
+            CRPlayerEntity player = playerService.getLocalPlayer(playerId);
+            if (player != null) {
+                LOGGER.info("CR local player retrieved");
+                return new ResponseEntity<>(player, HttpStatus.OK);
+            } else {
+                LOGGER.info("CR local player not found");
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+        } catch (Exception e) {
+            LOGGER.error("An error occurred while retrieving CR local summoner : {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/clash-royal/player/remote/{playerId}")
     public ResponseEntity<CRPlayerEntity> getRemotePlayer(@PathVariable String playerId) {
-        LOGGER.info("Retrieving remote player");
-        CRPlayerEntity player = crPlayerService.getRemotePlayer(playerId);
-        LOGGER.info("Remote player recovered");
-        return new ResponseEntity<>(player, HttpStatus.OK);
+        LOGGER.info("Retrieving CR remote player");
+        try {
+            CRPlayerEntity player = playerService.getRemotePlayer(playerId);
+            if (player != null) {
+                LOGGER.info("CR remote player successfully retrieved");
+                return new ResponseEntity<>(player, HttpStatus.OK);
+            } else {
+                LOGGER.info("CR remote player not found");
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+        } catch (Exception e) {
+            LOGGER.error("An error occurred while retrieving CR remote player : {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping("/clash-royal/player/update/{playerId}")
-    public ResponseEntity<CRPlayerEntity> updateRemoteToLocalPlayer(@PathVariable String playerId) {
-        LOGGER.info("Updating player");
-        CRPlayerEntity player = crPlayerService.updateRemoteToLocalPlayer(playerId);
-        LOGGER.info("Player updated");
-        return new ResponseEntity<>(player, HttpStatus.OK);
+    public ResponseEntity<String> updateRemoteToLocalPlayer(@PathVariable String playerId) {
+        LOGGER.info("Updating CR summoner");
+        try {
+            playerService.updateRemoteToLocalPlayer(playerId);
+            LOGGER.info("CR player successfully updated");
+            return new ResponseEntity<>("CR player successfully updated", HttpStatus.OK);
+        } catch (Exception e) {
+            LOGGER.error("An error occurred while updating CR player : {}", e.getMessage());
+            return new ResponseEntity<>("An error occurred while updating CR player", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }

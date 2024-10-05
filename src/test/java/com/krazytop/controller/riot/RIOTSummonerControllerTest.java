@@ -22,6 +22,7 @@ class RIOTSummonerControllerTest {
 
     @InjectMocks
     private RIOTSummonerController summonerController;
+
     @Mock
     private RIOTSummonerService summonerService;
 
@@ -44,13 +45,21 @@ class RIOTSummonerControllerTest {
     }
 
     @Test
+    void testGetLocalSummoner_ERROR() {
+        when(summonerService.getLocalSummoner(anyString(), anyString(), anyString())).thenThrow(RuntimeException.class);
+        ResponseEntity<RIOTSummonerEntity> response = summonerController.getLocalSummoner("region", "tag", "name");
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(summonerService, times(1)).getLocalSummoner(anyString(), anyString(), anyString());
+    }
+
+    @Test
     void testGetRemoteSummoner_OK() throws URISyntaxException, IOException {
         when(summonerService.getRemoteSummoner(anyString(), anyString(), anyString())).thenReturn(new RIOTSummonerEntity());
         ResponseEntity<RIOTSummonerEntity> response = summonerController.getRemoteSummoner("region", "tag", "name");
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         verify(summonerService, times(1)).getRemoteSummoner(anyString(), anyString(), anyString());
-
     }
 
     @Test
@@ -60,7 +69,6 @@ class RIOTSummonerControllerTest {
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         assertNull(response.getBody());
         verify(summonerService, times(1)).getRemoteSummoner(anyString(), anyString(), anyString());
-
     }
 
     @Test
@@ -70,7 +78,6 @@ class RIOTSummonerControllerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNull(response.getBody());
         verify(summonerService, times(1)).getRemoteSummoner(anyString(), anyString(), anyString());
-
     }
 
     @Test
@@ -88,6 +95,5 @@ class RIOTSummonerControllerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNotNull(response.getBody());
         verify(summonerService, times(1)).updateRemoteToLocalSummoner(anyString(), anyString(), anyString());
-
     }
 }

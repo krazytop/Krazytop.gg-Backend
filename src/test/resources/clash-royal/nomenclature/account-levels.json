@@ -1,0 +1,12 @@
+[
+  {
+    "name": "70",
+    "exp_to_next_level": 525000,
+    "summoner_level": 15,
+    "tower_level": 16,
+    "troop_level": 15,
+    "original_exp_to_next_level": 0,
+    "level_up_chest": "LevelUpChest_KL70",
+    "min_exp": 5653770
+  }
+]

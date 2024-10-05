@@ -3,8 +3,9 @@ package com.krazytop.service.lol;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.entity.lol.LOLRankEntity;
+import com.krazytop.nomenclature.GameEnum;
+import com.krazytop.repository.api_key.ApiKeyRepository;
 import com.krazytop.repository.lol.LOLRankRepository;
-import com.krazytop.repository.riot.RIOTApiKeyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,11 +20,11 @@ import java.util.List;
 @Service
 public class LOLRankService {
 
-    private final RIOTApiKeyRepository apiKeyRepository;
+    private final ApiKeyRepository apiKeyRepository;
     private final LOLRankRepository rankRepository;
 
     @Autowired
-    public LOLRankService(RIOTApiKeyRepository apiKeyRepository, LOLRankRepository rankRepository) {
+    public LOLRankService(ApiKeyRepository apiKeyRepository, LOLRankRepository rankRepository) {
         this.apiKeyRepository = apiKeyRepository;
         this.rankRepository = rankRepository;
     }
@@ -33,7 +34,7 @@ public class LOLRankService {
     }
 
     public void updateRemoteToLocalRank(String summonerId) throws URISyntaxException, IOException {
-        String stringUrl = String.format("https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/%s?api_key=%s", summonerId, apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
+        String stringUrl = String.format("https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/%s?api_key=%s", summonerId, apiKeyRepository.findFirstByGame(GameEnum.RIOT).getKey());
         ObjectMapper mapper = new ObjectMapper();
         List<LOLRankEntity> ranks = mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()), new TypeReference<>() {});
         List<String> compatiblesRanks = List.of("RANKED_SOLO_5x5", "RANKED_TEAM_5x5");

@@ -15,6 +15,8 @@ spring:
         uri: ${MONGO_DATABASE_URL}Riot
       clash-royal:
         uri: ${MONGO_DATABASE_URL}ClashRoyal
+      api-key:
+        uri: ${MONGO_DATABASE_URL}ApiKey
     web:
       pageable:
         default-page-size: 20

@@ -29,8 +29,11 @@ public class RIOTSummonerEntity {
     private int icon;
     @JsonProperty("puuid")
     private String puuid;
+    @JsonProperty("tag")
     private String tag;
+    @JsonProperty("region")
     private String region;
+    @JsonProperty("updateDate")
     private Date updateDate;
 
     public RIOTSummonerEntity(String id, String puuid, String name, String tag, int level, int icon) {

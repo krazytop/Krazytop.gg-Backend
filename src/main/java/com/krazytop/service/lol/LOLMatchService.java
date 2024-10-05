@@ -4,8 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.entity.lol.*;
+import com.krazytop.nomenclature.GameEnum;
+import com.krazytop.repository.api_key.ApiKeyRepository;
 import com.krazytop.repository.lol.LOLMatchRepository;
-import com.krazytop.repository.riot.RIOTApiKeyRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +28,10 @@ public class LOLMatchService {
     @Value("${spring.data.web.pageable.default-page-size:5}")
     private int pageSize;
     private final LOLMatchRepository matchRepository;
-    private final RIOTApiKeyRepository apiKeyRepository;
+    private final ApiKeyRepository apiKeyRepository;
 
     @Autowired
-    public LOLMatchService(LOLMatchRepository matchRepository, RIOTApiKeyRepository apiKeyRepository) {
+    public LOLMatchService(LOLMatchRepository matchRepository, ApiKeyRepository apiKeyRepository) {
         this.matchRepository = matchRepository;
         this.apiKeyRepository = apiKeyRepository;
     }
@@ -44,7 +45,7 @@ public class LOLMatchService {
     }
 
     private void updateMatch(String matchId, String puuid) throws URISyntaxException, IOException {
-        String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/%s?api_key=%s", matchId, apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
+        String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/%s?api_key=%s", matchId, apiKeyRepository.findFirstByGame(GameEnum.RIOT).getKey());
         ObjectMapper mapper = new ObjectMapper();
         JsonNode infoNode = mapper.readTree(new URI(stringUrl).toURL()).get("info");
         LOLMatchEntity match = mapper.convertValue(infoNode, LOLMatchEntity.class);
@@ -63,7 +64,7 @@ public class LOLMatchService {
      */
     public void updateRemoteToLocalMatches(String puuid) throws IOException {
         try {
-            String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, 0, 100, apiKeyRepository.findFirstByOrderByKeyAsc().getKey());
+            String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, 0, 100, apiKeyRepository.findFirstByGame(GameEnum.RIOT).getKey());
             ObjectMapper mapper = new ObjectMapper();
             JsonNode json = mapper.readTree(new URI(stringUrl).toURL());
             List<String> matchIds = mapper.convertValue(json, new TypeReference<>() {});

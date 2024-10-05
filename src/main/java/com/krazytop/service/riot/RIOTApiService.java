@@ -2,7 +2,8 @@ package com.krazytop.service.riot;
 
 import com.krazytop.config.RIOTApiException;
 import com.krazytop.http_response.HTTPResponseInterface;
-import com.krazytop.repository.riot.RIOTApiKeyRepository;
+import com.krazytop.nomenclature.GameEnum;
+import com.krazytop.repository.api_key.ApiKeyRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,15 +19,15 @@ import java.util.List;
 @Service
 public class RIOTApiService {
 
-    private final RIOTApiKeyRepository riotApiKeyRepository;
+    private final ApiKeyRepository apiKeyRepository;
 
     @Autowired
-    public RIOTApiService(RIOTApiKeyRepository riotApiKeyRepository) {
-        this.riotApiKeyRepository = riotApiKeyRepository;
+    public RIOTApiService(ApiKeyRepository apiKeyRepository) {
+        this.apiKeyRepository = apiKeyRepository;
     }
 
     public <T> T callRiotApi(String apiUrl, Class<? extends HTTPResponseInterface<T>> responseTypeClass) {
-        String apiKey = this.riotApiKeyRepository.findFirstByOrderByKeyAsc().getKey();
+        String apiKey = apiKeyRepository.findFirstByGame(GameEnum.RIOT).getKey();
         if (apiUrl.contains("?")) {
             apiUrl += "&";
         } else {
@@ -53,7 +54,7 @@ public class RIOTApiService {
     }
 
     public <T> List<T> callRiotApiForList(String apiUrl, Class<? extends HTTPResponseInterface<T>> responseTypeClass) {
-        String apiKey = this.riotApiKeyRepository.findFirstByOrderByKeyAsc().getKey();
+        String apiKey = apiKeyRepository.findFirstByGame(GameEnum.RIOT).getKey();
         if (apiUrl.contains("?")) {
             apiUrl += "&";
         } else {

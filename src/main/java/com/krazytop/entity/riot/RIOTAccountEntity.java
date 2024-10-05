@@ -1,5 +1,6 @@
 package com.krazytop.entity.riot;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -8,9 +9,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "Account")
 public class RIOTAccountEntity {
 
-    @JsonProperty("tagLine")
+    @JsonAlias("tagLine")
+    @JsonProperty("tag")
     private String tag;
-    @JsonProperty("gameName")
+    @JsonAlias("gameName")
+    @JsonProperty("name")
     private String name;
     @JsonProperty("puuid")
     private String puuid;

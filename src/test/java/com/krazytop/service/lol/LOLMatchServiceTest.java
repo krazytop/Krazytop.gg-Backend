@@ -2,11 +2,12 @@ package com.krazytop.service.lol;
 
 import com.krazytop.config.ApplicationContextProvider;
 import com.krazytop.config.SpringConfiguration;
+import com.krazytop.entity.api_key.ApiKeyEntity;
 import com.krazytop.entity.lol.LOLMatchEntity;
-import com.krazytop.entity.riot.RIOTApiKeyEntity;
+import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.nomenclature.lol.*;
+import com.krazytop.repository.api_key.ApiKeyRepository;
 import com.krazytop.repository.lol.*;
-import com.krazytop.repository.riot.RIOTApiKeyRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -51,7 +52,7 @@ class LOLMatchServiceTest {
     @Mock
     private LOLQueueNomenclatureRepository queueNomenclatureRepository;
     @Mock
-    private RIOTApiKeyRepository apiKeyRepository;
+    private ApiKeyRepository apiKeyRepository;
 
     @Test
     void testGetMatchesCount_AllQueues_AllRoles() {
@@ -137,15 +138,15 @@ class LOLMatchServiceTest {
         LOLQueueNomenclature compatibleQueue = new LOLQueueNomenclature();
         compatibleQueue.setId(queueId);
         when(queueNomenclatureRepository.findFirstById(anyString())).thenReturn(compatibleQueue);
-        when(apiKeyRepository.findFirstByOrderByKeyAsc()).thenReturn(new RIOTApiKeyEntity("API_KEY"));
+        when(apiKeyRepository.findFirstByGame(GameEnum.RIOT)).thenReturn(new ApiKeyEntity(GameEnum.RIOT, "API_KEY"));
         when(matchRepository.findFirstById(anyString())).thenReturn(null);
     }
 
     @Test
-    void testUpdateRemoteToLocalMatches_NewMatch_CompatibleQueue() throws MalformedURLException {
+    void testUpdateRemoteToLocalMatches_NewMatch_CompatibleQueue() {
         AtomicInteger urlConstructorCount = new AtomicInteger();
-        URL matchIdsUrl = new File(String.format("%s/src/test/resources/lol/match-ids.json", System.getProperty("user.dir"))).toURI().toURL();
-        URL matchUrl = new File(String.format("%s/src/test/resources/lol/match.json", System.getProperty("user.dir"))).toURI().toURL();
+        URL matchIdsUrl = getJson("match-ids");
+        URL matchUrl = getJson("match");
         try (MockedConstruction<URI> uriMock = mockConstruction(URI.class, (urlConstructor, context) ->
                 when(urlConstructor.toURL()).thenReturn(urlConstructorCount.getAndIncrement() == 0 ? matchIdsUrl : matchUrl))) {
 
@@ -156,17 +157,17 @@ class LOLMatchServiceTest {
 
                 assertEquals(2, uriMock.constructed().size());
                 verify(matchRepository, times(1)).findFirstById(anyString());
-                verify(apiKeyRepository, times(2)).findFirstByOrderByKeyAsc();
+                verify(apiKeyRepository, times(2)).findFirstByGame(GameEnum.RIOT);
                 verify(matchRepository, times(1)).save(any());
             }
         }
     }
 
     @Test
-    void testUpdateRemoteToLocalMatches_NewMatch_IncompatibleQueue() throws MalformedURLException {
+    void testUpdateRemoteToLocalMatches_NewMatch_IncompatibleQueue() {
         AtomicInteger urlConstructorCount = new AtomicInteger();
-        URL matchIdsUrl = new File(String.format("%s/src/test/resources/lol/match-ids.json", System.getProperty("user.dir"))).toURI().toURL();
-        URL matchUrl = new File(String.format("%s/src/test/resources/lol/match.json", System.getProperty("user.dir"))).toURI().toURL();
+        URL matchIdsUrl = getJson("match-ids");
+        URL matchUrl = getJson("match");
         try (MockedConstruction<URI> uriMock = mockConstruction(URI.class, (urlConstructor, context) ->
                 when(urlConstructor.toURL()).thenReturn(urlConstructorCount.getAndIncrement() == 0 ? matchIdsUrl : matchUrl))) {
 
@@ -177,26 +178,26 @@ class LOLMatchServiceTest {
 
                 assertEquals(2, uriMock.constructed().size());
                 verify(matchRepository, times(1)).findFirstById(anyString());
-                verify(apiKeyRepository, times(2)).findFirstByOrderByKeyAsc();
+                verify(apiKeyRepository, times(2)).findFirstByGame(GameEnum.RIOT);
                 verify(matchRepository, times(0)).save(any());
             }
         }
     }
 
     @Test
-    void testUpdateRemoteToLocalMatches_ExistingMatch() throws MalformedURLException {
-        URL matchIdsUrl = new File(String.format("%s/src/test/resources/lol/match-ids.json", System.getProperty("user.dir"))).toURI().toURL();
+    void testUpdateRemoteToLocalMatches_ExistingMatch() {
+        URL matchIdsUrl = getJson("match-ids");
         try (MockedConstruction<URI> uriMock = mockConstruction(URI.class, (urlConstructor, context) ->
                 when(urlConstructor.toURL()).thenReturn(matchIdsUrl))) {
 
-            when(apiKeyRepository.findFirstByOrderByKeyAsc()).thenReturn(new RIOTApiKeyEntity("API_KEY"));
+            when(apiKeyRepository.findFirstByGame(GameEnum.RIOT)).thenReturn(new ApiKeyEntity(GameEnum.RIOT, "API_KEY"));
             when(matchRepository.findFirstById(anyString())).thenReturn(new LOLMatchEntity());
 
             assertDoesNotThrow(() -> matchService.updateRemoteToLocalMatches("puuid"));
 
             assertEquals(1, uriMock.constructed().size());
             verify(matchRepository, times(1)).findFirstById(anyString());
-            verify(apiKeyRepository, times(1)).findFirstByOrderByKeyAsc();
+            verify(apiKeyRepository, times(1)).findFirstByGame(GameEnum.RIOT);
         }
     }
 
@@ -205,13 +206,21 @@ class LOLMatchServiceTest {
         try (MockedConstruction<URI> uriMock = mockConstruction(URI.class, (urlConstructor, context) ->
                 when(urlConstructor.toURL()).thenThrow(MalformedURLException.class))) {
 
-            when(apiKeyRepository.findFirstByOrderByKeyAsc()).thenReturn(new RIOTApiKeyEntity("API_KEY"));
+            when(apiKeyRepository.findFirstByGame(GameEnum.RIOT)).thenReturn(new ApiKeyEntity(GameEnum.RIOT, "API_KEY"));
 
             assertThrows(IOException.class, () -> matchService.updateRemoteToLocalMatches("puuid"));
 
             assertEquals(1, uriMock.constructed().size());
             verify(matchRepository, times(0)).findFirstById(anyString());
-            verify(apiKeyRepository, times(1)).findFirstByOrderByKeyAsc();
+            verify(apiKeyRepository, times(1)).findFirstByGame(GameEnum.RIOT);
+        }
+    }
+
+    private URL getJson(String fileName) {
+        try {
+            return new File(String.format("%s/src/test/resources/lol/%s.json", System.getProperty("user.dir"), fileName)).toURI().toURL();
+        } catch (MalformedURLException e) {
+            return null;
         }
     }
 }
