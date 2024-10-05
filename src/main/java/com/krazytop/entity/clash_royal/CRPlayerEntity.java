@@ -25,49 +25,28 @@ import java.util.List;
 public class CRPlayerEntity {
 
     @JsonAlias("tag")
-    @JsonProperty("id")
     private String id;
-    @JsonProperty("name")
     private String name;
-    @JsonProperty("accountLevelNomenclature")
     private CRAccountLevelNomenclature accountLevelNomenclature;
-    @JsonProperty("starPoints")
     private int starPoints;
-    @JsonProperty("expPoints")
     private int expPoints;
-    @JsonProperty("bestTrophies")
     private int bestTrophies;
-    @JsonProperty("wins")
     private int wins;
-    @JsonProperty("losses")
     private int losses;
-    @JsonProperty("threeCrownWins")
     private int threeCrownWins;
-    @JsonProperty("challengeCardsWon")
     private int challengeCardsWon;
-    @JsonProperty("clanCardsCollected")
     private int clanWarCardsWon;
-    @JsonProperty("totalDonations")
     private int totalDonations;
-    @JsonProperty("clan")
     private CRClanEntity clan;
-    @JsonProperty("arenaNomenclature")
     private CRArenaNomenclature arenaNomenclature;
-    @JsonProperty("badges")
     private List<CRBadgeEntity> badges;
-    @JsonProperty("cards")
     private List<CRCardEntity> cards;
-    @JsonProperty("currentDeck")
     private List<CRCardEntity> currentDeck;
-    @JsonProperty("currentFavouriteCard")
     private CRCardEntity currentFavouriteCard;
-    @JsonProperty("leagueStatistics")
+    @JsonAlias("leagueStatistics")
     private CRTrophiesEntity seasonsTrophies;
-    @JsonProperty("updateDate")
     private Date updateDate;
-    @JsonProperty("upcomingChests")
     private List<CRChestEntity> upcomingChests;
-    @JsonProperty("seasonsLeagues")
     private CRLeaguesEntity seasonsLeagues = new CRLeaguesEntity();
 
     @JsonProperty("arena")

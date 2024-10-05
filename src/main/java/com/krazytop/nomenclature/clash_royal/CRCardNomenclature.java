@@ -12,19 +12,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CRCardNomenclature {
 
-    @JsonProperty("id")
     private int id;
-    @JsonIgnore
+    @JsonIgnore //TODO
     private String name;
-    @JsonIgnore
+    @JsonIgnore //TODO
     private String description;
-    @JsonProperty("type")
     private String type;
-    @JsonProperty("elixir")
     private int elixir;
-    @JsonProperty("rarity")
     private String rarity;
-    @JsonProperty("image")
     private String image;
 
     @JsonProperty("key")

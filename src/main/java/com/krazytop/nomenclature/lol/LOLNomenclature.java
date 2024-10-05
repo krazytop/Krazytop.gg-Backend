@@ -9,14 +9,12 @@ import lombok.Data;
 @Data
 public abstract class LOLNomenclature {
 
-    @JsonIgnore
+    @JsonIgnore //TODO
     private String id;
-    @JsonProperty("name")
     private String name;
-    @JsonIgnore
+    @JsonIgnore //TODO
     private String image;
     @JsonAlias({"blurb", "shortDesc"})
-    @JsonProperty("description")
     private String description;
 
     @JsonProperty("image")

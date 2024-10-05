@@ -14,21 +14,14 @@ import java.util.Objects;
 @Document(collection = "Rank")
 public class LOLRankEntity {
 
-    @JsonProperty("summonerId")
     private String summonerId;
-    @JsonProperty("tier")
     private String tier;
-    @JsonProperty("rank")
     private String rank;
-    @JsonProperty("leaguePoints")
     private int leaguePoints;
-    @JsonProperty("wins")
     private int wins;
-    @JsonProperty("losses")
     private int losses;
     private Date updateDate;
     @JsonAlias("queueType")
-    @JsonProperty("queue")
     private String queue;
 
     public boolean needToUpdate(LOLRankEntity rank) {

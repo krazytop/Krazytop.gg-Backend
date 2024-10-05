@@ -1,6 +1,5 @@
 package com.krazytop.entity.clash_royal;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -15,17 +14,11 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CRCardEntity {
 
-    @JsonProperty("level")
     private int level;
-    @JsonProperty("evolutionLevel")
     private int evolutionLevel;
-    @JsonProperty("count")
     private int count;
-    @JsonProperty("starLevel")
     private int starLevel;
-    @JsonIgnore
     private int upgradeCost;
-    @JsonIgnore
     private CRCardNomenclature nomenclature;
 
     @JsonProperty("id")

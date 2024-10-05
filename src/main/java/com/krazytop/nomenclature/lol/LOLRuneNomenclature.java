@@ -15,7 +15,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class LOLRuneNomenclature extends LOLNomenclature {
 
     @JsonAlias("longDesc")
-    @JsonProperty("longDescription")
     private String longDescription;
 
     @JsonProperty("id")

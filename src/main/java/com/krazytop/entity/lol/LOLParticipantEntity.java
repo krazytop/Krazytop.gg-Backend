@@ -21,53 +21,32 @@ import java.util.function.Consumer;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LOLParticipantEntity {
 
-    @JsonProperty("champLevel")
     private int champLevel;
-    @JsonProperty("kills")
     private int kills;
-    @JsonProperty("assists")
     private int assists;
-    @JsonProperty("deaths")
     private int deaths;
     @JsonIgnore
-    private String role;
-    @JsonProperty("visionScore")
+    private String role;//TODO
     private int visionScore;
     @JsonAlias("totalMinionsKilled")
-    @JsonProperty("minions")
     private int minions;
     @JsonAlias("neutralMinionsKilled")
-    @JsonProperty("neutralMinions")
     private int neutralMinions;
-    @JsonProperty("doubleKills")
     private int doubleKills;
-    @JsonProperty("tripleKills")
     private int tripleKills;
-    @JsonProperty("quadraKills")
     private int quadraKills;
-    @JsonProperty("pentaKills")
     private int pentaKills;
-    @JsonProperty("physicalDamageDealtToChampions")
     private int physicalDamageDealtToChampions;
-    @JsonProperty("magicDamageDealtToChampions")
     private int magicDamageDealtToChampions;
-    @JsonProperty("trueDamageDealtToChampions")
     private int trueDamageDealtToChampions;
-    @JsonProperty("physicalDamageTaken")
     private int physicalDamageTaken;
-    @JsonProperty("magicDamageTaken")
     private int magicDamageTaken;
-    @JsonProperty("trueDamageTaken")
     private int trueDamageTaken;
     @JsonAlias("goldEarned")
-    @JsonProperty("golds")
     private int golds;
-    @JsonProperty("teamId")
     private String teamId;
-    @JsonProperty("gameEndedInEarlySurrender")
     private boolean gameEndedInEarlySurrender;
     @JsonAlias("perks")
-    @JsonProperty("runes")
     private LOLRunesEntity runes;
     private LOLChampionNomenclature champion;
     private LOLItemNomenclature item0;
@@ -80,22 +59,21 @@ public class LOLParticipantEntity {
     private RIOTSummonerEntity summoner;
     private LOLSummonerSpellNomenclature summonerSpell1;
     private LOLSummonerSpellNomenclature summonerSpell2;
-    @JsonProperty("summonerId")
+    @JsonAlias("summonerId")
     @Transient
     private String id;
-    @JsonProperty("puuid")
     @Transient
     private String puuid;
-    @JsonProperty("riotIdGameName")
+    @JsonAlias("riotIdGameName")
     @Transient
     private String name;
-    @JsonProperty("riotIdTagline")
+    @JsonAlias("riotIdTagline")
     @Transient
     private String tag;
-    @JsonProperty("summonerLevel")
+    @JsonAlias("summonerLevel")
     @Transient
     private int level;
-    @JsonProperty("profileIcon")
+    @JsonAlias("profileIcon")
     @Transient
     private int icon;
 

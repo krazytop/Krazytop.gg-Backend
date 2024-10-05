@@ -9,10 +9,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "QueueNomenclature")
 public class LOLQueueNomenclature {
 
-    @JsonProperty("queueId")
+    @JsonAlias("queueId")
     private String id;
     @JsonAlias("description")
-    @JsonProperty("name")
     private String name;
     private String map;
     private String notes;
