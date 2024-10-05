@@ -1,7 +1,7 @@
 cron:
   - description: "Check and update League of Legends nomenclatures if needed"
     url: /lol/nomenclature
-    schedule: every hour monday-friday
+    schedule: mon, tue, wed, thu, fri 10:00
     target: default
   - description: "Update Clash Royal nomenclatures"
     url: /clash-royal/nomenclature
