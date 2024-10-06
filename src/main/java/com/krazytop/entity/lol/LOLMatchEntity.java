@@ -28,6 +28,7 @@ public class LOLMatchEntity {
     private Long duration;
     private List<LOLTeamEntity> teams;
     @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<LOLParticipantEntity> participants;
     private LOLQueueNomenclature queue;
     private boolean remake;

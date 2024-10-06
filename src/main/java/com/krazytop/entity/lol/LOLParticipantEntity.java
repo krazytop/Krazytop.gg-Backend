@@ -61,20 +61,26 @@ public class LOLParticipantEntity {
     private LOLSummonerSpellNomenclature summonerSpell2;
     @JsonAlias("summonerId")
     @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String id;
     @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String puuid;
     @JsonAlias("riotIdGameName")
     @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String name;
     @JsonAlias("riotIdTagline")
     @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String tag;
     @JsonAlias("summonerLevel")
     @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private int level;
     @JsonAlias("profileIcon")
     @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private int icon;
 
     public void buildSummoner() {

@@ -11,9 +11,7 @@ import com.krazytop.nomenclature.clash_royal.CRAccountLevelNomenclature;
 import com.krazytop.nomenclature.clash_royal.CRArenaNomenclature;
 import com.krazytop.repository.clash_royal.CRAccountLevelNomenclatureRepository;
 import com.krazytop.repository.clash_royal.CRArenaNomenclatureRepository;
-import com.krazytop.repository.lol.LOLQueueNomenclatureRepository;
 import lombok.Data;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
