@@ -21,53 +21,32 @@ import java.util.function.Consumer;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LOLParticipantEntity {
 
-    @JsonProperty("champLevel")
     private int champLevel;
-    @JsonProperty("kills")
     private int kills;
-    @JsonProperty("assists")
     private int assists;
-    @JsonProperty("deaths")
     private int deaths;
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String role;
-    @JsonProperty("visionScore")
     private int visionScore;
     @JsonAlias("totalMinionsKilled")
-    @JsonProperty("minions")
     private int minions;
     @JsonAlias("neutralMinionsKilled")
-    @JsonProperty("neutralMinions")
     private int neutralMinions;
-    @JsonProperty("doubleKills")
     private int doubleKills;
-    @JsonProperty("tripleKills")
     private int tripleKills;
-    @JsonProperty("quadraKills")
     private int quadraKills;
-    @JsonProperty("pentaKills")
     private int pentaKills;
-    @JsonProperty("physicalDamageDealtToChampions")
     private int physicalDamageDealtToChampions;
-    @JsonProperty("magicDamageDealtToChampions")
     private int magicDamageDealtToChampions;
-    @JsonProperty("trueDamageDealtToChampions")
     private int trueDamageDealtToChampions;
-    @JsonProperty("physicalDamageTaken")
     private int physicalDamageTaken;
-    @JsonProperty("magicDamageTaken")
     private int magicDamageTaken;
-    @JsonProperty("trueDamageTaken")
     private int trueDamageTaken;
     @JsonAlias("goldEarned")
-    @JsonProperty("golds")
     private int golds;
-    @JsonProperty("teamId")
     private String teamId;
-    @JsonProperty("gameEndedInEarlySurrender")
     private boolean gameEndedInEarlySurrender;
     @JsonAlias("perks")
-    @JsonProperty("runes")
     private LOLRunesEntity runes;
     private LOLChampionNomenclature champion;
     private LOLItemNomenclature item0;
@@ -80,23 +59,28 @@ public class LOLParticipantEntity {
     private RIOTSummonerEntity summoner;
     private LOLSummonerSpellNomenclature summonerSpell1;
     private LOLSummonerSpellNomenclature summonerSpell2;
-    @JsonProperty("summonerId")
+    @JsonAlias("summonerId")
     @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String id;
-    @JsonProperty("puuid")
     @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String puuid;
-    @JsonProperty("riotIdGameName")
+    @JsonAlias("riotIdGameName")
     @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String name;
-    @JsonProperty("riotIdTagline")
+    @JsonAlias("riotIdTagline")
     @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String tag;
-    @JsonProperty("summonerLevel")
+    @JsonAlias("summonerLevel")
     @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private int level;
-    @JsonProperty("profileIcon")
+    @JsonAlias("profileIcon")
     @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private int icon;
 
     public void buildSummoner() {

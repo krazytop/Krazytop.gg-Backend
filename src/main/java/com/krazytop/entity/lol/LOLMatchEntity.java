@@ -21,18 +21,14 @@ public class LOLMatchEntity {
 
     private String id;
     @JsonAlias("gameVersion")
-    @JsonProperty("version")
     private String version;
     @JsonAlias("gameCreation")
-    @JsonProperty("datetime")
     private Long datetime;
     @JsonAlias("gameDuration")
-    @JsonProperty("duration")
     private Long duration;
-    @JsonProperty("teams")
     private List<LOLTeamEntity> teams;
-    @JsonProperty("participants")
     @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<LOLParticipantEntity> participants;
     private LOLQueueNomenclature queue;
     private boolean remake;

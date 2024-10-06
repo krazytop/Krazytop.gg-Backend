@@ -5,5 +5,5 @@ cron:
     target: default
   - description: "Update Clash Royal nomenclatures"
     url: /clash-royal/nomenclature
-    schedule: every 1 weeks
+    schedule: every monday 12:00
     target: default

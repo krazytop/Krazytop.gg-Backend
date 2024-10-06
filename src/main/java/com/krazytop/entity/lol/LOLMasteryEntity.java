@@ -14,13 +14,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "Mastery")
 public class LOLMasteryEntity {
 
-    @JsonProperty("puuid")
     private String puuid;
     @JsonAlias("championLevel")
-    @JsonProperty("level")
     private int level;
     @JsonAlias("championPoints")
-    @JsonProperty("points")
     private int points;
     private LOLChampionNomenclature champion;
 

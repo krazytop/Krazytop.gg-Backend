@@ -1,6 +1,5 @@
 package com.krazytop.nomenclature.clash_royal;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -12,19 +11,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CRCardNomenclature {
 
-    @JsonProperty("id")
     private int id;
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String name;
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String description;
-    @JsonProperty("type")
     private String type;
-    @JsonProperty("elixir")
     private int elixir;
-    @JsonProperty("rarity")
     private String rarity;
-    @JsonProperty("image")
     private String image;
 
     @JsonProperty("key")

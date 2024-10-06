@@ -2,7 +2,6 @@ package com.krazytop.entity.riot;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -15,19 +14,13 @@ import java.util.Date;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RIOTSummonerEntity {
 
-    @JsonProperty("id")
     private String id;
-    @JsonProperty("name")
     private String name;
-    @JsonProperty("accountId")
     private String accountId;
     @JsonAlias("summonerLevel")
-    @JsonProperty("level")
     private int level;
     @JsonAlias("profileIconId")
-    @JsonProperty("icon")
     private int icon;
-    @JsonProperty("puuid")
     private String puuid;
     @JsonProperty("tag")
     private String tag;

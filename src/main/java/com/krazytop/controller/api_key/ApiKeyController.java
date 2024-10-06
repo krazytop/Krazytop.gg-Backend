@@ -53,7 +53,7 @@ public class ApiKeyController {
     public ResponseEntity<String> setApiKey(String key, GameEnum game) {
         LOGGER.info("Updating {} API key", game);
         try {
-            apiKeyRepository.save(new ApiKeyEntity(GameEnum.CLASH_ROYAL, key));
+            apiKeyRepository.save(new ApiKeyEntity(game, key));
             LOGGER.info("{} API key successfully updated", game);
             return new ResponseEntity<>(String.format("%s API key successfully updated", game), HttpStatus.OK);
         } catch (Exception e) {

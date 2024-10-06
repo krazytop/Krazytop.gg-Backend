@@ -1,7 +1,7 @@
 package com.krazytop.nomenclature.clash_royal;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -14,11 +14,10 @@ import java.util.List;
 public class CRCardRarityNomenclature {
 
     @Id
-    @JsonProperty("name")
     private String name;
-    @JsonProperty("relative_level")
+    @JsonAlias("relative_level")
     private int relativeLevel;
-    @JsonProperty("upgrade_material_count")
+    @JsonAlias("upgrade_material_count")
     private List<Integer> upgradeCost;
 
 }
