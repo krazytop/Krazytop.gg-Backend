@@ -13,9 +13,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class CRCardNomenclature {
 
     private int id;
-    @JsonIgnore //TODO
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String name;
-    @JsonIgnore //TODO
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String description;
     private String type;
     private int elixir;

@@ -25,8 +25,8 @@ public class LOLParticipantEntity {
     private int kills;
     private int assists;
     private int deaths;
-    @JsonIgnore
-    private String role;//TODO
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private String role;
     private int visionScore;
     @JsonAlias("totalMinionsKilled")
     private int minions;
