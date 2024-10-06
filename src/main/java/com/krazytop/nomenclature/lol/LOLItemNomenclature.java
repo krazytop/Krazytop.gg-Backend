@@ -17,6 +17,7 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LOLItemNomenclature extends LOLNomenclature {
 
+    @JsonAlias("plaintext")
     private String plainText;
     private int baseGold;
     private int totalGold;

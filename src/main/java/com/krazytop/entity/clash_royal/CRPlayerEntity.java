@@ -33,6 +33,7 @@ public class CRPlayerEntity {
     private int losses;
     private int threeCrownWins;
     private int challengeCardsWon;
+    @JsonAlias("clanCardsCollected")
     private int clanWarCardsWon;
     private int totalDonations;
     private CRClanEntity clan;
