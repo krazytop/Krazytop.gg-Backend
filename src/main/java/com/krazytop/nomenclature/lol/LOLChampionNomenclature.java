@@ -16,11 +16,8 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LOLChampionNomenclature extends LOLNomenclature {
 
-    @JsonProperty("title")
     private String title;
-    @JsonProperty("stats")
     private Map<String, Integer> stats;
-    @JsonProperty("tags")
     private List<String> tags;
 
     @JsonProperty("key")

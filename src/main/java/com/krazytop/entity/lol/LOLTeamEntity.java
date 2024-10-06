@@ -14,13 +14,10 @@ import java.util.List;
 @Data
 public class LOLTeamEntity {
 
-    @JsonProperty("objectives")
     private LOLObjectivesEntity objectives;
     @JsonAlias("win")
-    @JsonProperty("hasWin")
     private boolean hasWin;
     @JsonAlias("teamId")
-    @JsonProperty("id")
     private String id;
     private List<LOLParticipantEntity> participants;
     private List<LOLChampionNomenclature> bans;
