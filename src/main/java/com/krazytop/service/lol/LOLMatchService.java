@@ -53,9 +53,10 @@ public class LOLMatchService {
         match.getOwners().add(puuid);
         if (this.getQueueIds("arena").contains(match.getQueue().getId())) {
             match.buildArenaMatch();
+        } else {
+            match.dispatchParticipantsInTeamsAndBuildSummoners();
+            match.setRemake(match.getTeams().get(0).getParticipants().get(0).isGameEndedInEarlySurrender());
         }
-        match.dispatchParticipantsInTeamsAndBuildSummoners();
-        match.setRemake(match.getTeams().get(0).getParticipants().get(0).isGameEndedInEarlySurrender());
         if (this.checkIfQueueIsCompatible(match)) {
             LOGGER.info("Saving match : {}", matchId);
             matchRepository.save(match);

@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -117,7 +119,7 @@ class LOLMatchServiceTest {
         verify(matchRepository, times(1)).findAllByQueueAndByRole(anyString(), anyList(), anyString(), any());
     }
 
-    private void mockRepositories(MockedStatic<SpringConfiguration> springConfigurationMock, String queueId) {
+    private void mockRepositories(MockedStatic<SpringConfiguration> springConfigurationMock, String queueId, boolean mockAugmentRepository) {
         ApplicationContextProvider mockApplicationContextProvider = mock(ApplicationContextProvider.class);
         ApplicationContext mockApplicationContext = mock(ApplicationContext.class);
 
@@ -129,12 +131,12 @@ class LOLMatchServiceTest {
         when(mockApplicationContext.getBean(LOLRuneNomenclatureRepository.class)).thenReturn(runeNomenclatureRepository);
         when(mockApplicationContext.getBean(LOLSummonerSpellNomenclatureRepository.class)).thenReturn(summonerSpellNomenclatureRepository);
         when(mockApplicationContext.getBean(LOLQueueNomenclatureRepository.class)).thenReturn(queueNomenclatureRepository);
-        when(mockApplicationContext.getBean(LOLAugmentNomenclatureRepository.class)).thenReturn(augmentNomenclatureRepository);
+        if (mockAugmentRepository) when(mockApplicationContext.getBean(LOLAugmentNomenclatureRepository.class)).thenReturn(augmentNomenclatureRepository);
 
         when(championNomenclatureRepository.findFirstById(anyString())).thenReturn(new LOLChampionNomenclature());
         when(itemNomenclatureRepository.findFirstById(anyString())).thenReturn(new LOLItemNomenclature());
         when(runeNomenclatureRepository.findFirstById(anyString())).thenReturn(new LOLRuneNomenclature());
-        when(augmentNomenclatureRepository.findFirstById(anyString())).thenReturn(new LOLAugmentNomenclature());
+        if (mockAugmentRepository) when(augmentNomenclatureRepository.findFirstById(anyString())).thenReturn(new LOLAugmentNomenclature());
         when(summonerSpellNomenclatureRepository.findFirstById(anyString())).thenReturn(new LOLSummonerSpellNomenclature());
         LOLQueueNomenclature compatibleQueue = new LOLQueueNomenclature();
         compatibleQueue.setId(queueId);
@@ -152,7 +154,7 @@ class LOLMatchServiceTest {
                 when(urlConstructor.toURL()).thenReturn(urlConstructorCount.getAndIncrement() == 0 ? matchIdsUrl : matchUrl))) {
 
             try (MockedStatic<SpringConfiguration> springConfigurationMock = mockStatic(SpringConfiguration.class)) {
-                this.mockRepositories(springConfigurationMock, "450");
+                this.mockRepositories(springConfigurationMock, "450", false);
                 ArgumentCaptor<LOLMatchEntity> argumentCaptor = ArgumentCaptor.forClass(LOLMatchEntity.class);
 
                 assertDoesNotThrow(() -> matchService.updateRemoteToLocalMatches("puuid"));
@@ -178,7 +180,7 @@ class LOLMatchServiceTest {
                 when(urlConstructor.toURL()).thenReturn(urlConstructorCount.getAndIncrement() == 0 ? matchIdsUrl : matchUrl))) {
 
             try (MockedStatic<SpringConfiguration> springConfigurationMock = mockStatic(SpringConfiguration.class)) {
-                this.mockRepositories(springConfigurationMock, "1710");
+                this.mockRepositories(springConfigurationMock, "1710", true);
                 ArgumentCaptor<LOLMatchEntity> argumentCaptor = ArgumentCaptor.forClass(LOLMatchEntity.class);
 
                 assertDoesNotThrow(() -> matchService.updateRemoteToLocalMatches("puuid"));
@@ -204,7 +206,7 @@ class LOLMatchServiceTest {
                 when(urlConstructor.toURL()).thenReturn(urlConstructorCount.getAndIncrement() == 0 ? matchIdsUrl : matchUrl))) {
 
             try (MockedStatic<SpringConfiguration> springConfigurationMock = mockStatic(SpringConfiguration.class)) {
-                this.mockRepositories(springConfigurationMock, "999");
+                this.mockRepositories(springConfigurationMock, "999", false);
 
                 assertDoesNotThrow(() -> matchService.updateRemoteToLocalMatches("puuid"));
 

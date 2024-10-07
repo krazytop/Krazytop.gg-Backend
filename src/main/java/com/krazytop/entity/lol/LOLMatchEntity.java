@@ -10,10 +10,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Data
 @Document(collection = "Match")
@@ -58,9 +55,11 @@ public class LOLMatchEntity {
                 participantTeam.getParticipants().add(participant);
             } else {
                 participantTeam = new LOLTeamEntity();
-                participantTeam.setParticipants(List.of(participant));
+                participantTeam.setId(participant.getSubTeamId());
+                participantTeam.setParticipants(new ArrayList<>(List.of(participant)));
                 participantTeam.setPlacement(participant.getPlacement());
                 participantTeam.setHasWin(participant.getPlacement() <= participants.size()/2);
+                this.teams.add(participantTeam);
             }
         });
     }
