@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.krazytop.config.SpringConfiguration;
+import com.krazytop.nomenclature.lol.LOLQueueEnum;
 import com.krazytop.nomenclature.lol.LOLQueueNomenclature;
 import com.krazytop.repository.lol.LOLQueueNomenclatureRepository;
 import lombok.Data;
@@ -64,4 +65,7 @@ public class LOLMatchEntity {
         });
     }
 
+    public boolean isQueue(LOLQueueEnum lolQueueEnum) {
+        return lolQueueEnum.getIds().contains(this.getQueue().getId());
+    }
 }
