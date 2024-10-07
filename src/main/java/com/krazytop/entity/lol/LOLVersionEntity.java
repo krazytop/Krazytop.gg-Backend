@@ -21,6 +21,7 @@ public class LOLVersionEntity {
     private String profileicon;
     private String language;
     private String sticker;
+    private String augment;
 
     public LOLVersionEntity(String version) {
         this.item = version;
@@ -31,5 +32,6 @@ public class LOLVersionEntity {
         this.profileicon = version;
         this.language = version;
         this.sticker = version;
+        this.augment = version;
     }
 }

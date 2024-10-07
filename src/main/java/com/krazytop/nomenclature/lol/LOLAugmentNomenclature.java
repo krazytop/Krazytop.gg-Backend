@@ -6,10 +6,9 @@ import lombok.EqualsAndHashCode;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @EqualsAndHashCode(callSuper = true)
-@Data
-@Document(collection = "SummonerSpellNomenclature")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LOLSummonerSpellNomenclature extends LOLNomenclature {
+@Data
+@Document(collection = "AugmentNomenclature")
+public class LOLAugmentNomenclature extends LOLNomenclature {
 
-    private float cooldownBurn;
 }
