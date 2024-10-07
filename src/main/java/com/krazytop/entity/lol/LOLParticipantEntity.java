@@ -84,7 +84,7 @@ public class LOLParticipantEntity {
     @JsonAlias("profileIcon")
     @Transient
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private int icon;
+    private int icon;//TODO transiant sur placement, teamId, subTeamId
     private int placement;
     private LOLAugmentNomenclature augment1;
     private LOLAugmentNomenclature augment2;
@@ -93,7 +93,7 @@ public class LOLParticipantEntity {
     private LOLAugmentNomenclature augment5;
     private LOLAugmentNomenclature augment6;
     @JsonAlias("playerSubteamId")
-    private int subTeamId;
+    private String subTeamId;
 
     public void buildSummoner() {
         this.setSummoner(new RIOTSummonerEntity(id, puuid, name, tag, level, icon));

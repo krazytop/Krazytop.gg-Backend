@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Data
 @Document(collection = "Match")
@@ -46,7 +47,22 @@ public class LOLMatchEntity {
     }
 
     public void buildArenaMatch() {
-
+        this.teams = new ArrayList<>();
+        this.participants.forEach(participant -> {
+            Optional<LOLTeamEntity> optParticipantTeam = this.teams.stream()
+                    .filter(team -> Objects.equals(team.getId(), participant.getSubTeamId()))
+                    .findFirst();
+            LOLTeamEntity participantTeam;
+            if (optParticipantTeam.isPresent()) {
+                participantTeam = optParticipantTeam.get();
+                participantTeam.getParticipants().add(participant);
+            } else {
+                participantTeam = new LOLTeamEntity();
+                participantTeam.setParticipants(List.of(participant));
+                participantTeam.setPlacement(participant.getPlacement());
+                participantTeam.setHasWin(participant.getPlacement() <= participants.size()/2);
+            }
+        });
     }
 
 }
