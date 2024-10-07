@@ -51,6 +51,9 @@ public class LOLMatchService {
         LOLMatchEntity match = mapper.convertValue(infoNode, LOLMatchEntity.class);
         match.setId(matchId);
         match.getOwners().add(puuid);
+        if (this.getQueueIds("arena").contains(match.getQueue().getId())) {
+            match.buildArenaMatch();
+        }
         match.dispatchParticipantsInTeamsAndBuildSummoners();
         match.setRemake(match.getTeams().get(0).getParticipants().get(0).isGameEndedInEarlySurrender());
         if (this.checkIfQueueIsCompatible(match)) {
@@ -88,7 +91,7 @@ public class LOLMatchService {
     }
 
     private boolean checkIfQueueIsCompatible(LOLMatchEntity match) {
-        List<String> compatibleQueues = Stream.of("normal", "solo-ranked", "flex-ranked", "aram", "urf", "nexus-blitz", "one-for-all", "ultimate-spellbook")
+        List<String> compatibleQueues = Stream.of("normal", "solo-ranked", "flex-ranked", "aram", "urf", "nexus-blitz", "one-for-all", "ultimate-spellbook", "arena")
                 .map(this::getQueueIds)
                 .flatMap(List::stream)
                 .toList();

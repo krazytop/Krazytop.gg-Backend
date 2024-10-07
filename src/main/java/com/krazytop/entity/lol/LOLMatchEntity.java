@@ -45,4 +45,8 @@ public class LOLMatchEntity {
         this.getTeams().forEach(team -> team.getParticipants().forEach(LOLParticipantEntity::buildSummoner));
     }
 
+    public void buildArenaMatch() {
+
+    }
+
 }
