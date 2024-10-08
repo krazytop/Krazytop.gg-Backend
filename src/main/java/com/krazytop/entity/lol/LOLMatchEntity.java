@@ -1,6 +1,7 @@
 package com.krazytop.entity.lol;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.krazytop.config.SpringConfiguration;
@@ -31,6 +32,7 @@ public class LOLMatchEntity {
     private List<LOLParticipantEntity> participants;
     private LOLQueueNomenclature queue;
     private boolean remake;
+    @JsonIgnore
     private List<String> owners = new ArrayList<>();
 
     @JsonProperty("queueId")
@@ -58,7 +60,7 @@ public class LOLMatchEntity {
                 participantTeam.setId(participant.getSubTeamId());
                 participantTeam.setParticipants(new ArrayList<>(List.of(participant)));
                 participantTeam.setPlacement(participant.getPlacement());
-                participantTeam.setHasWin(participant.getPlacement() <= participants.size()/2);
+                participantTeam.setHasWin(participant.getPlacement() <= participants.size()/4);
                 this.teams.add(participantTeam);
             }
         });
