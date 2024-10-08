@@ -59,32 +59,10 @@ public class LOLParticipantEntity {
     private LOLItemNomenclature item4;
     private LOLItemNomenclature item5;
     private LOLItemNomenclature ward;
-    private RIOTSummonerEntity summoner;
+    private RIOTSummonerEntity summoner = new RIOTSummonerEntity();
     private LOLSummonerSpellNomenclature summonerSpell1;
     private LOLSummonerSpellNomenclature summonerSpell2;
-    @JsonAlias("summonerId") //TODO set un new summoner et set les proprietés unes à unes
-    @Transient
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private String id;
-    @Transient
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private String puuid;
-    @JsonAlias("riotIdGameName")
-    @Transient
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private String name;
-    @JsonAlias("riotIdTagline")
-    @Transient
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private String tag;
-    @JsonAlias("summonerLevel")
-    @Transient
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private int level;
-    @JsonAlias("profileIcon")
-    @Transient
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private int icon;//TODO transiant sur placement, teamId, subTeamId
+    //TODO transiant sur placement, teamId, subTeamId
     private int placement;
     private LOLAugmentNomenclature augment1;
     private LOLAugmentNomenclature augment2;
@@ -95,8 +73,34 @@ public class LOLParticipantEntity {
     @JsonAlias("playerSubteamId")
     private String subTeamId;
 
-    public void buildSummoner() {
-        this.setSummoner(new RIOTSummonerEntity(id, puuid, name, tag, level, icon));
+    @JsonProperty("summonerId")
+    private void unpackId(String id) {
+        this.getSummoner().setId(id);
+    }
+
+    @JsonProperty("puuid")
+    private void unpackPuuid(String puuid) {
+        this.getSummoner().setPuuid(puuid);
+    }
+
+    @JsonProperty("riotIdGameName")
+    private void unpackName(String name) {
+        this.getSummoner().setName(name);
+    }
+
+    @JsonProperty("riotIdTagline")
+    private void unpackTag(String tag) {
+        this.getSummoner().setTag(tag);
+    }
+
+    @JsonProperty("summonerLevel")
+    private void unpackLevel(int level) {
+        this.getSummoner().setLevel(level);
+    }
+
+    @JsonProperty("profileIcon")
+    private void unpackIcon(int icon) {
+        this.getSummoner().setIcon(icon);
     }
 
     private void getAugment(String id, Consumer<LOLAugmentNomenclature> setter) {

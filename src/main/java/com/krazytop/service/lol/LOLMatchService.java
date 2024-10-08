@@ -51,15 +51,15 @@ public class LOLMatchService {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode infoNode = mapper.readTree(new URI(stringUrl).toURL()).get("info");
         LOLMatchEntity match = mapper.convertValue(infoNode, LOLMatchEntity.class);
-        match.setId(matchId);
-        match.getOwners().add(puuid);
-        if (match.isQueue(LOLQueueEnum.ARENA)) {
-            match.buildArenaMatch();
-        } else {
-            match.dispatchParticipantsInTeamsAndBuildSummoners();
-            match.setRemake(match.getTeams().get(0).getParticipants().get(0).isGameEndedInEarlySurrender());
-        }
         if (this.checkIfQueueIsCompatible(match)) {
+            match.setId(matchId);
+            match.getOwners().add(puuid);
+            if (match.isQueue(LOLQueueEnum.ARENA)) {
+                match.dispatchParticipantsInTeamsArena();
+            } else {
+                match.dispatchParticipantsInTeamsNormalGame();
+                match.setRemake(match.getTeams().get(0).getParticipants().get(0).isGameEndedInEarlySurrender());
+            }
             LOGGER.info("Saving match : {}", matchId);
             matchRepository.save(match);
         }
@@ -74,6 +74,7 @@ public class LOLMatchService {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode json = mapper.readTree(new URI(stringUrl).toURL());
             List<String> matchIds = mapper.convertValue(json, new TypeReference<>() {});
+            matchIds = List.of("EUW1_7098512660");
             for (String matchId : matchIds) {
                 LOLMatchEntity existingMatch = this.matchRepository.findFirstById(matchId);
                 if (existingMatch == null) {

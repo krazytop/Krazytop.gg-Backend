@@ -39,12 +39,11 @@ public class LOLMatchEntity {
         this.setQueue(queueNomenclatureRepository.findFirstById(queueId));
     }
 
-    public void dispatchParticipantsInTeamsAndBuildSummoners() {
+    public void dispatchParticipantsInTeamsNormalGame() {
         this.getTeams().forEach(team -> team.setParticipants(this.participants.stream().filter(participant -> Objects.equals(participant.getTeamId(), team.getId())).toList()));
-        this.getTeams().forEach(team -> team.getParticipants().forEach(LOLParticipantEntity::buildSummoner));
     }
 
-    public void buildArenaMatch() {
+    public void dispatchParticipantsInTeamsArena() {
         this.teams = new ArrayList<>();
         this.participants.forEach(participant -> {
             Optional<LOLTeamEntity> optParticipantTeam = this.teams.stream()
