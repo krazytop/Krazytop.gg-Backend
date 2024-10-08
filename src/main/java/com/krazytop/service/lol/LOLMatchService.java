@@ -134,15 +134,4 @@ public class LOLMatchService {
         }
     }
 
-    private String getRole(String roleName) {
-        return switch (roleName) {
-            case "top" -> "TOP";
-            case "jungle" -> "JUNGLE";
-            case "middle" -> "MIDDLE";
-            case "bottom" -> "BOTTOM";
-            case "support" -> "UTILITIES";
-            default -> "";
-        };
-    }
-
 }
