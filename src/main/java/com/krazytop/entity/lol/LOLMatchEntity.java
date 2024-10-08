@@ -1,18 +1,18 @@
 package com.krazytop.entity.lol;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.krazytop.config.SpringConfiguration;
+import com.krazytop.nomenclature.lol.LOLQueueEnum;
 import com.krazytop.nomenclature.lol.LOLQueueNomenclature;
 import com.krazytop.repository.lol.LOLQueueNomenclatureRepository;
 import lombok.Data;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Data
 @Document(collection = "Match")
@@ -32,6 +32,7 @@ public class LOLMatchEntity {
     private List<LOLParticipantEntity> participants;
     private LOLQueueNomenclature queue;
     private boolean remake;
+    @JsonIgnore
     private List<String> owners = new ArrayList<>();
 
     @JsonProperty("queueId")
@@ -40,9 +41,32 @@ public class LOLMatchEntity {
         this.setQueue(queueNomenclatureRepository.findFirstById(queueId));
     }
 
-    public void dispatchParticipantsInTeamsAndBuildSummoners() {
+    public void dispatchParticipantsInTeamsNormalGame() {
         this.getTeams().forEach(team -> team.setParticipants(this.participants.stream().filter(participant -> Objects.equals(participant.getTeamId(), team.getId())).toList()));
-        this.getTeams().forEach(team -> team.getParticipants().forEach(LOLParticipantEntity::buildSummoner));
     }
 
+    public void dispatchParticipantsInTeamsArena() {
+        this.teams = new ArrayList<>();
+        this.participants.forEach(participant -> {
+            Optional<LOLTeamEntity> optParticipantTeam = this.teams.stream()
+                    .filter(team -> Objects.equals(team.getId(), participant.getSubTeamId()))
+                    .findFirst();
+            LOLTeamEntity participantTeam;
+            if (optParticipantTeam.isPresent()) {
+                participantTeam = optParticipantTeam.get();
+                participantTeam.getParticipants().add(participant);
+            } else {
+                participantTeam = new LOLTeamEntity();
+                participantTeam.setId(participant.getSubTeamId());
+                participantTeam.setParticipants(new ArrayList<>(List.of(participant)));
+                participantTeam.setPlacement(participant.getPlacement());
+                participantTeam.setHasWin(participant.getPlacement() <= participants.size()/4);
+                this.teams.add(participantTeam);
+            }
+        });
+    }
+
+    public boolean isQueue(LOLQueueEnum lolQueueEnum) {
+        return lolQueueEnum.getIds().contains(this.getQueue().getId());
+    }
 }

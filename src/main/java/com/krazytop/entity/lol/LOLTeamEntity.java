@@ -21,6 +21,7 @@ public class LOLTeamEntity {
     private String id;
     private List<LOLParticipantEntity> participants;
     private List<LOLChampionNomenclature> bans;
+    private int placement;
 
     @JsonProperty("bans")
     private void unpackBans(JsonNode node) {

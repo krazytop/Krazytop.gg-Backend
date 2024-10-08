@@ -41,6 +41,8 @@ class LOLNomenclatureServiceTest {
     private LOLRuneNomenclatureRepository runeNomenclatureRepository;
     @Mock
     private LOLQueueNomenclatureRepository queueNomenclatureRepository;
+    @Mock
+    private LOLAugmentNomenclatureRepository augmentNomenclatureRepository;
 
     @Test
     void testUpdateAllNomenclature_NO_NEED() throws IOException, URISyntaxException {
@@ -182,6 +184,35 @@ class LOLNomenclatureServiceTest {
         assertEquals("5v5 Ranked Solo games", nomenclature.getName());
         assertEquals("Summoner's Rift", nomenclature.getMap());
         assertNull(nomenclature.getNotes());
+    }
+
+    @Test
+    void testUpdateAllNomenclature_AUGMENT() throws IOException, URISyntaxException {
+        AtomicInteger urlConstructorCount = new AtomicInteger();
+        try (MockedConstruction<URI> uriMock = mockConstruction(URI.class, (urlConstructor, context) ->
+                when(urlConstructor.toURL()).thenReturn(getJson(urlConstructorCount.getAndIncrement() == 0 ? "version" : "augment")))) {
+
+            LOLVersionEntity version = new LOLVersionEntity("14.19.1");
+            version.setAugment("14.18.1");
+            when(versionRepository.findFirstByOrderByItemAsc()).thenReturn(version);
+            ArgumentCaptor<List<LOLAugmentNomenclature>> argumentCaptor = ArgumentCaptor.forClass(List.class);
+
+            assertTrue(nomenclatureService.updateAllNomenclatures());
+
+            assertEquals(2, uriMock.constructed().size());
+            verify(versionRepository, times(1)).findFirstByOrderByItemAsc();
+            verify(versionRepository, times(1)).save(any());
+            verify(augmentNomenclatureRepository, times(1)).saveAll(argumentCaptor.capture());
+            assertFalse(argumentCaptor.getValue().isEmpty());
+            LOLAugmentNomenclature nomenclature = argumentCaptor.getValue().get(0);
+            System.out.println(nomenclature.getImage());
+            assertEquals("108", nomenclature.getId());
+            assertEquals("Autodestruction", nomenclature.getName());
+            assertEquals("assets/ux/cherry/augments/icons/selfdestruct_large.png", nomenclature.getImage());
+            assertEquals("Vous commencez chaque manche avec une bombe attachée à vous. Au bout de @BombDelay@ sec, elle explose en infligeant des <trueDamage>dégâts bruts équivalents à @MaxHealthDamage*100@% des PV max</trueDamage> et <status>projette dans les airs</status> pendant @KnockupDuration@ sec.<br>", nomenclature.getDescription());
+            assertFalse(nomenclature.getDataValues().isEmpty());
+            assertEquals(15, nomenclature.getDataValues().get("BombDelay"));
+        }
     }
 
     private URL getJson(String nomenclature) {
