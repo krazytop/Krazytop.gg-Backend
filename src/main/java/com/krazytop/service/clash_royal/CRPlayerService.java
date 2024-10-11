@@ -43,7 +43,9 @@ public class CRPlayerService {
     public CRPlayerEntity getRemotePlayer(String playerId) throws IOException {
         String apiUrl = "https://proxy.royaleapi.dev/v1/players/%23" + playerId;
         CRPlayerEntity player = callCrApi(apiUrl, CRPlayerEntity.class);
-        player.setId(playerId);
+        if (player != null) {
+            player.setId(playerId);
+        }
         return player;
     }
 
@@ -58,7 +60,11 @@ public class CRPlayerService {
             HttpGet httpGet = new HttpGet(apiUrl);
             httpGet.addHeader("Authorization", "Bearer " + apiKeyRepository.findFirstByGame(GameEnum.CLASH_ROYAL).getKey());
             try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
-                return new ObjectMapper().readValue(response.getEntity().getContent(), responseTypeClass);
+                if (response.getStatusLine().getStatusCode() == 200) {
+                    return new ObjectMapper().readValue(response.getEntity().getContent(), responseTypeClass);
+                } else {
+                    return null;
+                }
             }
         }
     }
