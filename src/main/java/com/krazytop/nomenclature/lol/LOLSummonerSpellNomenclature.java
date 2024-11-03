@@ -11,5 +11,5 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LOLSummonerSpellNomenclature extends LOLNomenclature {
 
-    private int cooldownBurn;
+    private float cooldownBurn;
 }
