@@ -8,8 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @RestController
 public class DestinyAuthController {
 
@@ -36,10 +34,10 @@ public class DestinyAuthController {
     }
 
     @PostMapping("/destiny/update")
-    public ResponseEntity<String> updatePlayerToken(@RequestBody Map<String, String> requestBody) {
+    public ResponseEntity<String> updatePlayerToken(@RequestBody String refreshToken) {
         LOGGER.info("Updating BUNGIE player tokens with refresh token");
         try {
-            String playerToken = destinyAuthService.updatePlayerToken(requestBody.get("refreshToken"));
+            String playerToken = destinyAuthService.updatePlayerToken(refreshToken);
             LOGGER.info("BUNGIE player tokens refreshed");
             return new ResponseEntity<>(playerToken, HttpStatus.OK);
         } catch (Exception e) {

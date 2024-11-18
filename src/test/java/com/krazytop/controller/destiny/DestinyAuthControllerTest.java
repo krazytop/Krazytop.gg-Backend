@@ -46,7 +46,7 @@ class DestinyAuthControllerTest {
     @Test
     void testUpdatePlayerToken_OK() throws IOException {
         when(authService.updatePlayerToken(any())).thenReturn("tokens");
-        ResponseEntity<String> response = authController.updatePlayerToken(new HashMap<>() {{put("refreshToken", "token");}});
+        ResponseEntity<String> response = authController.updatePlayerToken("refreshToken");
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         verify(authService, times(1)).updatePlayerToken(any());
@@ -55,7 +55,7 @@ class DestinyAuthControllerTest {
     @Test
     void testUpdatePlayerToken_ERROR() throws IOException {
         when(authService.updatePlayerToken(any())).thenThrow(RuntimeException.class);
-        ResponseEntity<String> response = authController.updatePlayerToken(new HashMap<>() {{put("refreshToken", "token");}});
+        ResponseEntity<String> response = authController.updatePlayerToken("refreshToken");
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNull(response.getBody());
         verify(authService, times(1)).updatePlayerToken(any());
