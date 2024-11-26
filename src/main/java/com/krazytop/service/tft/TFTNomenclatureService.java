@@ -13,6 +13,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Only EUW & fr_FR for now
+ */
 @Service
 public class TFTNomenclatureService {
 
