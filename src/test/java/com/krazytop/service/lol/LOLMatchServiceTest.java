@@ -10,11 +10,10 @@ import com.krazytop.repository.api_key.ApiKeyRepository;
 import com.krazytop.repository.lol.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockedConstruction;
-import org.mockito.MockedStatic;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -49,6 +48,8 @@ class LOLMatchServiceTest {
     private LOLRuneNomenclatureRepository runeNomenclatureRepository;
     @Mock
     private LOLSummonerSpellNomenclatureRepository summonerSpellNomenclatureRepository;
+    @Mock
+    private LOLAugmentNomenclatureRepository augmentNomenclatureRepository;
     @Mock
     private LOLQueueNomenclatureRepository queueNomenclatureRepository;
     @Mock
@@ -118,7 +119,7 @@ class LOLMatchServiceTest {
         verify(matchRepository, times(1)).findAllByQueueAndByRole(anyString(), anyList(), anyString(), any());
     }
 
-    private void mockRepositories(MockedStatic<SpringConfiguration> springConfigurationMock, String queueId) {
+    private void mockRepositories(MockedStatic<SpringConfiguration> springConfigurationMock, String queueId, boolean mockAugmentRepository) {
         ApplicationContextProvider mockApplicationContextProvider = mock(ApplicationContextProvider.class);
         ApplicationContext mockApplicationContext = mock(ApplicationContext.class);
 
@@ -130,10 +131,12 @@ class LOLMatchServiceTest {
         when(mockApplicationContext.getBean(LOLRuneNomenclatureRepository.class)).thenReturn(runeNomenclatureRepository);
         when(mockApplicationContext.getBean(LOLSummonerSpellNomenclatureRepository.class)).thenReturn(summonerSpellNomenclatureRepository);
         when(mockApplicationContext.getBean(LOLQueueNomenclatureRepository.class)).thenReturn(queueNomenclatureRepository);
+        if (mockAugmentRepository) when(mockApplicationContext.getBean(LOLAugmentNomenclatureRepository.class)).thenReturn(augmentNomenclatureRepository);
 
         when(championNomenclatureRepository.findFirstById(anyString())).thenReturn(new LOLChampionNomenclature());
         when(itemNomenclatureRepository.findFirstById(anyString())).thenReturn(new LOLItemNomenclature());
         when(runeNomenclatureRepository.findFirstById(anyString())).thenReturn(new LOLRuneNomenclature());
+        if (mockAugmentRepository) when(augmentNomenclatureRepository.findFirstById(anyString())).thenReturn(new LOLAugmentNomenclature());
         when(summonerSpellNomenclatureRepository.findFirstById(anyString())).thenReturn(new LOLSummonerSpellNomenclature());
         LOLQueueNomenclature compatibleQueue = new LOLQueueNomenclature();
         compatibleQueue.setId(queueId);
@@ -143,42 +146,81 @@ class LOLMatchServiceTest {
     }
 
     @Test
-    void testUpdateRemoteToLocalMatches_NewMatch_CompatibleQueue() {
+    void testUpdateRemoteToLocalMatches_NormalGame() {
         AtomicInteger urlConstructorCount = new AtomicInteger();
+        URL emptyMatchIdsUrl = getJson("empty-match-ids");
         URL matchIdsUrl = getJson("match-ids");
         URL matchUrl = getJson("match");
-        try (MockedConstruction<URI> uriMock = mockConstruction(URI.class, (urlConstructor, context) ->
-                when(urlConstructor.toURL()).thenReturn(urlConstructorCount.getAndIncrement() == 0 ? matchIdsUrl : matchUrl))) {
+        try (MockedConstruction<URI> uriMock = mockConstruction(URI.class, (urlConstructor, context) -> {
+            int urlConstructorCountInt = urlConstructorCount.getAndIncrement();
+            when(urlConstructor.toURL()).thenReturn(urlConstructorCountInt == 0 ? matchIdsUrl : urlConstructorCountInt == 1 ? matchUrl : emptyMatchIdsUrl);
+        })) {
 
             try (MockedStatic<SpringConfiguration> springConfigurationMock = mockStatic(SpringConfiguration.class)) {
-                this.mockRepositories(springConfigurationMock, "450");
+                this.mockRepositories(springConfigurationMock, "450", false);
+                ArgumentCaptor<LOLMatchEntity> argumentCaptor = ArgumentCaptor.forClass(LOLMatchEntity.class);
 
-                assertDoesNotThrow(() -> matchService.updateRemoteToLocalMatches("puuid"));
+                assertDoesNotThrow(() -> matchService.updateRemoteToLocalMatches("puuid", 0, false));
 
-                assertEquals(2, uriMock.constructed().size());
+                assertEquals(3, uriMock.constructed().size());
                 verify(matchRepository, times(1)).findFirstById(anyString());
-                verify(apiKeyRepository, times(2)).findFirstByGame(GameEnum.RIOT);
-                verify(matchRepository, times(1)).save(any());
+                verify(apiKeyRepository, times(3)).findFirstByGame(GameEnum.RIOT);
+                verify(matchRepository, times(1)).save(argumentCaptor.capture());
+                assertNotNull(argumentCaptor.getValue());
+                LOLMatchEntity match = argumentCaptor.getValue();
+                assertEquals(2, match.getTeams().size());
+                match.getTeams().forEach(team -> assertEquals(5, team.getParticipants().size()));
             }
         }
     }
 
     @Test
-    void testUpdateRemoteToLocalMatches_NewMatch_IncompatibleQueue() {
+    void testUpdateRemoteToLocalMatches_Arena() {
         AtomicInteger urlConstructorCount = new AtomicInteger();
+        URL emptyMatchIdsUrl = getJson("empty-match-ids");
         URL matchIdsUrl = getJson("match-ids");
-        URL matchUrl = getJson("match");
-        try (MockedConstruction<URI> uriMock = mockConstruction(URI.class, (urlConstructor, context) ->
-                when(urlConstructor.toURL()).thenReturn(urlConstructorCount.getAndIncrement() == 0 ? matchIdsUrl : matchUrl))) {
+        URL matchUrl = getJson("match-arena");
+        try (MockedConstruction<URI> uriMock = mockConstruction(URI.class, (urlConstructor, context) -> {
+            int urlConstructorCountInt = urlConstructorCount.getAndIncrement();
+            when(urlConstructor.toURL()).thenReturn(urlConstructorCountInt == 0 ? matchIdsUrl : urlConstructorCountInt == 1 ? matchUrl : emptyMatchIdsUrl);
+        })) {
 
             try (MockedStatic<SpringConfiguration> springConfigurationMock = mockStatic(SpringConfiguration.class)) {
-                this.mockRepositories(springConfigurationMock, "999");
+                this.mockRepositories(springConfigurationMock, "1710", true);
+                ArgumentCaptor<LOLMatchEntity> argumentCaptor = ArgumentCaptor.forClass(LOLMatchEntity.class);
 
-                assertDoesNotThrow(() -> matchService.updateRemoteToLocalMatches("puuid"));
+                assertDoesNotThrow(() -> matchService.updateRemoteToLocalMatches("puuid", 0, false));
 
-                assertEquals(2, uriMock.constructed().size());
+                assertEquals(3, uriMock.constructed().size());
                 verify(matchRepository, times(1)).findFirstById(anyString());
-                verify(apiKeyRepository, times(2)).findFirstByGame(GameEnum.RIOT);
+                verify(apiKeyRepository, times(3)).findFirstByGame(GameEnum.RIOT);
+                verify(matchRepository, times(1)).save(argumentCaptor.capture());
+                assertNotNull(argumentCaptor.getValue());
+                LOLMatchEntity match = argumentCaptor.getValue();
+                assertEquals(8, match.getTeams().size());
+                match.getTeams().forEach(team -> assertEquals(2, team.getParticipants().size()));
+            }
+        }
+    }
+
+    @Test
+    void testUpdateRemoteToLocalMatches_IncompatibleQueue() {
+        AtomicInteger urlConstructorCount = new AtomicInteger();
+        URL emptyMatchIdsUrl = getJson("empty-match-ids");
+        URL matchIdsUrl = getJson("match-ids");
+        URL matchUrl = getJson("match");
+        try (MockedConstruction<URI> uriMock = mockConstruction(URI.class, (urlConstructor, context) -> {
+            int urlConstructorCountInt = urlConstructorCount.getAndIncrement();
+            when(urlConstructor.toURL()).thenReturn(urlConstructorCountInt == 0 ? matchIdsUrl : urlConstructorCountInt == 1 ? matchUrl : emptyMatchIdsUrl);
+        })) {
+            try (MockedStatic<SpringConfiguration> springConfigurationMock = mockStatic(SpringConfiguration.class)) {
+                this.mockRepositories(springConfigurationMock, "999", false);
+
+                assertDoesNotThrow(() -> matchService.updateRemoteToLocalMatches("puuid", 0, false));
+
+                assertEquals(3, uriMock.constructed().size());
+                verify(matchRepository, times(1)).findFirstById(anyString());
+                verify(apiKeyRepository, times(3)).findFirstByGame(GameEnum.RIOT);
                 verify(matchRepository, times(0)).save(any());
             }
         }
@@ -193,11 +235,11 @@ class LOLMatchServiceTest {
             when(apiKeyRepository.findFirstByGame(GameEnum.RIOT)).thenReturn(new ApiKeyEntity(GameEnum.RIOT, "API_KEY"));
             when(matchRepository.findFirstById(anyString())).thenReturn(new LOLMatchEntity());
 
-            assertDoesNotThrow(() -> matchService.updateRemoteToLocalMatches("puuid"));
+            assertDoesNotThrow(() -> matchService.updateRemoteToLocalMatches("puuid", 0, false));
 
-            assertEquals(1, uriMock.constructed().size());
-            verify(matchRepository, times(1)).findFirstById(anyString());
-            verify(apiKeyRepository, times(1)).findFirstByGame(GameEnum.RIOT);
+            assertEquals(2, uriMock.constructed().size());
+            verify(matchRepository, times(2)).findFirstById(anyString());
+            verify(apiKeyRepository, times(2)).findFirstByGame(GameEnum.RIOT);
         }
     }
 
@@ -208,7 +250,7 @@ class LOLMatchServiceTest {
 
             when(apiKeyRepository.findFirstByGame(GameEnum.RIOT)).thenReturn(new ApiKeyEntity(GameEnum.RIOT, "API_KEY"));
 
-            assertThrows(IOException.class, () -> matchService.updateRemoteToLocalMatches("puuid"));
+            assertThrows(IOException.class, () -> matchService.updateRemoteToLocalMatches("puuid", 0, false));
 
             assertEquals(1, uriMock.constructed().size());
             verify(matchRepository, times(0)).findFirstById(anyString());
