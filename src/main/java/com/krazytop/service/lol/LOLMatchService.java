@@ -65,27 +65,33 @@ public class LOLMatchService {
         }
     }
 
-    /**
-     * Due to development API Key rate limit, we recover only and always 100 last matches
-     */
-    public void updateRemoteToLocalMatches(String puuid) throws IOException {
+    public void updateRemoteToLocalMatches(String puuid, int firstIndex, boolean forceDetectNewMatches) throws IOException {
         try {
-            String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, 0, 100, apiKeyRepository.findFirstByGame(GameEnum.RIOT).getKey());
+            boolean moreMatchToRecovered = true;
+            String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, firstIndex, 100, apiKeyRepository.findFirstByGame(GameEnum.RIOT).getKey());
             ObjectMapper mapper = new ObjectMapper();
             JsonNode json = mapper.readTree(new URI(stringUrl).toURL());
             List<String> matchIds = mapper.convertValue(json, new TypeReference<>() {});
-            matchIds = List.of("EUW1_7098512660");
-            for (String matchId : matchIds) {
-                LOLMatchEntity existingMatch = this.matchRepository.findFirstById(matchId);
-                if (existingMatch == null) {
-                    this.updateMatch(matchId, puuid);
+            if (!matchIds.isEmpty()) {
+                for (String matchId : matchIds) {
+                    LOLMatchEntity existingMatch = this.matchRepository.findFirstById(matchId);
+                    if (existingMatch == null) {
+                        this.updateMatch(matchId, puuid);
+                        Thread.sleep(2000);
+                    } else if (!existingMatch.getOwners().contains(puuid)) {
+                        existingMatch.getOwners().add(puuid);
+                        LOGGER.info("Updating match : {}", matchId);
+                        matchRepository.save(existingMatch);
+                    } else {
+                        if (!forceDetectNewMatches) {
+                            moreMatchToRecovered = false;
+                            break;
+                        }
+                    }
+                }
+                if (moreMatchToRecovered) {
                     Thread.sleep(2000);
-                } else if (!existingMatch.getOwners().contains(puuid)) {
-                    existingMatch.getOwners().add(puuid);
-                    LOGGER.info("Updating match : {}", matchId);
-                    matchRepository.save(existingMatch);
-                } else {
-                    break;
+                    this.updateRemoteToLocalMatches(puuid, firstIndex + 100, forceDetectNewMatches);
                 }
             }
         } catch (InterruptedException | URISyntaxException | IOException e) {

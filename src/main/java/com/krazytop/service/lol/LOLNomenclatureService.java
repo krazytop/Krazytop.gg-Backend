@@ -86,14 +86,11 @@ public class LOLNomenclatureService {
 
     private void updateAugmentNomenclature(String version) throws IOException, URISyntaxException {
         version = String.join(".", version.split("\\.")[0], version.split("\\.")[1]);
-        List<LOLAugmentNomenclature> nomenclatures = this.downloadNewAugments(String.format("https://raw.communitydragon.org/%s/cdragon/arena/fr_fr.json", version));
+        ObjectMapper mapper = new ObjectMapper();
+        String url = String.format("https://raw.communitydragon.org/%s/cdragon/arena/fr_fr.json", version);
+        List<LOLAugmentNomenclature> nomenclatures = mapper.convertValue(mapper.readTree(new URI(url).toURL()).get("augments"), new TypeReference<>() {});
         augmentNomenclatureRepository.saveAll(nomenclatures);
         LOGGER.info("Update {} augment nomenclatures", nomenclatures.size());
-    }
-
-    private List<LOLAugmentNomenclature> downloadNewAugments(String stringUrl) throws IOException, URISyntaxException {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()).get("augments"), new TypeReference<>() {});
     }
 
     private List<LOLItemNomenclature> downloadNewItems(String stringUrl) throws IOException, URISyntaxException {
