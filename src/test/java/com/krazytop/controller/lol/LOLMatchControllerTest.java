@@ -64,18 +64,18 @@ class LOLMatchControllerTest {
 
     @Test
     void testUpdateRemoteToLocalMatches_OK() throws IOException {
-        ResponseEntity<String> response = matchController.updateRemoteToLocalMatches("puuid");
+        ResponseEntity<String> response = matchController.updateRemoteToLocalMatches("puuid", false);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        verify(matchService, times(1)).updateRemoteToLocalMatches(anyString());
+        verify(matchService, times(1)).updateRemoteToLocalMatches(anyString(), anyInt(), anyBoolean());
     }
 
     @Test
     void testUpdateRemoteToLocalMatches_ERROR() throws IOException {
-        doThrow(RuntimeException.class).when(matchService).updateRemoteToLocalMatches(anyString());
-        ResponseEntity<String> response = matchController.updateRemoteToLocalMatches("puuid");
+        doThrow(RuntimeException.class).when(matchService).updateRemoteToLocalMatches(anyString(), anyInt(), anyBoolean());
+        ResponseEntity<String> response = matchController.updateRemoteToLocalMatches("puuid", false);
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNotNull(response.getBody());
-        verify(matchService, times(1)).updateRemoteToLocalMatches(anyString());
+        verify(matchService, times(1)).updateRemoteToLocalMatches(anyString(), anyInt(), anyBoolean());
     }
 }

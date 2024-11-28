@@ -10,7 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.String;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -29,15 +31,17 @@ public class LOLNomenclatureService {
     private final LOLItemNomenclatureRepository itemNomenclatureRepository;
     private final LOLRuneNomenclatureRepository runeNomenclatureRepository;
     private final LOLSummonerSpellNomenclatureRepository summonerSpellNomenclature;
+    private final LOLAugmentNomenclatureRepository augmentNomenclatureRepository;
     private final LOLVersionRepository versionRepository;
 
     @Autowired
-    public LOLNomenclatureService(LOLQueueNomenclatureRepository queueNomenclatureRepository, LOLChampionNomenclatureRepository championNomenclatureRepository, LOLItemNomenclatureRepository itemNomenclatureRepository, LOLRuneNomenclatureRepository runeNomenclatureRepository, LOLSummonerSpellNomenclatureRepository summonerSpellNomenclature, LOLVersionRepository versionRepository) {
+    public LOLNomenclatureService(LOLQueueNomenclatureRepository queueNomenclatureRepository, LOLChampionNomenclatureRepository championNomenclatureRepository, LOLItemNomenclatureRepository itemNomenclatureRepository, LOLRuneNomenclatureRepository runeNomenclatureRepository, LOLSummonerSpellNomenclatureRepository summonerSpellNomenclature, LOLAugmentNomenclatureRepository augmentNomenclatureRepository, LOLVersionRepository versionRepository) {
         this.queueNomenclatureRepository = queueNomenclatureRepository;
         this.championNomenclatureRepository = championNomenclatureRepository;
         this.itemNomenclatureRepository = itemNomenclatureRepository;
         this.runeNomenclatureRepository = runeNomenclatureRepository;
         this.summonerSpellNomenclature = summonerSpellNomenclature;
+        this.augmentNomenclatureRepository = augmentNomenclatureRepository;
         this.versionRepository = versionRepository;
     }
 
@@ -80,6 +84,15 @@ public class LOLNomenclatureService {
         LOGGER.info("Update {} item nomenclatures", items.size());
     }
 
+    private void updateAugmentNomenclature(String version) throws IOException, URISyntaxException {
+        version = String.join(".", version.split("\\.")[0], version.split("\\.")[1]);
+        ObjectMapper mapper = new ObjectMapper();
+        String url = String.format("https://raw.communitydragon.org/%s/cdragon/arena/fr_fr.json", version);
+        List<LOLAugmentNomenclature> nomenclatures = mapper.convertValue(mapper.readTree(new URI(url).toURL()).get("augments"), new TypeReference<>() {});
+        augmentNomenclatureRepository.saveAll(nomenclatures);
+        LOGGER.info("Update {} augment nomenclatures", nomenclatures.size());
+    }
+
     private List<LOLItemNomenclature> downloadNewItems(String stringUrl) throws IOException, URISyntaxException {
         ObjectMapper mapper = new ObjectMapper();
         Map<String, LOLItemNomenclature> nomenclaturesMap = mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()).get("data"), new TypeReference<>() {});
@@ -104,22 +117,38 @@ public class LOLNomenclatureService {
         LOLVersionEntity lastVersion = this.getLastNomenclatureVersions();
         LOLVersionEntity dbVersion = this.versionRepository.findFirstByOrderByItemAsc();
         boolean nomenclaturesUpdated = false;
-        if (dbVersion == null || !Objects.equals(lastVersion.getItem(), dbVersion.getItem())) {
+        if (dbVersion == null) {
+            dbVersion = new LOLVersionEntity();
+        }
+        if (!Objects.equals(lastVersion.getItem(), dbVersion.getItem())) {
             this.updateItemNomenclature(lastVersion.getItem());
             this.updateRuneNomenclature(lastVersion.getItem());
             this.updateQueueNomenclature();
+            dbVersion.setItem(lastVersion.getItem());
+            this.versionRepository.save(dbVersion);
             nomenclaturesUpdated = true;
         }
-        if (dbVersion == null || !Objects.equals(lastVersion.getChampion(), dbVersion.getChampion())) {
+        if (!Objects.equals(lastVersion.getChampion(), dbVersion.getChampion())) {
             this.updateChampionNomenclature(lastVersion.getChampion());
+            dbVersion.setChampion(lastVersion.getChampion());
+            this.versionRepository.save(dbVersion);
             nomenclaturesUpdated = true;
         }
-        if (dbVersion == null || !Objects.equals(lastVersion.getSummoner(), dbVersion.getSummoner())) {
+        if (!Objects.equals(lastVersion.getSummoner(), dbVersion.getSummoner())) {
             this.updateSummonerSpellNomenclature(lastVersion.getSummoner());
+            dbVersion.setSummoner(lastVersion.getSummoner());
+            this.versionRepository.save(dbVersion);
             nomenclaturesUpdated = true;
         }
-        if (nomenclaturesUpdated) {
-            this.versionRepository.save(lastVersion);
+        if (!Objects.equals(lastVersion.getAugment(), dbVersion.getAugment())) {
+            try {
+                this.updateAugmentNomenclature(lastVersion.getAugment());
+                dbVersion.setAugment(lastVersion.getAugment());
+                this.versionRepository.save(dbVersion);
+                nomenclaturesUpdated = true;
+            } catch (FileNotFoundException ignored) {
+                LOGGER.info("Community Dragon is not yet up to date");
+            }
         }
         return nomenclaturesUpdated;
     }
@@ -128,7 +157,9 @@ public class LOLNomenclatureService {
         String uri = "https://ddragon.leagueoflegends.com/realms/euw.json";
         URL url = new URI(uri).toURL();
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.convertValue(mapper.readTree(url).get("n"), LOLVersionEntity.class);
+        LOLVersionEntity lastVersion = mapper.convertValue(mapper.readTree(url).get("n"), LOLVersionEntity.class);
+        lastVersion.setAugment(lastVersion.getItem());
+        return lastVersion;
     }
 
 }
