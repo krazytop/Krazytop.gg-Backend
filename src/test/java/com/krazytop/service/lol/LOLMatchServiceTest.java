@@ -8,6 +8,7 @@ import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.nomenclature.lol.*;
 import com.krazytop.repository.api_key.ApiKeyRepository;
 import com.krazytop.repository.lol.*;
+import com.krazytop.service.riot.RIOTSummonerService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -38,6 +39,8 @@ class LOLMatchServiceTest {
     @InjectMocks
     private LOLMatchService matchService;
 
+    @Mock
+    private RIOTSummonerService summonerService;
     @Mock
     private LOLMatchRepository matchRepository;
     @Mock

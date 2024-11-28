@@ -9,4 +9,5 @@ public interface RIOTSummonerRepository extends MongoRepository<RIOTSummonerEnti
     @Query("{'region' : ?0, 'tag' : {$regex : ?1, $options : 'i'}, 'name' : {$regex : ?2, $options : 'i'}}")
     RIOTSummonerEntity findFirstByRegionAndTagAndName(String region, String tag, String name);
 
+    RIOTSummonerEntity findFirstByPuuid(String puuid);
 }
