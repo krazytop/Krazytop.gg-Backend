@@ -7,6 +7,7 @@ import com.krazytop.entity.lol.*;
 import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.repository.api_key.ApiKeyRepository;
 import com.krazytop.repository.lol.LOLMatchRepository;
+import com.krazytop.service.riot.RIOTSummonerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +30,13 @@ public class LOLMatchService {
     private int pageSize;
     private final LOLMatchRepository matchRepository;
     private final ApiKeyRepository apiKeyRepository;
+    private final RIOTSummonerService summonerService;
 
     @Autowired
-    public LOLMatchService(LOLMatchRepository matchRepository, ApiKeyRepository apiKeyRepository) {
+    public LOLMatchService(LOLMatchRepository matchRepository, ApiKeyRepository apiKeyRepository, RIOTSummonerService summonerService) {
         this.matchRepository = matchRepository;
         this.apiKeyRepository = apiKeyRepository;
+        this.summonerService = summonerService;
     }
 
     public List<LOLMatchEntity> getLocalMatches(String puuid, int pageNb, String queue, String role) {
@@ -56,6 +59,7 @@ public class LOLMatchService {
         if (this.checkIfQueueIsCompatible(match)) {
             LOGGER.info("Saving match : {}", matchId);
             matchRepository.save(match);
+            summonerService.updateTimeSpentOnLOL(puuid, match.getDuration());
         }
     }
 
@@ -77,6 +81,7 @@ public class LOLMatchService {
                     existingMatch.getOwners().add(puuid);
                     LOGGER.info("Updating match : {}", matchId);
                     matchRepository.save(existingMatch);
+                    summonerService.updateTimeSpentOnLOL(puuid, existingMatch.getDuration());
                 } else {
                     break;
                 }
