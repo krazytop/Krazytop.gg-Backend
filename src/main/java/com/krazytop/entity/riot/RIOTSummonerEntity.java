@@ -25,8 +25,8 @@ public class RIOTSummonerEntity {
     private String tag;
     private String region;
     private Date updateDate;
-    private Long spentTimeOnLOL;
-    private Long spentTimeOnTFT;
+    private Long spentTimeOnLOL = 0L;
+    private Long spentTimeOnTFT = 0L;
 
     public RIOTSummonerEntity(String id, String puuid, String name, String tag, int level, int icon) {
         this.id = id;
