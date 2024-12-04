@@ -91,8 +91,7 @@ public class TFTNomenclatureService {
 
     public void updateItemNomenclature(JsonNode node) {
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, TFTItemNomenclature> nomenclaturesMap = mapper.convertValue(node, new TypeReference<>() {});
-        List<TFTItemNomenclature> nomenclatures = nomenclaturesMap.values().stream().toList();
+        List<TFTItemNomenclature> nomenclatures = mapper.convertValue(node, new TypeReference<>() {});
         itemNomenclatureRepository.saveAll(nomenclatures);
         LOGGER.info("Update {} TFT item nomenclatures", nomenclatures.size());
     }
