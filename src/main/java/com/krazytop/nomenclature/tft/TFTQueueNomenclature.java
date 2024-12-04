@@ -7,17 +7,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document(collection = "QueueNomenclature")
-public class TFTQueueNomenclature {//TODO TFTNomenclature
+public class TFTQueueNomenclature {
 
     private String id;
-    private String name;
     private String queueType;
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private String name;
     private String image;
 
     @JsonProperty("image")
-    private String unpackImage(JsonNode node) {
-        this.setImage(node.get("full").asText());
-        return image;
+    private void unpackImage(JsonNode node) {
+        this.image = node.get("full").asText();
     }
+
 }

@@ -5,6 +5,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface TFTVersionRepository extends MongoRepository<TFTVersionEntity, String> {
 
-    TFTVersionEntity findFirstByOrderByVersionAsc();
+    TFTVersionEntity findFirstByOrderByOfficialVersionAsc();
 
 }
