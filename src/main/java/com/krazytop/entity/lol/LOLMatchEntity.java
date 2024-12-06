@@ -32,7 +32,6 @@ public class LOLMatchEntity {
     private List<LOLParticipantEntity> participants;
     private LOLQueueNomenclature queue;
     private boolean remake;
-    @JsonIgnore
     private List<String> owners = new ArrayList<>();
 
     @JsonProperty("queueId")

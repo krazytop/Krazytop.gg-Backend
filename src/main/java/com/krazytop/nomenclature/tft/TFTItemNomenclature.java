@@ -3,7 +3,6 @@ package com.krazytop.nomenclature.tft;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -15,7 +14,7 @@ import java.util.Map;
 @Document(collection = "ItemNomenclature")
 public class TFTItemNomenclature {
 
-    @JsonAlias("apiName")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String id;
     private String name;
     @JsonAlias("icon")
@@ -25,4 +24,9 @@ public class TFTItemNomenclature {
     @JsonAlias("effects")
     private Map<String, Float> variables;
     private List<String> composition;
+
+    @JsonProperty("apiName")
+    private void unpackId(String id) {
+        this.id = id;
+    }
 }

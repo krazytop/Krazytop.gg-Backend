@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -22,9 +23,12 @@ public class TFTNomenclatureController {
     }
 
     @GetMapping("/tft/nomenclature")
-    public ResponseEntity<String> updateNomenclatures() {
+    public ResponseEntity<String> updateNomenclatures(@RequestParam(required = false, defaultValue = "false") boolean legacy) {
         LOGGER.info("Updating all TFT nomenclatures");
         try {
+            if (legacy) {
+                this.tftNomenclatureService.updateLegacyNomenclatures();
+            }
             if (this.tftNomenclatureService.updateAllNomenclatures()) {
                 return new ResponseEntity<>("All TFT nomenclatures are successfully updated", HttpStatus.OK);
             } else {

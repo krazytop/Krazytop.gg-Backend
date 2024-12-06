@@ -63,7 +63,7 @@ public class LOLMatchService {
                 match.dispatchParticipantsInTeamsNormalGame();
                 match.setRemake(match.getTeams().get(0).getParticipants().get(0).isGameEndedInEarlySurrender());
             }
-            LOGGER.info("Saving match : {}", matchId);
+            LOGGER.info("Saving LOL match : {}", matchId);
             matchRepository.save(match);
             summonerService.updateTimeSpentOnLOL(puuid, match.getDuration());
         }
@@ -84,7 +84,7 @@ public class LOLMatchService {
                         Thread.sleep(2000);
                     } else if (!existingMatch.getOwners().contains(puuid)) {
                         existingMatch.getOwners().add(puuid);
-                        LOGGER.info("Updating match : {}", matchId);
+                        LOGGER.info("Updating LOL match : {}", matchId);
                         matchRepository.save(existingMatch);
                         summonerService.updateTimeSpentOnLOL(puuid, existingMatch.getDuration());
                     } else {
@@ -113,7 +113,7 @@ public class LOLMatchService {
         return compatibleQueues.contains(match.getQueue().getId());
     }
 
-    public List<LOLMatchEntity> getMatches(String puuid, int pageNb, LOLQueueEnum queue, LOLRoleEnum role) {
+    private List<LOLMatchEntity> getMatches(String puuid, int pageNb, LOLQueueEnum queue, LOLRoleEnum role) {
         PageRequest pageRequest = PageRequest.of(pageNb, pageSize);
         if (queue == LOLQueueEnum.ALL_QUEUES) {
             if (role == LOLRoleEnum.ALL_ROLES) {
@@ -130,7 +130,7 @@ public class LOLMatchService {
         }
     }
 
-    public Long getMatchesCount(String puuid, LOLQueueEnum queue, LOLRoleEnum role) {
+    private Long getMatchesCount(String puuid, LOLQueueEnum queue, LOLRoleEnum role) {
         if (queue == LOLQueueEnum.ALL_QUEUES) {
             if (role == LOLRoleEnum.ALL_ROLES) {
                 return this.matchRepository.countAll(puuid);

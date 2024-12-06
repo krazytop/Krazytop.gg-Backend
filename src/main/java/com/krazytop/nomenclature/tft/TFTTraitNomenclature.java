@@ -1,22 +1,31 @@
 package com.krazytop.nomenclature.tft;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.List;
+import java.util.Map;
 
 @Data
 @Document(collection = "TraitNomenclature")
 public class TFTTraitNomenclature {
 
+    @JsonAlias("apiName")
     private String id;
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private String image;
+    @JsonAlias("desc")
+    private String description;
     private String name;
+    @JsonAlias("icon")
+    private String image;
+    private List<TFTEffectEntity> effects;
 
-    @JsonProperty("image")
-    private String unpackImage(JsonNode node) {
-        this.setImage(node.get("full").asText());
-        return image;
+    @Data
+    static class TFTEffectEntity {
+
+        private Integer maxUnits;
+        private Integer minUnits;
+        private Integer style;
+        private Map<String, Float> variables;
     }
 }

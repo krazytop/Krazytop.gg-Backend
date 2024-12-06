@@ -30,7 +30,7 @@ public class TFTRankEntity {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode() {//TODO utile ?
         return Objects.hash(getSummonerId(), getTier(), getRank(), getLeaguePoints(), getQueueType());
     }
 
