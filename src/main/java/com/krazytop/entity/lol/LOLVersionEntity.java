@@ -22,6 +22,7 @@ public class LOLVersionEntity {
     private String language;
     private String sticker;
     private String augment;
+    private Integer currentSeason;
 
     public LOLVersionEntity(String version) {
         this.item = version;

@@ -1,50 +1,36 @@
 package com.krazytop.service.lol;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.krazytop.entity.lol.LOLRankEntity;
-import com.krazytop.nomenclature.GameEnum;
-import com.krazytop.repository.api_key.ApiKeyRepository;
+import com.krazytop.entity.riot.RIOTRankEntity;
 import com.krazytop.repository.lol.LOLRankRepository;
+import com.krazytop.repository.lol.LOLVersionRepository;
+import com.krazytop.service.riot.RIOTRankService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.List;
 
 @Service
 public class LOLRankService {
 
-    private final ApiKeyRepository apiKeyRepository;
     private final LOLRankRepository rankRepository;
+    private final LOLVersionRepository versionRepository;
+    private final RIOTRankService riotRankService;
 
     @Autowired
-    public LOLRankService(ApiKeyRepository apiKeyRepository, LOLRankRepository rankRepository) {
-        this.apiKeyRepository = apiKeyRepository;
+    public LOLRankService(LOLRankRepository rankRepository, LOLVersionRepository versionRepository, RIOTRankService riotRankService) {
         this.rankRepository = rankRepository;
+        this.versionRepository = versionRepository;
+        this.riotRankService = riotRankService;
     }
 
-    public LOLRankEntity getLocalRank(String summonerId, String queueType) {
-        return rankRepository.findFirstBySummonerIdAndQueueOrderByUpdateDateDesc(summonerId, queueType);
+    public RIOTRankEntity getLocalRank(String puuid) {
+        return rankRepository.findFirstByPuuid(puuid);
     }
 
-    public void updateRemoteToLocalRank(String summonerId) throws URISyntaxException, IOException {
-        String stringUrl = String.format("https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/%s?api_key=%s", summonerId, apiKeyRepository.findFirstByGame(GameEnum.RIOT).getKey());
-        ObjectMapper mapper = new ObjectMapper();
-        List<LOLRankEntity> ranks = mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()), new TypeReference<>() {});
-        List<String> compatiblesRanks = List.of("RANKED_SOLO_5x5", "RANKED_TEAM_5x5");
-        ranks = ranks.stream()
-                .filter(rank -> compatiblesRanks.contains(rank.getQueue()))
-                .filter(rank -> rank.needToUpdate(getLocalRank(summonerId, rank.getQueue())))
-                .toList();
-        ranks.forEach(rank -> rank.setUpdateDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant())));
-        rankRepository.saveAll(ranks);
-
+    public void updateRemoteToLocalRank(String puuid) throws URISyntaxException, IOException {
+        int currentSeason = versionRepository.findFirstByOrderByItemAsc().getCurrentSeason();
+        riotRankService.updateRemoteToLocalRank(puuid, "https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/%s?api_key=%s", currentSeason, rankRepository);
     }
 
 }

@@ -110,6 +110,7 @@ public class LOLNomenclatureService {
             nomenclaturesUpdated = true;
         }
         if (nomenclaturesUpdated) {
+            lastVersion.setCurrentSeason(Integer.valueOf(lastVersion.getItem().split("\\.")[0]));
             this.versionRepository.save(lastVersion);
         }
         return nomenclaturesUpdated;

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.entity.tft.TFTVersionEntity;
 import com.krazytop.nomenclature.tft.*;
 import com.krazytop.repository.tft.*;
-import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +15,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Only EUW & fr_FR for now
@@ -43,20 +40,50 @@ public class TFTNomenclatureService {
         this.versionRepository = versionRepository;
     }
 
+    public boolean updateAllNomenclatures() throws IOException, URISyntaxException {
+        String lastOfficialVersion = this.getLastOfficialNomenclatureVersion();
+        String lastCommunityVersion = this.getLastCommunityNomenclatureVersion();
+        TFTVersionEntity dbVersion = this.versionRepository.findFirstByOrderByOfficialVersionAsc();
+        if (dbVersion == null) {
+            dbVersion = new TFTVersionEntity(null, null, null);
+        }
+        boolean nomenclaturesUpdated = false;
+        if (!Objects.equals(lastOfficialVersion, dbVersion.getOfficialVersion())) {
+            updateQueueNomenclature(lastOfficialVersion);
+            dbVersion.setOfficialVersion(lastOfficialVersion);
+            nomenclaturesUpdated = true;
+        }
+        if (!Objects.equals(lastCommunityVersion, dbVersion.getCommunityVersion())) {
+            dbVersion.setCommunityVersion(lastCommunityVersion);
+            nomenclaturesUpdated = true;
+        }
+        if (nomenclaturesUpdated) {
+            dbVersion.setCurrentSet(updateSetData("latest"));
+            versionRepository.save(dbVersion);
+        }
+        return nomenclaturesUpdated;
+    }
+
+    private Integer updateSetData(String version) throws IOException, URISyntaxException {
+        ObjectMapper mapper = new ObjectMapper();
+        String uri = String.format("https://raw.communitydragon.org/%s/cdragon/tft/fr_fr.json", version);
+        JsonNode data = new ObjectMapper().readTree(new URI(uri).toURL());
+        this.updateItemNomenclature(data.get("items"));
+        Map<String, JsonNode> sets = mapper.convertValue(data.get("sets"), new TypeReference<>() {});
+        List<Integer> setNbs = new ArrayList<>();
+        sets.forEach((setNb, setData) -> {
+            this.updateTraitNomenclature(setData.get("traits"));
+            this.updateUnitNomenclature(setData.get("champions"));
+            setNbs.add(Integer.valueOf(setNb));
+        });
+        return Collections.max(setNbs);
+    }
+
     private void updateItemNomenclature(JsonNode node) {
         ObjectMapper mapper = new ObjectMapper();
         List<TFTItemNomenclature> nomenclatures = mapper.convertValue(node, new TypeReference<>() {});
         itemNomenclatureRepository.saveAll(nomenclatures);
         LOGGER.info("Update {} TFT item nomenclatures", nomenclatures.size());
-    }
-
-    private void updateQueueNomenclature(String version) throws URISyntaxException, IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        String url = String.format("https://ddragon.leagueoflegends.com/cdn/%s/data/fr_FR/tft-queues.json", version);
-        Map<String, TFTQueueNomenclature> nomenclaturesMap = mapper.convertValue(mapper.readTree(new URI(url).toURL()).get("data"), new TypeReference<>() {});
-        List<TFTQueueNomenclature> nomenclatures = nomenclaturesMap.values().stream().toList();
-        queueNomenclatureRepository.saveAll(nomenclatures);
-        LOGGER.info("Update {} TFT queue nomenclatures", nomenclatures.size());
     }
 
     private void updateUnitNomenclature(JsonNode node) {
@@ -73,37 +100,13 @@ public class TFTNomenclatureService {
         LOGGER.info("Update {} TFT trait nomenclatures", nomenclatures.size());
     }
 
-    public boolean updateAllNomenclatures() throws IOException, URISyntaxException {
-        String lastOfficialVersion = this.getLastOfficialNomenclatureVersion();
-        String lastCommunityVersion = this.getLastCommunityNomenclatureVersion();
-        TFTVersionEntity dbVersion = this.versionRepository.findFirstByOrderByOfficialVersionAsc();
-
-        if (dbVersion == null ||
-                !Objects.equals(lastOfficialVersion, dbVersion.getOfficialVersion()) ||
-                !Objects.equals(lastCommunityVersion, dbVersion.getCommunityVersion())) {
-            if (dbVersion == null || !Objects.equals(lastOfficialVersion, dbVersion.getOfficialVersion())) {
-                this.updateQueueNomenclature(lastOfficialVersion);
-            }
-            if (dbVersion == null || !Objects.equals(lastCommunityVersion, dbVersion.getCommunityVersion())) {
-                this.updateSetData("latest");
-            }
-            this.versionRepository.save(new TFTVersionEntity(lastCommunityVersion, lastOfficialVersion));
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private void updateSetData(String version) throws IOException, URISyntaxException {
+    private void updateQueueNomenclature(String version) throws URISyntaxException, IOException {
         ObjectMapper mapper = new ObjectMapper();
-        String uri = String.format("https://raw.communitydragon.org/%s/cdragon/tft/fr_fr.json", version);
-        JsonNode data = new ObjectMapper().readTree(new URI(uri).toURL());
-        this.updateItemNomenclature(data.get("items"));
-        Map<String, JsonNode> sets = mapper.convertValue(data.get("sets"), new TypeReference<>() {});
-        sets.values().forEach(set -> {
-            this.updateTraitNomenclature(set.get("traits"));
-            this.updateUnitNomenclature(set.get("champions"));
-        });
+        String url = String.format("https://ddragon.leagueoflegends.com/cdn/%s/data/fr_FR/tft-queues.json", version);
+        Map<String, TFTQueueNomenclature> nomenclaturesMap = mapper.convertValue(mapper.readTree(new URI(url).toURL()).get("data"), new TypeReference<>() {});
+        List<TFTQueueNomenclature> nomenclatures = nomenclaturesMap.values().stream().toList();
+        queueNomenclatureRepository.saveAll(nomenclatures);
+        LOGGER.info("Update {} TFT queue nomenclatures", nomenclatures.size());
     }
 
     private String getLastOfficialNomenclatureVersion() throws IOException, URISyntaxException {

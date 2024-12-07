@@ -1,11 +1,7 @@
 package com.krazytop.repository.tft;
 
-import com.krazytop.entity.tft.TFTRankEntity;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import com.krazytop.repository.riot.RIOTRankRepository;
 
-public interface TFTRankRepository extends MongoRepository<TFTRankEntity, String> {
+public interface TFTRankRepository extends RIOTRankRepository {
 
-    TFTRankEntity findFirstBySummonerIdAndQueueTypeOrderByUpdateDateDesc(String summonerId, String queueType);
-
-    TFTRankEntity findFirstBySummonerIdOrderByUpdateDateDesc(String summonerId);
 }
