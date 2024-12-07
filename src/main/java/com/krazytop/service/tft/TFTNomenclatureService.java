@@ -55,10 +55,10 @@ public class TFTNomenclatureService {
         }
         if (!Objects.equals(lastCommunityVersion, dbVersion.getCommunityVersion())) {
             dbVersion.setCommunityVersion(lastCommunityVersion);
+            dbVersion.setCurrentSet(updateSetData("latest"));
             nomenclaturesUpdated = true;
         }
         if (nomenclaturesUpdated) {
-            dbVersion.setCurrentSet(updateSetData("latest"));
             versionRepository.save(dbVersion);
         }
         return nomenclaturesUpdated;
