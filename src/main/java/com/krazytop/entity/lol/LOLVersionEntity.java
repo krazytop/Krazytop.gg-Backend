@@ -34,5 +34,6 @@ public class LOLVersionEntity {
         this.language = version;
         this.sticker = version;
         this.augment = version;
+        this.currentSeason = 1;
     }
 }

@@ -21,11 +21,11 @@ public class TFTTraitNomenclature {
     private List<TFTEffectEntity> effects;
 
     @Data
-    static class TFTEffectEntity {
+    public static class TFTEffectEntity {
 
         private Integer maxUnits;
         private Integer minUnits;
         private Integer style;
-        private Map<String, Float> variables;
+        private Map<String, Double> variables;
     }
 }

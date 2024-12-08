@@ -7,11 +7,9 @@
         "TFT_Item_NeedlesslyLargeRod",
         "TFT_Item_NeedlesslyLargeRod"
       ],
-      "desc": "<tftitemrules>Ce modeste chapeau peut vous aider à façonner ou à détruire le monde.</tftitemrules>",
+      "desc": "Ce modeste chapeau peut vous aider à façonner ou à détruire le monde.",
       "effects": {
-        "AP": 50.0,
-        "BonusDamage": 0.15000000596046448,
-        "{1543aa48}": 0.15000000596046448
+        "AP": 50.0
       },
       "from": null,
       "icon": "ASSETS/Maps/TFT/Icons/Items/Hexcore/TFT_Item_RabadonsDeathcap.TFT_Set13.tex",
@@ -26,56 +24,14 @@
       "champions": [
         {
           "ability": {
-            "desc": "Tristana tire un boulet de canon vers sa cible, infligeant <physicalDamage>@TotalDamage@&nbsp;(%i:scaleAD%)</physicalDamage> pts de dégâts physiques. Si la cible meurt, le boulet de canon ricoche vers l'ennemi le plus proche, lui infligeant les dégâts excédentaires. Lorsque cet effet s'active, Tristana gagne définitivement <TFTBonus>+@TFTUnitProperty.:TFT13_TristanaASPerStack@%</TFTBonus> de dégâts d'attaque.<br><br><TFTTrackerLabel>(Bonus actuel&nbsp;: +@TFTUnitProperty.:TFT13_TristanaASGain@%&nbsp;%i:scaleAD%) </TFTTrackerLabel> ",
+            "desc": "Tristana tire un boulet de canon vers sa cible",
             "icon": "ASSETS/Characters/TFT13_Tristana/HUD/Icons2D/TFT13_Tristana_Passive.TFT_Set13.tex",
             "name": "Tir de précision",
             "variables": [
               {
                 "name": "PercentAttackDamage",
                 "value": [
-                  5.25,
-                  5.25,
-                  5.25,
-                  5.25,
-                  5.25,
-                  5.25,
                   5.25
-                ]
-              },
-              {
-                "name": "APDamage",
-                "value": [
-                  0.0,
-                  50.0,
-                  75.0,
-                  115.0,
-                  155.0,
-                  0.0,
-                  0.0
-                ]
-              },
-              {
-                "name": "ASKillGain",
-                "value": [
-                  1.25,
-                  1.25,
-                  1.25,
-                  1.25,
-                  1.25,
-                  1.25,
-                  1.25
-                ]
-              },
-              {
-                "name": "ASKillGainHyperroll",
-                "value": [
-                  2.5,
-                  2.5,
-                  2.5,
-                  2.5,
-                  2.5,
-                  2.5,
-                  2.5
                 ]
               }
             ]
@@ -109,33 +65,14 @@
       "traits": [
         {
           "apiName": "TFT13_Bruiser",
-          "desc": "Vos unités gagnent +@TeamFlatHealth@ PV max. Les Bagarreurs en gagnent plus.<br><br><expandRow>(@MinUnits@) +@BonusPercentHealth*100@%&nbsp;%i:scaleHealth%.</expandRow>",
+          "desc": "Vos unités gagnent +@TeamFlatHealth@ PV max",
           "effects": [
             {
               "maxUnits": 3,
               "minUnits": 2,
               "style": 1,
               "variables": {
-                "BonusPercentHealth": 0.20000000298023224,
-                "TeamFlatHealth": 100.0
-              }
-            },
-            {
-              "maxUnits": 5,
-              "minUnits": 4,
-              "style": 3,
-              "variables": {
-                "BonusPercentHealth": 0.44999998807907104,
-                "TeamFlatHealth": 100.0
-              }
-            },
-            {
-              "maxUnits": 25000,
-              "minUnits": 6,
-              "style": 5,
-              "variables": {
-                "BonusPercentHealth": 0.800000011920929,
-                "TeamFlatHealth": 100.0
+                "BonusPercentHealth": 0.20000000298023224
               }
             }
           ],

@@ -221,7 +221,7 @@ class LOLMatchServiceTest {
 
                 assertDoesNotThrow(() -> matchService.updateRemoteToLocalMatches("puuid", 0, false));
 
-                assertEquals(3, uriMock.constructed().size());
+                assertEquals(4, uriMock.constructed().size());
                 verify(matchRepository, times(1)).findFirstById(anyString());
                 verify(apiKeyRepository, times(3)).findFirstByGame(GameEnum.RIOT);
                 verify(matchRepository, times(0)).save(any());

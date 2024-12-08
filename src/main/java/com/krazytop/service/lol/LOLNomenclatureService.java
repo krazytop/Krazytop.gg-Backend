@@ -29,15 +29,17 @@ public class LOLNomenclatureService {
     private final LOLItemNomenclatureRepository itemNomenclatureRepository;
     private final LOLRuneNomenclatureRepository runeNomenclatureRepository;
     private final LOLSummonerSpellNomenclatureRepository summonerSpellNomenclature;
+    private final LOLAugmentNomenclatureRepository augmentNomenclatureRepository;
     private final LOLVersionRepository versionRepository;
 
     @Autowired
-    public LOLNomenclatureService(LOLQueueNomenclatureRepository queueNomenclatureRepository, LOLChampionNomenclatureRepository championNomenclatureRepository, LOLItemNomenclatureRepository itemNomenclatureRepository, LOLRuneNomenclatureRepository runeNomenclatureRepository, LOLSummonerSpellNomenclatureRepository summonerSpellNomenclature, LOLVersionRepository versionRepository) {
+    public LOLNomenclatureService(LOLQueueNomenclatureRepository queueNomenclatureRepository, LOLChampionNomenclatureRepository championNomenclatureRepository, LOLItemNomenclatureRepository itemNomenclatureRepository, LOLRuneNomenclatureRepository runeNomenclatureRepository, LOLSummonerSpellNomenclatureRepository summonerSpellNomenclature, LOLAugmentNomenclatureRepository augmentNomenclatureRepository, LOLVersionRepository versionRepository) {
         this.queueNomenclatureRepository = queueNomenclatureRepository;
         this.championNomenclatureRepository = championNomenclatureRepository;
         this.itemNomenclatureRepository = itemNomenclatureRepository;
         this.runeNomenclatureRepository = runeNomenclatureRepository;
         this.summonerSpellNomenclature = summonerSpellNomenclature;
+        this.augmentNomenclatureRepository = augmentNomenclatureRepository;
         this.versionRepository = versionRepository;
     }
 
@@ -91,23 +93,44 @@ public class LOLNomenclatureService {
         LOGGER.info("Update {} LOL rune nomenclatures", runes.size());
     }
 
+    private void updateAugmentNomenclature(String version) throws IOException, URISyntaxException {
+        version = String.join(".", version.split("\\.")[0], version.split("\\.")[1]);
+        ObjectMapper mapper = new ObjectMapper();
+        String url = String.format("https://raw.communitydragon.org/%s/cdragon/arena/fr_fr.json", version);
+        List<LOLAugmentNomenclature> nomenclatures = mapper.convertValue(mapper.readTree(new URI(url).toURL()).get("augments"), new TypeReference<>() {});
+        augmentNomenclatureRepository.saveAll(nomenclatures);
+        LOGGER.info("Update {} augment nomenclatures", nomenclatures.size());
+    }
+
     public boolean updateAllNomenclatures() throws IOException, URISyntaxException {
         LOLVersionEntity lastVersion = this.getLastNomenclatureVersions();
         LOLVersionEntity dbVersion = this.versionRepository.findFirstByOrderByItemAsc();
         boolean nomenclaturesUpdated = false;
-        if (dbVersion == null || !Objects.equals(lastVersion.getItem(), dbVersion.getItem())) {
+        if (dbVersion == null) {
+            dbVersion = new LOLVersionEntity();
+        }
+        if (!Objects.equals(lastVersion.getItem(), dbVersion.getItem())) {
             this.updateItemNomenclature(lastVersion.getItem());
             this.updateRuneNomenclature(lastVersion.getItem());
             this.updateQueueNomenclature();
             nomenclaturesUpdated = true;
         }
-        if (dbVersion == null || !Objects.equals(lastVersion.getChampion(), dbVersion.getChampion())) {
+        if (!Objects.equals(lastVersion.getChampion(), dbVersion.getChampion())) {
             this.updateChampionNomenclature(lastVersion.getChampion());
             nomenclaturesUpdated = true;
         }
-        if (dbVersion == null || !Objects.equals(lastVersion.getSummoner(), dbVersion.getSummoner())) {
+        if (!Objects.equals(lastVersion.getSummoner(), dbVersion.getSummoner())) {
             this.updateSummonerSpellNomenclature(lastVersion.getSummoner());
             nomenclaturesUpdated = true;
+        }
+        if (!Objects.equals(lastVersion.getAugment(), dbVersion.getAugment())) {
+            try {
+                this.updateAugmentNomenclature(lastVersion.getAugment());
+                nomenclaturesUpdated = true;
+            } catch (IOException | URISyntaxException e) {
+                lastVersion.setAugment(dbVersion.getAugment());
+                LOGGER.info("Community Dragon is not yet up to date");
+            }
         }
         if (nomenclaturesUpdated) {
             lastVersion.setCurrentSeason(Integer.valueOf(lastVersion.getItem().split("\\.")[0]));
@@ -118,9 +141,10 @@ public class LOLNomenclatureService {
 
     private LOLVersionEntity getLastNomenclatureVersions() throws IOException, URISyntaxException {
         String uri = "https://ddragon.leagueoflegends.com/realms/euw.json";
-        URL url = new URI(uri).toURL();
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.convertValue(mapper.readTree(url).get("n"), LOLVersionEntity.class);
+        LOLVersionEntity lastVersion = mapper.convertValue(mapper.readTree(new URI(uri).toURL()).get("n"), LOLVersionEntity.class);
+        lastVersion.setAugment(lastVersion.getItem());
+        return lastVersion;
     }
 
 }

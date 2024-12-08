@@ -22,7 +22,7 @@ public class TFTItemNomenclature {
     @JsonAlias("desc")
     private String description;
     @JsonAlias("effects")
-    private Map<String, Float> variables;
+    private Map<String, Double> variables;
     private List<String> composition;
 
     @JsonProperty("apiName")

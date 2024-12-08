@@ -23,7 +23,7 @@ public class TFTUnitNomenclature {
     private TFTAbilityEntity ability;
 
     @Data
-    static class TFTAbilityEntity {
+    public static class TFTAbilityEntity {
 
         private String name;
         @JsonAlias("icon")
@@ -33,10 +33,10 @@ public class TFTUnitNomenclature {
         private List<TFTVariableEntity> variables;
 
         @Data
-        static class TFTVariableEntity {
+        public static class TFTVariableEntity {
 
             private String name;
-            private List<Integer> value;
+            private List<Double> value;
         }
     }
 }
