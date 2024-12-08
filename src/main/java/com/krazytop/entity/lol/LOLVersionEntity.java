@@ -22,6 +22,7 @@ public class LOLVersionEntity {
     private String language;
     private String sticker;
     private String augment;
+    private Integer currentSeason;
 
     public LOLVersionEntity(String version) {
         this.item = version;
@@ -33,5 +34,6 @@ public class LOLVersionEntity {
         this.language = version;
         this.sticker = version;
         this.augment = version;
+        this.currentSeason = 1;
     }
 }

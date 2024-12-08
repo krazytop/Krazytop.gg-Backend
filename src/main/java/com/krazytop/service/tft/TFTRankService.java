@@ -1,48 +1,36 @@
 package com.krazytop.service.tft;
 
-import com.krazytop.api.tft.TFTRankApi;
-import com.krazytop.entity.tft.TFTRankEntity;
-import com.krazytop.http_response.tft.TFTRankHTTPResponse;
-import com.krazytop.service.riot.RIOTApiService;
+import com.krazytop.entity.riot.RIOTRankEntity;
+import com.krazytop.repository.tft.TFTRankRepository;
+import com.krazytop.repository.tft.TFTVersionRepository;
+import com.krazytop.service.riot.RIOTRankService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 @Service
 public class TFTRankService {
 
-    private final TFTRankApi tftRankApi;
-    private final RIOTApiService riotApiService;
+    private final TFTRankRepository rankRepository;
+    private final TFTVersionRepository versionRepository;
+    private final RIOTRankService riotRankService;
 
     @Autowired
-    public TFTRankService(TFTRankApi tftRankApi, RIOTApiService riotApiService) {
-        this.tftRankApi = tftRankApi;
-        this.riotApiService = riotApiService;
+    public TFTRankService(TFTRankRepository rankRepository, TFTVersionRepository versionRepository, RIOTRankService riotRankService) {
+        this.rankRepository = rankRepository;
+        this.versionRepository = versionRepository;
+        this.riotRankService = riotRankService;
     }
 
-    public TFTRankEntity getLocalRank(String summonerId, String queueType) {
-        return tftRankApi.getRank(summonerId, queueType);
+    public RIOTRankEntity getLocalRank(String puuid) {
+        return rankRepository.findFirstByPuuid(puuid);
     }
 
-    public List<TFTRankEntity> updateRemoteToLocalRank(String summonerId) {
-        String apiUrl = TFTRankHTTPResponse.getUrl(summonerId);
-        List<TFTRankEntity> ranks = riotApiService.callRiotApiForList(apiUrl, TFTRankHTTPResponse.class);
-        for (String queueType : List.of("RANKED_TFT", "RANKED_TFT-TURBO", "RANKED_TFT_DOUBLE_UP")) {
-            boolean found = false;
-            for (TFTRankEntity rank : ranks) {
-                if (rank.getQueueType().equals(queueType)) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                TFTRankEntity newRank = new TFTRankEntity();
-                newRank.setQueueType(queueType);
-                ranks.add(newRank);
-            }
-        }
-        return tftRankApi.updateRank(ranks);
+    public void updateRemoteToLocalRank(String puuid) throws URISyntaxException, IOException {
+        int currentSet = versionRepository.findFirstByOrderByOfficialVersionAsc().getCurrentSet();
+        riotRankService.updateRemoteToLocalRank(puuid, "https://euw1.api.riotgames.com/tft/league/v1/entries/by-summoner/%s?api_key=%s", currentSet, rankRepository);
     }
 
 }
