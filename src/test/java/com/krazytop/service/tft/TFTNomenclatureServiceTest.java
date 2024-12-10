@@ -6,6 +6,7 @@ import com.krazytop.nomenclature.tft.TFTQueueNomenclature;
 import com.krazytop.nomenclature.tft.TFTTraitNomenclature;
 import com.krazytop.nomenclature.tft.TFTUnitNomenclature;
 import com.krazytop.repository.tft.*;
+import com.krazytop.service.riot.RIOTMetadataService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -44,6 +45,8 @@ class TFTNomenclatureServiceTest {
     private TFTQueueNomenclatureRepository queueNomenclatureRepository;
     @Mock
     private TFTItemNomenclatureRepository itemNomenclatureRepository;
+    @Mock
+    private RIOTMetadataService metadataService;
 
     @Test
     void testUpdateAllNomenclature_NONEED() throws IOException, URISyntaxException {
@@ -53,15 +56,15 @@ class TFTNomenclatureServiceTest {
             when(urlConstructor.toURL()).thenReturn(getJson(constructorCount == 0 ? "official-dragon-version" : "community-dragon-version"));
         })) {
 
-            TFTVersionEntity version = new TFTVersionEntity("14.23.6369832+branch.releases-14-23.content.release", "14.19.1", 13);
+            TFTVersionEntity version = new TFTVersionEntity("14.23.6369832+branch.releases-14-23.content.release", "14.19.1");
             when(versionRepository.findFirstByOrderByOfficialVersionAsc()).thenReturn(version);
-            ArgumentCaptor<TFTVersionEntity> versionArgumentCaptor = ArgumentCaptor.forClass(TFTVersionEntity.class);
 
             assertFalse(nomenclatureService.updateAllNomenclatures());
 
             assertEquals(2, uriMock.constructed().size());
             verify(versionRepository, times(1)).findFirstByOrderByOfficialVersionAsc();
-            verify(versionRepository, times(0)).save(versionArgumentCaptor.capture());
+            verify(versionRepository, times(0)).save(any());
+            verify(metadataService, times(0)).updateMetadata(any());
         }
     }
 
@@ -73,7 +76,7 @@ class TFTNomenclatureServiceTest {
                     when(urlConstructor.toURL()).thenReturn(getJson(constructorCount == 0 ? "official-dragon-version" : constructorCount == 1 ? "community-dragon-version" : "official-dragon"));
                 })) {
 
-            TFTVersionEntity version = new TFTVersionEntity("14.23.6369832+branch.releases-14-23.content.release", "14.18.1", 13);
+            TFTVersionEntity version = new TFTVersionEntity("14.23.6369832+branch.releases-14-23.content.release", "14.18.1");
             when(versionRepository.findFirstByOrderByOfficialVersionAsc()).thenReturn(version);
             ArgumentCaptor<TFTVersionEntity> versionArgumentCaptor = ArgumentCaptor.forClass(TFTVersionEntity.class);
             ArgumentCaptor<List<TFTQueueNomenclature>> queuesArgumentCaptor = ArgumentCaptor.forClass(List.class);
@@ -102,7 +105,7 @@ class TFTNomenclatureServiceTest {
             when(urlConstructor.toURL()).thenReturn(getJson(constructorCount == 0 ? "official-dragon-version" : constructorCount == 1 ? "community-dragon-version" : "community-dragon"));
         })) {
 
-            TFTVersionEntity version = new TFTVersionEntity("14.22.6369832+branch.releases-14-23.content.release", "14.19.1", 12);
+            TFTVersionEntity version = new TFTVersionEntity("14.22.6369832+branch.releases-14-23.content.release", "14.19.1");
             when(versionRepository.findFirstByOrderByOfficialVersionAsc()).thenReturn(version);
             ArgumentCaptor<TFTVersionEntity> versionArgumentCaptor = ArgumentCaptor.forClass(TFTVersionEntity.class);
             ArgumentCaptor<List<TFTItemNomenclature>> itemsArgumentCaptor = ArgumentCaptor.forClass(List.class);
@@ -115,7 +118,7 @@ class TFTNomenclatureServiceTest {
             verify(versionRepository, times(1)).findFirstByOrderByOfficialVersionAsc();
             verify(versionRepository, times(1)).save(versionArgumentCaptor.capture());
             assertEquals("14.23.6369832+branch.releases-14-23.content.release", versionArgumentCaptor.getValue().getCommunityVersion());
-            assertEquals(13, versionArgumentCaptor.getValue().getCurrentSet());
+            verify(metadataService, times(1)).updateMetadata(any());
             verifyItems(itemsArgumentCaptor);
             verifyUnits(unitsArgumentCaptor);
             verifyTraits(traitsArgumentCaptor);

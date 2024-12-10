@@ -13,11 +13,9 @@ public class TFTVersionEntity {
     @Id private String id = "1";
     private String communityVersion;
     private String officialVersion;
-    private Integer currentSet;
 
-    public TFTVersionEntity(String communityVersion, String officialVersion, Integer currentSet) {
+    public TFTVersionEntity(String communityVersion, String officialVersion) {
         this.communityVersion = communityVersion;
         this.officialVersion = officialVersion;
-        this.currentSet = currentSet;
     }
 }

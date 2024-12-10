@@ -53,7 +53,7 @@ public class RIOTRankEntity {
             rankStorage.ranks = new HashMap<>();
             Map<String, List<RankInformations>> queueRanks = new HashMap<>();
             nodes.forEach(node -> {
-                List<String> compatiblesQueues = Arrays.stream(RIOTRankEnum.values()).map(RIOTRankEnum::getName).toList();
+                List<String> compatiblesQueues = Arrays.stream(RIOTRankEnum.values()).map(RIOTRankEnum::getId).toList();
                 if (compatiblesQueues.contains(node.get("queueType").asText())) {
                     RankInformations rankInformations = new RankInformations();
                     rankInformations.setWins(node.get("wins").asInt());

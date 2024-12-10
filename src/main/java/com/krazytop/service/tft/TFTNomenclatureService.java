@@ -3,9 +3,12 @@ package com.krazytop.service.tft;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.krazytop.entity.riot.RIOTMetadataEntity;
 import com.krazytop.entity.tft.TFTVersionEntity;
 import com.krazytop.nomenclature.tft.*;
+import com.krazytop.repository.riot.RIOTMetadataRepository;
 import com.krazytop.repository.tft.*;
+import com.krazytop.service.riot.RIOTMetadataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +33,16 @@ public class TFTNomenclatureService {
     private final TFTQueueNomenclatureRepository queueNomenclatureRepository;
     private final TFTItemNomenclatureRepository itemNomenclatureRepository;
     private final TFTVersionRepository versionRepository;
+    private final RIOTMetadataService metadataService;
 
     @Autowired
-    public TFTNomenclatureService(TFTTraitNomenclatureRepository traitNomenclatureRepository, TFTUnitNomenclatureRepository unitNomenclatureRepository, TFTQueueNomenclatureRepository queueNomenclatureRepository, TFTItemNomenclatureRepository itemNomenclatureRepository, TFTVersionRepository versionRepository) {
+    public TFTNomenclatureService(TFTTraitNomenclatureRepository traitNomenclatureRepository, TFTUnitNomenclatureRepository unitNomenclatureRepository, TFTQueueNomenclatureRepository queueNomenclatureRepository, TFTItemNomenclatureRepository itemNomenclatureRepository, TFTVersionRepository versionRepository, RIOTMetadataService metadataService) {
         this.traitNomenclatureRepository = traitNomenclatureRepository;
         this.unitNomenclatureRepository = unitNomenclatureRepository;
         this.queueNomenclatureRepository = queueNomenclatureRepository;
         this.itemNomenclatureRepository = itemNomenclatureRepository;
         this.versionRepository = versionRepository;
+        this.metadataService = metadataService;
     }
 
     public boolean updateAllNomenclatures() throws IOException, URISyntaxException {
@@ -45,7 +50,7 @@ public class TFTNomenclatureService {
         String lastCommunityVersion = this.getLastCommunityNomenclatureVersion();
         TFTVersionEntity dbVersion = this.versionRepository.findFirstByOrderByOfficialVersionAsc();
         if (dbVersion == null) {
-            dbVersion = new TFTVersionEntity(null, null, null);
+            dbVersion = new TFTVersionEntity(null, null);
         }
         boolean nomenclaturesUpdated = false;
         if (!Objects.equals(lastOfficialVersion, dbVersion.getOfficialVersion())) {
@@ -55,7 +60,8 @@ public class TFTNomenclatureService {
         }
         if (!Objects.equals(lastCommunityVersion, dbVersion.getCommunityVersion())) {
             dbVersion.setCommunityVersion(lastCommunityVersion);
-            dbVersion.setCurrentSet(updateSetData("latest"));
+            Integer currentSet = updateSetData("latest");
+            metadataService.updateMetadata(metadata -> metadata.setCurrentTFTSet(currentSet));
             nomenclaturesUpdated = true;
         }
         if (nomenclaturesUpdated) {

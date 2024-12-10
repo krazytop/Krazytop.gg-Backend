@@ -3,8 +3,11 @@ package com.krazytop.service.lol;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.entity.lol.LOLVersionEntity;
+import com.krazytop.entity.riot.RIOTMetadataEntity;
 import com.krazytop.nomenclature.lol.*;
 import com.krazytop.repository.lol.*;
+import com.krazytop.repository.riot.RIOTMetadataRepository;
+import com.krazytop.service.riot.RIOTMetadataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +34,10 @@ public class LOLNomenclatureService {
     private final LOLSummonerSpellNomenclatureRepository summonerSpellNomenclature;
     private final LOLAugmentNomenclatureRepository augmentNomenclatureRepository;
     private final LOLVersionRepository versionRepository;
+    private final RIOTMetadataService metadataService;
 
     @Autowired
-    public LOLNomenclatureService(LOLQueueNomenclatureRepository queueNomenclatureRepository, LOLChampionNomenclatureRepository championNomenclatureRepository, LOLItemNomenclatureRepository itemNomenclatureRepository, LOLRuneNomenclatureRepository runeNomenclatureRepository, LOLSummonerSpellNomenclatureRepository summonerSpellNomenclature, LOLAugmentNomenclatureRepository augmentNomenclatureRepository, LOLVersionRepository versionRepository) {
+    public LOLNomenclatureService(LOLQueueNomenclatureRepository queueNomenclatureRepository, LOLChampionNomenclatureRepository championNomenclatureRepository, LOLItemNomenclatureRepository itemNomenclatureRepository, LOLRuneNomenclatureRepository runeNomenclatureRepository, LOLSummonerSpellNomenclatureRepository summonerSpellNomenclature, LOLAugmentNomenclatureRepository augmentNomenclatureRepository, LOLVersionRepository versionRepository, RIOTMetadataService metadataService) {
         this.queueNomenclatureRepository = queueNomenclatureRepository;
         this.championNomenclatureRepository = championNomenclatureRepository;
         this.itemNomenclatureRepository = itemNomenclatureRepository;
@@ -41,6 +45,7 @@ public class LOLNomenclatureService {
         this.summonerSpellNomenclature = summonerSpellNomenclature;
         this.augmentNomenclatureRepository = augmentNomenclatureRepository;
         this.versionRepository = versionRepository;
+        this.metadataService = metadataService;
     }
 
     private void updateQueueNomenclature() throws IOException, URISyntaxException {
@@ -133,7 +138,7 @@ public class LOLNomenclatureService {
             }
         }
         if (nomenclaturesUpdated) {
-            lastVersion.setCurrentSeason(Integer.valueOf(lastVersion.getItem().split("\\.")[0]));
+            metadataService.updateMetadata(metadata -> metadata.setCurrentLOLSeason(Integer.valueOf(lastVersion.getItem().split("\\.")[0])));
             this.versionRepository.save(lastVersion);
         }
         return nomenclaturesUpdated;

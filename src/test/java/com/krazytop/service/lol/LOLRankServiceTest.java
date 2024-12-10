@@ -1,10 +1,11 @@
 package com.krazytop.service.lol;
 
-import com.krazytop.entity.lol.LOLVersionEntity;
+import com.krazytop.entity.riot.RIOTMetadataEntity;
 import com.krazytop.entity.riot.RIOTRankEntity;
 import com.krazytop.repository.lol.LOLRankRepository;
-import com.krazytop.repository.lol.LOLVersionRepository;
+import com.krazytop.repository.riot.RIOTMetadataRepository;
 import com.krazytop.repository.riot.RIOTRankRepository;
+import com.krazytop.service.riot.RIOTMetadataService;
 import com.krazytop.service.riot.RIOTRankService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +30,7 @@ class LOLRankServiceTest {
     @Mock
     private LOLRankRepository rankRepository;
     @Mock
-    private LOLVersionRepository versionRepository;
+    private RIOTMetadataService metadataService;
     @Mock
     private RIOTRankService riotRankService;
 
@@ -44,11 +45,11 @@ class LOLRankServiceTest {
 
     @Test
     void testUpdateRemoteToLocalRank() throws URISyntaxException, IOException {
-        when(versionRepository.findFirstByOrderByItemAsc()).thenReturn(new LOLVersionEntity("1"));
+        when(metadataService.getMetadata()).thenReturn(new RIOTMetadataEntity("1", 1, 2));
 
         assertDoesNotThrow(() -> rankService.updateRemoteToLocalRank("puuid"));
 
-        verify(versionRepository, times(1)).findFirstByOrderByItemAsc();
+        verify(metadataService, times(1)).getMetadata();
         verify(riotRankService, times(1)).updateRemoteToLocalRank(anyString(), anyString(), anyInt(), any(RIOTRankRepository.class));
     }
 

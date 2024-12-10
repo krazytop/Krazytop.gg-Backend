@@ -1,8 +1,9 @@
 package com.krazytop.service.tft;
 
 import com.krazytop.entity.riot.RIOTRankEntity;
+import com.krazytop.repository.riot.RIOTMetadataRepository;
 import com.krazytop.repository.tft.TFTRankRepository;
-import com.krazytop.repository.tft.TFTVersionRepository;
+import com.krazytop.service.riot.RIOTMetadataService;
 import com.krazytop.service.riot.RIOTRankService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,13 +15,13 @@ import java.net.URISyntaxException;
 public class TFTRankService {
 
     private final TFTRankRepository rankRepository;
-    private final TFTVersionRepository versionRepository;
+    private final RIOTMetadataService metadataService;
     private final RIOTRankService riotRankService;
 
     @Autowired
-    public TFTRankService(TFTRankRepository rankRepository, TFTVersionRepository versionRepository, RIOTRankService riotRankService) {
+    public TFTRankService(TFTRankRepository rankRepository, RIOTMetadataService metadataService, RIOTRankService riotRankService) {
         this.rankRepository = rankRepository;
-        this.versionRepository = versionRepository;
+        this.metadataService = metadataService;
         this.riotRankService = riotRankService;
     }
 
@@ -29,7 +30,7 @@ public class TFTRankService {
     }
 
     public void updateRemoteToLocalRank(String puuid) throws URISyntaxException, IOException {
-        int currentSet = versionRepository.findFirstByOrderByOfficialVersionAsc().getCurrentSet();
+        int currentSet = metadataService.getMetadata().getCurrentTFTSet();
         riotRankService.updateRemoteToLocalRank(puuid, "https://euw1.api.riotgames.com/tft/league/v1/entries/by-summoner/%s?api_key=%s", currentSet, rankRepository);
     }
 
