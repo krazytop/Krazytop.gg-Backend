@@ -1,6 +1,6 @@
 package com.krazytop.controller.lol;
 
-import com.krazytop.entity.lol.LOLRankEntity;
+import com.krazytop.entity.riot.RIOTRankEntity;
 import com.krazytop.service.lol.LOLRankService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +24,11 @@ public class LOLRankController {
         this.rankService = rankService;
     }
 
-    @GetMapping("/lol/rank/{summonerId}/{queueType}")
-    public ResponseEntity<LOLRankEntity> getLocalRank(@PathVariable String summonerId, @PathVariable String queueType) {
+    @GetMapping("/lol/rank/{puuid}")
+    public ResponseEntity<RIOTRankEntity> getLocalRank(@PathVariable String puuid) {
         LOGGER.info("Retrieving LOL local rank");
         try {
-            LOLRankEntity rank = rankService.getLocalRank(summonerId, queueType);
+            RIOTRankEntity rank = rankService.getLocalRank(puuid);
             if (rank != null) {
                 LOGGER.info("LOL local rank retrieved");
                 return new ResponseEntity<>(rank, HttpStatus.OK);
@@ -42,11 +42,11 @@ public class LOLRankController {
         }
     }
 
-    @PostMapping("/lol/rank/{summonerId}")
-    public ResponseEntity<String> updateRemoteToLocalRank(@PathVariable String summonerId) {
+    @PostMapping("/lol/rank/{puuid}")
+    public ResponseEntity<String> updateRemoteToLocalRank(@PathVariable String puuid) {
         LOGGER.info("Updating LOL ranks");
         try {
-            rankService.updateRemoteToLocalRank(summonerId);
+            rankService.updateRemoteToLocalRank(puuid);
             LOGGER.info("LOL ranks successfully updated");
             return new ResponseEntity<>("LOL ranks successfully updated", HttpStatus.OK);
         } catch (Exception e) {

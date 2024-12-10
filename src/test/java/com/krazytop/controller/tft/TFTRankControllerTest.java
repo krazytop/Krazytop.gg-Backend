@@ -1,7 +1,7 @@
-package com.krazytop.controller.lol;
+package com.krazytop.controller.tft;
 
 import com.krazytop.entity.riot.RIOTRankEntity;
-import com.krazytop.service.lol.LOLRankService;
+import com.krazytop.service.tft.TFTRankService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,13 +18,13 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class LOLRankControllerTest {
+class TFTRankControllerTest {
 
     @InjectMocks
-    private LOLRankController rankController;
+    private TFTRankController rankController;
 
     @Mock
-    private LOLRankService rankService;
+    private TFTRankService rankService;
 
     @Test
     void testGetLocalRank_OK() {

@@ -3,6 +3,7 @@ package com.krazytop.service.lol;
 import com.krazytop.entity.lol.LOLVersionEntity;
 import com.krazytop.nomenclature.lol.*;
 import com.krazytop.repository.lol.*;
+import com.krazytop.service.riot.RIOTMetadataService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -43,6 +44,8 @@ class LOLNomenclatureServiceTest {
     private LOLQueueNomenclatureRepository queueNomenclatureRepository;
     @Mock
     private LOLAugmentNomenclatureRepository augmentNomenclatureRepository;
+    @Mock
+    private RIOTMetadataService metadataService;
 
     @Test
     void testUpdateAllNomenclature_NO_NEED() throws IOException, URISyntaxException {
@@ -56,6 +59,7 @@ class LOLNomenclatureServiceTest {
             assertEquals(1, uriMock.constructed().size());
             verify(versionRepository, times(1)).findFirstByOrderByItemAsc();
             verify(versionRepository, times(0)).save(any());
+            verify(metadataService, times(0)).updateMetadata(any());
         }
     }
 
@@ -75,6 +79,7 @@ class LOLNomenclatureServiceTest {
             assertEquals(2, uriMock.constructed().size());
             verify(versionRepository, times(1)).findFirstByOrderByItemAsc();
             verify(versionRepository, times(1)).save(any());
+            verify(metadataService, times(1)).updateMetadata(any());
             verify(summonerSpellNomenclatureRepository, times(1)).saveAll(argumentCaptor.capture());
             assertFalse(argumentCaptor.getValue().isEmpty());
             LOLSummonerSpellNomenclature nomenclature = argumentCaptor.getValue().get(0);
@@ -102,6 +107,7 @@ class LOLNomenclatureServiceTest {
             assertEquals(2, uriMock.constructed().size());
             verify(versionRepository, times(1)).findFirstByOrderByItemAsc();
             verify(versionRepository, times(1)).save(any());
+            verify(metadataService, times(1)).updateMetadata(any());
             verify(championNomenclatureRepository, times(1)).saveAll(argumentCaptor.capture());
             assertFalse(argumentCaptor.getValue().isEmpty());
             LOLChampionNomenclature nomenclature = argumentCaptor.getValue().get(0);
@@ -137,6 +143,7 @@ class LOLNomenclatureServiceTest {
             assertEquals(4, uriMock.constructed().size());
             verify(versionRepository, times(1)).findFirstByOrderByItemAsc();
             verify(versionRepository, times(1)).save(any());
+            verify(metadataService, times(1)).updateMetadata(any());
             verifyItem(itemArgumentCaptor);
             verifyRune(runeArgumentCaptor);
             verifyQueue(queueArgumentCaptor);
@@ -202,6 +209,7 @@ class LOLNomenclatureServiceTest {
             assertEquals(2, uriMock.constructed().size());
             verify(versionRepository, times(1)).findFirstByOrderByItemAsc();
             verify(versionRepository, times(1)).save(any());
+            verify(metadataService, times(1)).updateMetadata(any());
             verify(augmentNomenclatureRepository, times(1)).saveAll(argumentCaptor.capture());
             assertFalse(argumentCaptor.getValue().isEmpty());
             LOLAugmentNomenclature nomenclature = argumentCaptor.getValue().get(0);

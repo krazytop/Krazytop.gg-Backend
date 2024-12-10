@@ -3,16 +3,17 @@ package com.krazytop.service.lol;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.entity.lol.LOLVersionEntity;
+import com.krazytop.entity.riot.RIOTMetadataEntity;
 import com.krazytop.nomenclature.lol.*;
 import com.krazytop.repository.lol.*;
+import com.krazytop.repository.riot.RIOTMetadataRepository;
+import com.krazytop.service.riot.RIOTMetadataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.String;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -33,9 +34,10 @@ public class LOLNomenclatureService {
     private final LOLSummonerSpellNomenclatureRepository summonerSpellNomenclature;
     private final LOLAugmentNomenclatureRepository augmentNomenclatureRepository;
     private final LOLVersionRepository versionRepository;
+    private final RIOTMetadataService metadataService;
 
     @Autowired
-    public LOLNomenclatureService(LOLQueueNomenclatureRepository queueNomenclatureRepository, LOLChampionNomenclatureRepository championNomenclatureRepository, LOLItemNomenclatureRepository itemNomenclatureRepository, LOLRuneNomenclatureRepository runeNomenclatureRepository, LOLSummonerSpellNomenclatureRepository summonerSpellNomenclature, LOLAugmentNomenclatureRepository augmentNomenclatureRepository, LOLVersionRepository versionRepository) {
+    public LOLNomenclatureService(LOLQueueNomenclatureRepository queueNomenclatureRepository, LOLChampionNomenclatureRepository championNomenclatureRepository, LOLItemNomenclatureRepository itemNomenclatureRepository, LOLRuneNomenclatureRepository runeNomenclatureRepository, LOLSummonerSpellNomenclatureRepository summonerSpellNomenclature, LOLAugmentNomenclatureRepository augmentNomenclatureRepository, LOLVersionRepository versionRepository, RIOTMetadataService metadataService) {
         this.queueNomenclatureRepository = queueNomenclatureRepository;
         this.championNomenclatureRepository = championNomenclatureRepository;
         this.itemNomenclatureRepository = itemNomenclatureRepository;
@@ -43,6 +45,7 @@ public class LOLNomenclatureService {
         this.summonerSpellNomenclature = summonerSpellNomenclature;
         this.augmentNomenclatureRepository = augmentNomenclatureRepository;
         this.versionRepository = versionRepository;
+        this.metadataService = metadataService;
     }
 
     private void updateQueueNomenclature() throws IOException, URISyntaxException {
@@ -51,7 +54,36 @@ public class LOLNomenclatureService {
         ObjectMapper mapper = new ObjectMapper();
         List<LOLQueueNomenclature> queues = mapper.convertValue(mapper.readTree(url), new TypeReference<>() {});
         queueNomenclatureRepository.saveAll(queues);
-        LOGGER.info("Update {} queue nomenclatures", queues.size());
+        LOGGER.info("Update {} LOL queue nomenclatures", queues.size());
+    }
+
+    private void updateChampionNomenclature(String version) throws IOException, URISyntaxException {
+        ObjectMapper mapper = new ObjectMapper();
+        String url = String.format("https://ddragon.leagueoflegends.com/cdn/%s/data/fr_FR/champion.json", version);
+        Map<String, LOLChampionNomenclature> nomenclaturesMap = mapper.convertValue(mapper.readTree(new URI(url).toURL()).get("data"), new TypeReference<>() {});
+        List<LOLChampionNomenclature> nomenclatures = nomenclaturesMap.values().stream().toList();
+        championNomenclatureRepository.saveAll(nomenclatures);
+        LOGGER.info("Update {} LOL champion nomenclatures", nomenclatures.size());
+    }
+
+    private void updateSummonerSpellNomenclature(String version) throws IOException, URISyntaxException {
+        ObjectMapper mapper = new ObjectMapper();
+        String url = String.format("https://ddragon.leagueoflegends.com/cdn/%s/data/fr_FR/summoner.json", version);
+        Map<String, LOLSummonerSpellNomenclature> nomenclaturesMap = mapper.convertValue(mapper.readTree(new URI(url).toURL()).get("data"), new TypeReference<>() {});
+        nomenclaturesMap.forEach((id, nomenclature) -> nomenclature.setId(id));
+        List<LOLSummonerSpellNomenclature> nomenclatures = nomenclaturesMap.values().stream().toList();
+        summonerSpellNomenclature.saveAll(nomenclatures);
+        LOGGER.info("Update {} LOL summoner spell nomenclatures", nomenclatures.size());
+    }
+
+    private void updateItemNomenclature(String version) throws IOException, URISyntaxException {
+        ObjectMapper mapper = new ObjectMapper();
+        String url = String.format("https://ddragon.leagueoflegends.com/cdn/%s/data/fr_FR/item.json", version);
+        Map<String, LOLItemNomenclature> nomenclaturesMap = mapper.convertValue(mapper.readTree(new URI(url).toURL()).get("data"), new TypeReference<>() {});
+        nomenclaturesMap.forEach((id, nomenclature) -> nomenclature.setId(id));
+        List<LOLItemNomenclature> nomenclatures = nomenclaturesMap.values().stream().toList();
+        itemNomenclatureRepository.saveAll(nomenclatures);
+        LOGGER.info("Update {} LOL item nomenclatures", nomenclatures.size());
     }
 
     private void updateRuneNomenclature(String version) throws IOException, URISyntaxException {
@@ -63,25 +95,7 @@ public class LOLNomenclatureService {
                     parentRuneNode.path("slots").forEach(slotNode -> slotNode.get("runes").forEach(runeNode -> runes.add(mapper.convertValue(runeNode, new TypeReference<>() {}))));
                 });
         runeNomenclatureRepository.saveAll(runes);
-        LOGGER.info("Update {} rune nomenclatures", runes.size());
-    }
-
-    private void updateChampionNomenclature(String version) throws IOException, URISyntaxException {
-        List<LOLChampionNomenclature> nomenclatures = this.downloadNewChampions(String.format("https://ddragon.leagueoflegends.com/cdn/%s/data/fr_FR/champion.json", version));
-        championNomenclatureRepository.saveAll(nomenclatures);
-        LOGGER.info("Update {} champion nomenclatures", nomenclatures.size());
-    }
-
-    private void updateSummonerSpellNomenclature(String version) throws IOException, URISyntaxException {
-        List<LOLSummonerSpellNomenclature> nomenclatures = this.downloadNewSummonerSpells(String.format("https://ddragon.leagueoflegends.com/cdn/%s/data/fr_FR/summoner.json", version));
-        summonerSpellNomenclature.saveAll(nomenclatures);
-        LOGGER.info("Update {} summoner spell nomenclatures", nomenclatures.size());
-    }
-
-    private void updateItemNomenclature(String version) throws IOException, URISyntaxException {
-        List<LOLItemNomenclature> items = this.downloadNewItems(String.format("https://ddragon.leagueoflegends.com/cdn/%s/data/fr_FR/item.json", version));
-        itemNomenclatureRepository.saveAll(items);
-        LOGGER.info("Update {} item nomenclatures", items.size());
+        LOGGER.info("Update {} LOL rune nomenclatures", runes.size());
     }
 
     private void updateAugmentNomenclature(String version) throws IOException, URISyntaxException {
@@ -91,26 +105,6 @@ public class LOLNomenclatureService {
         List<LOLAugmentNomenclature> nomenclatures = mapper.convertValue(mapper.readTree(new URI(url).toURL()).get("augments"), new TypeReference<>() {});
         augmentNomenclatureRepository.saveAll(nomenclatures);
         LOGGER.info("Update {} augment nomenclatures", nomenclatures.size());
-    }
-
-    private List<LOLItemNomenclature> downloadNewItems(String stringUrl) throws IOException, URISyntaxException {
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, LOLItemNomenclature> nomenclaturesMap = mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()).get("data"), new TypeReference<>() {});
-        nomenclaturesMap.forEach((id, nomenclature) -> nomenclature.setId(id));
-        return nomenclaturesMap.values().stream().toList();
-    }
-
-    private List<LOLChampionNomenclature> downloadNewChampions(String stringUrl) throws IOException, URISyntaxException {
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, LOLChampionNomenclature> nomenclaturesMap = mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()).get("data"), new TypeReference<>() {});
-        return nomenclaturesMap.values().stream().toList();
-    }
-
-    private List<LOLSummonerSpellNomenclature> downloadNewSummonerSpells(String stringUrl) throws IOException, URISyntaxException {
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, LOLSummonerSpellNomenclature> nomenclaturesMap = mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()).get("data"), new TypeReference<>() {});
-        nomenclaturesMap.forEach((id, nomenclature) -> nomenclature.setId(id));
-        return nomenclaturesMap.values().stream().toList();
     }
 
     public boolean updateAllNomenclatures() throws IOException, URISyntaxException {
@@ -124,40 +118,36 @@ public class LOLNomenclatureService {
             this.updateItemNomenclature(lastVersion.getItem());
             this.updateRuneNomenclature(lastVersion.getItem());
             this.updateQueueNomenclature();
-            dbVersion.setItem(lastVersion.getItem());
-            this.versionRepository.save(dbVersion);
             nomenclaturesUpdated = true;
         }
         if (!Objects.equals(lastVersion.getChampion(), dbVersion.getChampion())) {
             this.updateChampionNomenclature(lastVersion.getChampion());
-            dbVersion.setChampion(lastVersion.getChampion());
-            this.versionRepository.save(dbVersion);
             nomenclaturesUpdated = true;
         }
         if (!Objects.equals(lastVersion.getSummoner(), dbVersion.getSummoner())) {
             this.updateSummonerSpellNomenclature(lastVersion.getSummoner());
-            dbVersion.setSummoner(lastVersion.getSummoner());
-            this.versionRepository.save(dbVersion);
             nomenclaturesUpdated = true;
         }
         if (!Objects.equals(lastVersion.getAugment(), dbVersion.getAugment())) {
             try {
                 this.updateAugmentNomenclature(lastVersion.getAugment());
-                dbVersion.setAugment(lastVersion.getAugment());
-                this.versionRepository.save(dbVersion);
                 nomenclaturesUpdated = true;
-            } catch (FileNotFoundException ignored) {
+            } catch (IOException | URISyntaxException e) {
+                lastVersion.setAugment(dbVersion.getAugment());
                 LOGGER.info("Community Dragon is not yet up to date");
             }
+        }
+        if (nomenclaturesUpdated) {
+            metadataService.updateMetadata(metadata -> metadata.setCurrentLOLSeason(Integer.valueOf(lastVersion.getItem().split("\\.")[0])));
+            this.versionRepository.save(lastVersion);
         }
         return nomenclaturesUpdated;
     }
 
     private LOLVersionEntity getLastNomenclatureVersions() throws IOException, URISyntaxException {
         String uri = "https://ddragon.leagueoflegends.com/realms/euw.json";
-        URL url = new URI(uri).toURL();
         ObjectMapper mapper = new ObjectMapper();
-        LOLVersionEntity lastVersion = mapper.convertValue(mapper.readTree(url).get("n"), LOLVersionEntity.class);
+        LOLVersionEntity lastVersion = mapper.convertValue(mapper.readTree(new URI(uri).toURL()).get("n"), LOLVersionEntity.class);
         lastVersion.setAugment(lastVersion.getItem());
         return lastVersion;
     }

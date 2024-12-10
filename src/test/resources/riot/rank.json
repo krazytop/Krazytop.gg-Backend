@@ -1,0 +1,25 @@
+[
+  {
+    "puuid": "aUHcgK9wmHkRaDKWN0qqzsuyLusbWWheFWMizdzFHGYP9lakq-oi3x_xnxsHtYVqzyZ1ywVJ8Jg21Q",
+    "queueType": "RANKED_TFT_TURBO",
+    "ratedTier": "ORANGE",
+    "ratedRating": 7194,
+    "summonerId": "oR9DqSm9tY3zz0UXZZa3Q-Sy1MPzBJjXHfdS9EVPxhb81GQ",
+    "wins": 208,
+    "losses": 87
+  },
+  {
+    "puuid": "aUHcgK9wmHkRaDKWN0qqzsuyLusbWWheFWMizdzFHGYP9lakq-oi3x_xnxsHtYVqzyZ1ywVJ8Jg21Q",
+    "leagueId": "c124f2ba-a502-3aa3-b893-7959079854b3",
+    "queueType": "RANKED_TFT",
+    "tier": "CHALLENGER",
+    "rank": "I",
+    "summonerId": "-oQgsZa2Nr_0eVVrX4RujMPRPY2D9PumatKhRQ2UT5wYKuO1",
+    "leaguePoints": 1118,
+    "wins": 150,
+    "losses": 82
+  },
+  {
+    "queueType": "NULL"
+  }
+]
