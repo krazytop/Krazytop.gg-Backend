@@ -29,7 +29,7 @@ public class TFTMatchEntity {
     private Long set;
     private List<TFTParticipantEntity> participants;
     private TFTQueueNomenclature queue;
-    private List<String> owners = new ArrayList<>();
+    private List<String> owners = new ArrayList<>();//TODO JSON IGNORE pour ne pas envoyer au front (lol aussi)
 
     @JsonProperty("queue_id")
     private void unpackQueue(String queueId) {

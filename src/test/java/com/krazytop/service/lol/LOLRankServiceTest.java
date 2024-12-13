@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -45,7 +46,7 @@ class LOLRankServiceTest {
 
     @Test
     void testUpdateRemoteToLocalRank() throws URISyntaxException, IOException {
-        when(metadataService.getMetadata()).thenReturn(new RIOTMetadataEntity("1", 1, 2));
+        when(metadataService.getMetadata()).thenReturn(new RIOTMetadataEntity("1", 1, 2, List.of()));
 
         assertDoesNotThrow(() -> rankService.updateRemoteToLocalRank("puuid"));
 

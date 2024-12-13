@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -43,7 +44,7 @@ class TFTRankServiceTest {
 
     @Test
     void testUpdateRemoteToLocalRank() throws URISyntaxException, IOException {
-        when(metadataService.getMetadata()).thenReturn(new RIOTMetadataEntity("1", 1, 2));
+        when(metadataService.getMetadata()).thenReturn(new RIOTMetadataEntity("1", 1, 2, List.of()));
 
         assertDoesNotThrow(() -> rankService.updateRemoteToLocalRank("puuid"));
 
