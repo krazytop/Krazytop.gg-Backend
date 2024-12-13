@@ -30,7 +30,8 @@ public class TFTParticipantEntity {
     private Integer damageToPlayers;
     @JsonAlias("partner_group_id")
     private Integer teamId;
-    private Boolean win;
+    @JsonAlias("win")
+    private Boolean hasWin;
     private List<TFTUnitEntity> units;
     private List<TFTTraitEntity> traits;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

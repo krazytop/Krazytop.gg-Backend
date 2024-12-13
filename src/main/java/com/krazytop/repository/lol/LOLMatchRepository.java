@@ -24,10 +24,10 @@ public interface LOLMatchRepository extends MongoRepository<LOLMatchEntity, Stri
 
     LOLMatchEntity findFirstById(String matchId);
 
-    @Query(value = "{'teams.participants': {$elemMatch: {'summoner.puuid': ?0}}}", sort = "{'datetime': -1}", count = true)
+    @Query(value = "{'teams.participants': {$elemMatch: {'summoner.puuid': ?0}}}", count = true)
     Long countAll(String puuid);
 
-    @Query(value = "{'teams.participants': {$elemMatch: {'summoner.puuid': ?0}}, 'queue._id': {$in: ?1}}", sort = "{'datetime': -1}", count = true)
+    @Query(value = "{'teams.participants': {$elemMatch: {'summoner.puuid': ?0}}, 'queue._id': {$in: ?1}}", count = true)
     Long countAllByQueue(String puuid, List<String> queueIds);
 
     @Query(value = "{'teams.participants': {$elemMatch: {'summoner.puuid': ?0, 'role': ?1}}}", count = true)

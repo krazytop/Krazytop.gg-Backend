@@ -16,24 +16,24 @@ public interface TFTMatchRepository extends MongoRepository<TFTMatchEntity, Stri
     @Query(value = "{'participants': {$elemMatch: {'summoner.puuid': ?0}}, 'queue._id':  {$in: ?1}}", sort = "{'datetime': -1}")
     Page<TFTMatchEntity> findAllByQueue(String puuid, List<String> queueIds, PageRequest pageRequest);
 
-    @Query(value = "{'participants': {$elemMatch: {'summoner.puuid': ?0, 'set': ?1}}}", sort = "{'datetime': -1}")
+    @Query(value = "{'participants': {$elemMatch: {'summoner.puuid': ?0}}, 'set': ?1}", sort = "{'datetime': -1}")
     Page<TFTMatchEntity> findAllBySet(String puuid, int set, PageRequest pageRequest);
 
-    @Query(value = "{'participants': {$elemMatch: {'summoner.puuid': ?0, 'set': ?2}}, 'queue._id':  {$in: ?1}}", sort = "{'datetime': -1}")
+    @Query(value = "{'participants': {$elemMatch: {'summoner.puuid': ?0}}, 'set': ?2, 'queue._id':  {$in: ?1}}", sort = "{'datetime': -1}")
     Page<TFTMatchEntity> findAllByQueueAndBySet(String puuid, List<String> queueIds, int set, PageRequest pageRequest);
 
     TFTMatchEntity findFirstById(String matchId);
 
-    @Query(value = "{'participants': {$elemMatch: {'summoner.puuid': ?0}}}", sort = "{'datetime': -1}", count = true)
+    @Query(value = "{'participants': {$elemMatch: {'summoner.puuid': ?0}}}", count = true)
     Long countAll(String puuid);
 
-    @Query(value = "{'participants': {$elemMatch: {'summoner.puuid': ?0}}, 'queue._id': {$in: ?1}}", sort = "{'datetime': -1}", count = true)
+    @Query(value = "{'participants': {$elemMatch: {'summoner.puuid': ?0}}, 'queue._id': {$in: ?1}}", count = true)
     Long countAllByQueue(String puuid, List<String> queueIds);
 
-    @Query(value = "{'participants': {$elemMatch: {'summoner.puuid': ?0, 'set': ?1}}}", count = true)
+    @Query(value = "{'participants': {$elemMatch: {'summoner.puuid': ?0}}, 'set': ?1}", count = true)
     Long countAllBySet(String puuid, int set);
 
-    @Query(value = "{'participants': {$elemMatch: {'summoner.puuid': ?0, 'set': ?2}}, 'queue._id':  {$in: ?1}}", count = true)
+    @Query(value = "{'participants': {$elemMatch: {'summoner.puuid': ?0}}, 'set': ?2, 'queue._id':  {$in: ?1}}", count = true)
     Long countAllByQueueAndBySet(String puuid, List<String> queueIds, int set);
 
 }
