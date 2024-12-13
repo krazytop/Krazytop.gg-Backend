@@ -1,7 +1,6 @@
 package com.krazytop.entity.clash_royal;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -16,6 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -48,10 +48,16 @@ public class CRPlayerEntity {
     private List<CRChestEntity> upcomingChests;
     private CRLeaguesEntity seasonsLeagues = new CRLeaguesEntity();
 
+    @JsonProperty("currentFavouriteCard")
+    private void retrieveCurrentFavoriteCard(JsonNode node) {
+        Optional<CRCardEntity> nomenclature = this.cards.stream().filter(card -> card.getNomenclature().getId() == node.get("id").asInt()).findFirst();
+        nomenclature.ifPresent(crCardEntity -> this.currentFavouriteCard = crCardEntity);
+    }
+
     @JsonProperty("arena")
     private void unpackArena(JsonNode node) {
         CRArenaNomenclatureRepository arenaNomenclatureRepository = SpringConfiguration.contextProvider().getApplicationContext().getBean(CRArenaNomenclatureRepository.class);
-        this.arenaNomenclature = arenaNomenclatureRepository.findFirstById(node.asInt());
+        this.arenaNomenclature = arenaNomenclatureRepository.findFirstById(node.get("id").asInt());
     }
 
     @JsonProperty("currentPathOfLegendSeasonResult")
