@@ -30,7 +30,7 @@ public class RIOTSummonerService {
     }
 
     public RIOTSummonerEntity getLocalSummoner(String region, String tag, String name) {
-        return this.summonerRepository.findFirstByRegionAndTagAndName(region, "\\b" + tag + "\\b", "\\b" + name + "\\b");
+        return this.summonerRepository.findFirstByRegionAndTagAndName(region, tag, name);
     }
 
     public void updateRemoteToLocalSummoner(String region, String tag, String name) throws URISyntaxException, IOException {

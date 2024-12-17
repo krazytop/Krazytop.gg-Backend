@@ -3,10 +3,8 @@ package com.krazytop.service.tft;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.krazytop.entity.riot.RIOTMetadataEntity;
 import com.krazytop.entity.tft.TFTVersionEntity;
 import com.krazytop.nomenclature.tft.*;
-import com.krazytop.repository.riot.RIOTMetadataRepository;
 import com.krazytop.repository.tft.*;
 import com.krazytop.service.riot.RIOTMetadataService;
 import org.slf4j.Logger;
@@ -73,12 +71,14 @@ public class TFTNomenclatureService {
     private Integer updateSetData(String version) throws IOException, URISyntaxException {
         ObjectMapper mapper = new ObjectMapper();
         String uri = String.format("https://raw.communitydragon.org/%s/cdragon/tft/fr_fr.json", version);
+        LOGGER.info("Update TFT set {}", version);
         JsonNode data = new ObjectMapper().readTree(new URI(uri).toURL());
         this.updateItemNomenclature(data.get("items"));
         Map<String, JsonNode> sets = mapper.convertValue(data.get("sets"), new TypeReference<>() {});
         List<Integer> setNbs = new ArrayList<>();
         sets.forEach((setNb, setData) -> {
             this.updateTraitNomenclature(setData.get("traits"));
+            this.updateBuggedSet9b(setNb, data);
             this.updateUnitNomenclature(setData.get("champions"));
             setNbs.add(Integer.valueOf(setNb));
         });
@@ -127,8 +127,19 @@ public class TFTNomenclatureService {
         return new ObjectMapper().readTree(url).get("version").asText();
     }
 
+    private void updateBuggedSet9b(String setNb, JsonNode data) {
+        if (Objects.equals(setNb, "9")) {
+            data.get("setData").forEach(d -> {
+                if (Objects.equals(d.get("mutator").asText(), "TFTSet9_Stage2")) {
+                    this.updateUnitNomenclature(d.get("champions"));
+                    this.updateTraitNomenclature(d.get("traits"));
+                }
+            });
+        }
+    }
+
     public void updateLegacyNomenclatures() throws IOException, URISyntaxException {
-        List<String> legacyVersions = List.of("14.5", "13.11");
+        List<String> legacyVersions = List.of("12.17", "12.22", "13.6", "13.11", "13.18", "13.22", "14.14", "14.22");
         for (String version : legacyVersions) {
             this.updateSetData(version);
         }
