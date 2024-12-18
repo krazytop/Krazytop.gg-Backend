@@ -1,0 +1,85 @@
+{
+  "items": [
+    {
+      "apiName": "TFT_Item_RabadonsDeathcap",
+      "associatedTraits": [],
+      "composition": [
+        "TFT_Item_NeedlesslyLargeRod",
+        "TFT_Item_NeedlesslyLargeRod"
+      ],
+      "desc": "Ce modeste chapeau peut vous aider à façonner ou à détruire le monde.",
+      "effects": {
+        "AP": 50.0
+      },
+      "from": null,
+      "icon": "ASSETS/Maps/TFT/Icons/Items/Hexcore/TFT_Item_RabadonsDeathcap.TFT_Set13.tex",
+      "id": null,
+      "incompatibleTraits": [],
+      "name": "Coiffe de Rabadon",
+      "unique": false
+    }
+  ],
+  "sets": {
+    "13": {
+      "champions": [
+        {
+          "ability": {
+            "desc": "Tristana tire un boulet de canon vers sa cible",
+            "icon": "ASSETS/Characters/TFT13_Tristana/HUD/Icons2D/TFT13_Tristana_Passive.TFT_Set13.tex",
+            "name": "Tir de précision",
+            "variables": [
+              {
+                "name": "PercentAttackDamage",
+                "value": [
+                  5.25
+                ]
+              }
+            ]
+          },
+          "apiName": "TFT13_Tristana",
+          "characterName": "TFT13_Tristana",
+          "cost": 2,
+          "icon": "ASSETS/Characters/TFT13_Tristana/Skins/Base/Images/TFT13_Tristana.TFT_Set13.tex",
+          "name": "Tristana",
+          "squareIcon": "ASSETS/Characters/TFT13_Tristana/Skins/Base/Images/TFT13_Tristana_Mobile.TFT_Set13.tex",
+          "stats": {
+            "armor": 20.0,
+            "attackSpeed": 0.699999988079071,
+            "critChance": 0.25,
+            "critMultiplier": 1.399999976158142,
+            "damage": 42.0,
+            "hp": 550.0,
+            "initialMana": 20.0,
+            "magicResist": 20.0,
+            "mana": 60.0,
+            "range": 4.0
+          },
+          "tileIcon": "ASSETS/Characters/TFT13_Tristana/HUD/TFT13_Tristana_Square.TFT_Set13.tex",
+          "traits": [
+            "Émissaire",
+            "Artilleur"
+          ]
+        }
+      ],
+      "name": "Set13",
+      "traits": [
+        {
+          "apiName": "TFT13_Bruiser",
+          "desc": "Vos unités gagnent +@TeamFlatHealth@ PV max",
+          "effects": [
+            {
+              "maxUnits": 3,
+              "minUnits": 2,
+              "style": 1,
+              "variables": {
+                "BonusPercentHealth": 0.20000000298023224
+              }
+            }
+          ],
+          "icon": "ASSETS/UX/TraitIcons/Trait_Icon_6_Bruiser.tex",
+          "name": "Bagarreur"
+        }
+      ]
+    }
+  }
+}

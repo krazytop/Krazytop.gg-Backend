@@ -30,7 +30,7 @@ public class RIOTSummonerService {
     }
 
     public RIOTSummonerEntity getLocalSummoner(String region, String tag, String name) {
-        return this.summonerRepository.findFirstByRegionAndTagAndName(region, "\\b" + tag + "\\b", "\\b" + name + "\\b");
+        return this.summonerRepository.findFirstByRegionAndTagAndName(region, tag, name);
     }
 
     public void updateRemoteToLocalSummoner(String region, String tag, String name) throws URISyntaxException, IOException {
@@ -55,13 +55,21 @@ public class RIOTSummonerService {
 
     public void updateTimeSpentOnLOL(String puuid, Long matchDuration) {
         RIOTSummonerEntity summoner = summonerRepository.findFirstByPuuid(puuid);
-        summoner.setSpentTimeOnLOL(summoner.getSpentTimeOnLOL() + matchDuration);
+        if (summoner.getSpentTimeOnLOL() == null) {
+            summoner.setSpentTimeOnLOL(matchDuration);
+        } else {
+            summoner.setSpentTimeOnLOL(summoner.getSpentTimeOnLOL() + matchDuration);
+        }
         summonerRepository.save(summoner);
     }
 
     public void updateTimeSpentOnTFT(String puuid, Long matchDuration) {
         RIOTSummonerEntity summoner = summonerRepository.findFirstByPuuid(puuid);
-        summoner.setSpentTimeOnTFT(summoner.getSpentTimeOnTFT() + matchDuration);
+        if (summoner.getSpentTimeOnTFT() == null) {
+            summoner.setSpentTimeOnTFT(matchDuration);
+        } else {
+            summoner.setSpentTimeOnTFT(summoner.getSpentTimeOnTFT() + matchDuration);
+        }
         summonerRepository.save(summoner);
     }
 

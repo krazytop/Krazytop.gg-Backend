@@ -18,22 +18,14 @@ public class RIOTSummonerEntity {
     private String name;
     private String accountId;
     @JsonAlias("summonerLevel")
-    private int level;
+    private Integer level;
     @JsonAlias("profileIconId")
-    private int icon;
+    private Integer icon;
     private String puuid;
     private String tag;
     private String region;
     private Date updateDate;
-    private Long spentTimeOnLOL = 0L;
-    private Long spentTimeOnTFT = 0L;
+    private Long spentTimeOnLOL;
+    private Long spentTimeOnTFT;
 
-    public RIOTSummonerEntity(String id, String puuid, String name, String tag, int level, int icon) {
-        this.id = id;
-        this.puuid = puuid;
-        this.name = name;
-        this.tag = tag;
-        this.level = level;
-        this.icon = icon;
-    }
 }
