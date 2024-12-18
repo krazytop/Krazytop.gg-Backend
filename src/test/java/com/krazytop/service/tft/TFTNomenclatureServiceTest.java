@@ -1,11 +1,11 @@
 package com.krazytop.service.tft;
 
-import com.krazytop.entity.tft.TFTVersionEntity;
+import com.krazytop.entity.tft.RIOTPatchEntity;
 import com.krazytop.nomenclature.tft.TFTItemNomenclature;
 import com.krazytop.nomenclature.tft.TFTQueueNomenclature;
 import com.krazytop.nomenclature.tft.TFTTraitNomenclature;
 import com.krazytop.nomenclature.tft.TFTUnitNomenclature;
-import com.krazytop.repository.tft.*;
+import com.krazytop.repository.riot.RIOTPatchRepository;
 import com.krazytop.service.riot.RIOTMetadataService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +36,7 @@ class TFTNomenclatureServiceTest {
     private TFTNomenclatureService nomenclatureService;
 
     @Mock
-    private TFTVersionRepository versionRepository;
+    private RIOTPatchRepository versionRepository;
     @Mock
     private TFTTraitNomenclatureRepository traitNomenclatureRepository;
     @Mock
@@ -56,7 +56,7 @@ class TFTNomenclatureServiceTest {
             when(urlConstructor.toURL()).thenReturn(getJson(constructorCount == 0 ? "official-dragon-version" : "community-dragon-version"));
         })) {
 
-            TFTVersionEntity version = new TFTVersionEntity("14.23.6369832+branch.releases-14-23.content.release", "14.19.1");
+            RIOTPatchEntity version = new RIOTPatchEntity("14.23.6369832+branch.releases-14-23.content.release", "14.19.1");
             when(versionRepository.findFirstByOrderByOfficialVersionAsc()).thenReturn(version);
 
             assertFalse(nomenclatureService.updateAllNomenclatures());
@@ -76,9 +76,9 @@ class TFTNomenclatureServiceTest {
                     when(urlConstructor.toURL()).thenReturn(getJson(constructorCount == 0 ? "official-dragon-version" : constructorCount == 1 ? "community-dragon-version" : "official-dragon"));
                 })) {
 
-            TFTVersionEntity version = new TFTVersionEntity("14.23.6369832+branch.releases-14-23.content.release", "14.18.1");
+            RIOTPatchEntity version = new RIOTPatchEntity("14.23.6369832+branch.releases-14-23.content.release", "14.18.1");
             when(versionRepository.findFirstByOrderByOfficialVersionAsc()).thenReturn(version);
-            ArgumentCaptor<TFTVersionEntity> versionArgumentCaptor = ArgumentCaptor.forClass(TFTVersionEntity.class);
+            ArgumentCaptor<RIOTPatchEntity> versionArgumentCaptor = ArgumentCaptor.forClass(RIOTPatchEntity.class);
             ArgumentCaptor<List<TFTQueueNomenclature>> queuesArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
             assertTrue(nomenclatureService.updateAllNomenclatures());
@@ -86,7 +86,7 @@ class TFTNomenclatureServiceTest {
             assertEquals(3, uriMock.constructed().size());
             verify(versionRepository, times(1)).findFirstByOrderByOfficialVersionAsc();
             verify(versionRepository, times(1)).save(versionArgumentCaptor.capture());
-            assertEquals("14.19.1", versionArgumentCaptor.getValue().getOfficialVersion());
+            assertEquals("14.19.1", versionArgumentCaptor.getValue().getCurrent());
             verify(queueNomenclatureRepository, times(1)).saveAll(queuesArgumentCaptor.capture());
             assertEquals(1, queuesArgumentCaptor.getValue().size());
             TFTQueueNomenclature nomenclature = queuesArgumentCaptor.getValue().get(0);
@@ -105,9 +105,9 @@ class TFTNomenclatureServiceTest {
             when(urlConstructor.toURL()).thenReturn(getJson(constructorCount == 0 ? "official-dragon-version" : constructorCount == 1 ? "community-dragon-version" : "community-dragon"));
         })) {
 
-            TFTVersionEntity version = new TFTVersionEntity("14.22.6369832+branch.releases-14-23.content.release", "14.19.1");
+            RIOTPatchEntity version = new RIOTPatchEntity("14.22.6369832+branch.releases-14-23.content.release", "14.19.1");
             when(versionRepository.findFirstByOrderByOfficialVersionAsc()).thenReturn(version);
-            ArgumentCaptor<TFTVersionEntity> versionArgumentCaptor = ArgumentCaptor.forClass(TFTVersionEntity.class);
+            ArgumentCaptor<RIOTPatchEntity> versionArgumentCaptor = ArgumentCaptor.forClass(RIOTPatchEntity.class);
             ArgumentCaptor<List<TFTItemNomenclature>> itemsArgumentCaptor = ArgumentCaptor.forClass(List.class);
             ArgumentCaptor<List<TFTUnitNomenclature>> unitsArgumentCaptor = ArgumentCaptor.forClass(List.class);
             ArgumentCaptor<List<TFTTraitNomenclature>> traitsArgumentCaptor = ArgumentCaptor.forClass(List.class);
@@ -117,7 +117,7 @@ class TFTNomenclatureServiceTest {
             assertEquals(3, uriMock.constructed().size());
             verify(versionRepository, times(1)).findFirstByOrderByOfficialVersionAsc();
             verify(versionRepository, times(1)).save(versionArgumentCaptor.capture());
-            assertEquals("14.23.6369832+branch.releases-14-23.content.release", versionArgumentCaptor.getValue().getCommunityVersion());
+            assertEquals("14.23.6369832+branch.releases-14-23.content.release", versionArgumentCaptor.getValue().getAll());
             verify(metadataService, times(1)).updateMetadata(any());
             verifyItems(itemsArgumentCaptor);
             verifyUnits(unitsArgumentCaptor);

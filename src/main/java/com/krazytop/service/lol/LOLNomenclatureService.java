@@ -136,7 +136,7 @@ public class LOLNomenclatureService {
             }
         }
         if (nomenclaturesUpdated) {
-            metadataService.updateMetadata(metadata -> metadata.setCurrentLOLSeason(Integer.valueOf(lastVersion.getItem().split("\\.")[0])));
+            //metadataService.updateMetadata(metadata -> metadata.setCurrentLOLSeason(Integer.valueOf(lastVersion.getItem().split("\\.")[0])));
             this.versionRepository.save(lastVersion);
         }
         return nomenclaturesUpdated;

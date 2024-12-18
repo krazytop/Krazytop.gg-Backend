@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.krazytop.config.SpringConfiguration;
 import com.krazytop.entity.riot.RIOTSummonerEntity;
 import com.krazytop.nomenclature.tft.TFTItemNomenclature;
-import com.krazytop.repository.tft.TFTItemNomenclatureRepository;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -54,9 +53,6 @@ public class TFTParticipantEntity {
 
     @JsonProperty("augments")
     private void unpackAugments(List<String> augmentIds) {
-        TFTItemNomenclatureRepository itemNomenclatureRepository = SpringConfiguration.contextProvider().getApplicationContext().getBean(TFTItemNomenclatureRepository.class);
-        this.augments = new ArrayList<>();
-        augmentIds.forEach(augmentId -> this.augments.add(itemNomenclatureRepository.findFirstById(augmentId)));
     }
 
 }

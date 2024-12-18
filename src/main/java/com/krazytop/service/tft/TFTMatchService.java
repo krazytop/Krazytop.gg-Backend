@@ -63,7 +63,7 @@ public class TFTMatchService {
 
     public void updateRemoteToLocalMatches(String puuid, int firstIndex, boolean forceDetectNewMatches) throws IOException {
         List<TFTMatchEntity> matches = matchRepository.findAll();//TODO test set 11, 7, 7.5
-        matches.stream().filter(m -> m.getSet() == 9).forEach(match -> {
+        matches.forEach(match -> {
             try {
                 updateMatch(match.getId(), puuid);
                 Thread.sleep(2000);

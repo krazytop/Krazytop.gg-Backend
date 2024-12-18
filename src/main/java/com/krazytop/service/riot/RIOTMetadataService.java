@@ -21,10 +21,4 @@ public class RIOTMetadataService {
         return metadataRepository.findFirstByOrderByIdAsc().orElse(null);
     }
 
-    public void updateMetadata(Consumer<RIOTMetadataEntity> setter) {
-        RIOTMetadataEntity metadata = metadataRepository.findFirstByOrderByIdAsc().orElse(new RIOTMetadataEntity());
-        setter.accept(metadata);
-        metadataRepository.save(metadata);
-    }
-
 }
