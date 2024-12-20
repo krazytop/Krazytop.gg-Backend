@@ -14,10 +14,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class RIOTRankService {
@@ -32,9 +29,9 @@ public class RIOTRankService {
     }
 
     public void updateRemoteToLocalRank(String puuid, String url, int currentSetOrSeason, RIOTRankRepository repository) throws URISyntaxException, IOException {
-        RIOTSummonerEntity summoner = summonerRepository.findFirstByPuuid(puuid);
-        if (summoner != null) {
-            String stringUrl = String.format(url, summoner.getId(), apiKeyRepository.findFirstByGame(GameEnum.RIOT).getKey());
+        Optional<RIOTSummonerEntity> summoner = summonerRepository.findFirstByPuuid(puuid);
+        if (summoner.isPresent()) {
+            String stringUrl = String.format(url, summoner.get().getId(), apiKeyRepository.findFirstByGame(GameEnum.RIOT).getKey());
             ObjectMapper mapper = new ObjectMapper();
             RIOTRankEntity newRanks = mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()), new TypeReference<>() {});
             RIOTRankEntity existingRanks = repository.findFirstByPuuid(puuid);

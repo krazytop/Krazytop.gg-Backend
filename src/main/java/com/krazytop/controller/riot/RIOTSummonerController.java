@@ -46,7 +46,7 @@ public class RIOTSummonerController {
     public ResponseEntity<RIOTSummonerEntity> getRemoteSummoner(@PathVariable String region, @PathVariable String tag, @PathVariable String name) {
         LOGGER.info("Retrieving RIOT remote summoner");
         try {
-            RIOTSummonerEntity summoner = riotSummonerService.getRemoteSummoner(region, tag, name);
+            RIOTSummonerEntity summoner = riotSummonerService.getRemoteSummonerByNameAndTag(region, tag, name);
             if (summoner != null) {
                 LOGGER.info("RIOT remote summoner successfully retrieved");
                 return new ResponseEntity<>(summoner, HttpStatus.OK);

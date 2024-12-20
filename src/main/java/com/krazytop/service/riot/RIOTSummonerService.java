@@ -16,6 +16,7 @@ import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class RIOTSummonerService {
@@ -34,12 +35,12 @@ public class RIOTSummonerService {
     }
 
     public void updateRemoteToLocalSummoner(String region, String tag, String name) throws URISyntaxException, IOException {
-        RIOTSummonerEntity summoner = getRemoteSummoner(region, tag, name);
+        RIOTSummonerEntity summoner = getRemoteSummonerByNameAndTag(region, tag, name);
         summoner.setUpdateDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
         summonerRepository.save(summoner);
     }
 
-    public RIOTSummonerEntity getRemoteSummoner(String region, String tag, String name) throws URISyntaxException, IOException {
+    public RIOTSummonerEntity getRemoteSummonerByNameAndTag(String region, String tag, String name) throws URISyntaxException, IOException {
         name = name.replace(" ", "%20");
         ObjectMapper mapper = new ObjectMapper();
         ApiKeyEntity apiKey = this.apiKeyRepository.findFirstByGame(GameEnum.RIOT);
@@ -53,24 +54,35 @@ public class RIOTSummonerService {
         return summoner;
     }
 
+    public RIOTSummonerEntity getRemoteSummonerByPuuid(String puuid) throws URISyntaxException, IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        ApiKeyEntity apiKey = this.apiKeyRepository.findFirstByGame(GameEnum.RIOT);
+        String summonerApiUrl = String.format("https://europe.api.riotgames.com/riot/account/v1/accounts/by-puuid/%s?api_key=%s", puuid, apiKey.getKey());
+        return mapper.convertValue(mapper.readTree(new URI(summonerApiUrl).toURL()), RIOTSummonerEntity.class);
+    }
+
     public void updateTimeSpentOnLOL(String puuid, Long matchDuration) {
-        RIOTSummonerEntity summoner = summonerRepository.findFirstByPuuid(puuid);
-        if (summoner.getSpentTimeOnLOL() == null) {
-            summoner.setSpentTimeOnLOL(matchDuration);
-        } else {
-            summoner.setSpentTimeOnLOL(summoner.getSpentTimeOnLOL() + matchDuration);
+        Optional<RIOTSummonerEntity> summoner = summonerRepository.findFirstByPuuid(puuid);
+        if (summoner.isPresent()) {
+            if (summoner.get().getSpentTimeOnLOL() == null) {
+                summoner.get().setSpentTimeOnLOL(matchDuration);
+            } else {
+                summoner.get().setSpentTimeOnLOL(summoner.get().getSpentTimeOnLOL() + matchDuration);
+            }
+            summonerRepository.save(summoner.get());
         }
-        summonerRepository.save(summoner);
     }
 
     public void updateTimeSpentOnTFT(String puuid, Long matchDuration) {
-        RIOTSummonerEntity summoner = summonerRepository.findFirstByPuuid(puuid);
-        if (summoner.getSpentTimeOnTFT() == null) {
-            summoner.setSpentTimeOnTFT(matchDuration);
-        } else {
-            summoner.setSpentTimeOnTFT(summoner.getSpentTimeOnTFT() + matchDuration);
+        Optional<RIOTSummonerEntity> summoner = summonerRepository.findFirstByPuuid(puuid);
+        if (summoner.isPresent()) {
+            if (summoner.get().getSpentTimeOnTFT() == null) {
+                summoner.get().setSpentTimeOnTFT(matchDuration);
+            } else {
+                summoner.get().setSpentTimeOnTFT(summoner.get().getSpentTimeOnTFT() + matchDuration);
+            }
+            summonerRepository.save(summoner.get());
         }
-        summonerRepository.save(summoner);
     }
 
 }

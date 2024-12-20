@@ -15,6 +15,7 @@ import java.util.Date;
 public class RIOTSummonerEntity {
 
     private String id;
+    @JsonAlias("gameName")
     private String name;
     private String accountId;
     @JsonAlias("summonerLevel")
@@ -22,6 +23,7 @@ public class RIOTSummonerEntity {
     @JsonAlias("profileIconId")
     private Integer icon;
     private String puuid;
+    @JsonAlias("tagLine")
     private String tag;
     private String region;
     private Date updateDate;

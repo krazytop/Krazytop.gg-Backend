@@ -3,10 +3,14 @@ package com.krazytop.service.tft;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.krazytop.entity.riot.RIOTMetadataEntity;
+import com.krazytop.entity.riot.RIOTSummonerEntity;
 import com.krazytop.entity.tft.TFTMatchEntity;
 import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.nomenclature.tft.*;
 import com.krazytop.repository.api_key.ApiKeyRepository;
+import com.krazytop.repository.riot.RIOTMetadataRepository;
+import com.krazytop.repository.riot.RIOTSummonerRepository;
 import com.krazytop.repository.tft.TFTMatchRepository;
 import com.krazytop.service.riot.RIOTSummonerService;
 import org.slf4j.Logger;
@@ -29,12 +33,16 @@ public class TFTMatchService {
     @Value("${spring.data.web.pageable.default-page-size:5}")
     private int pageSize;
     private final TFTMatchRepository matchRepository;
+    private final RIOTSummonerRepository summonerRepository;
+    private final RIOTMetadataRepository metadataRepository;
     private final ApiKeyRepository apiKeyRepository;
     private final RIOTSummonerService summonerService;
 
     @Autowired
-    public TFTMatchService(TFTMatchRepository matchRepository, ApiKeyRepository apiKeyRepository, RIOTSummonerService summonerService) {
+    public TFTMatchService(TFTMatchRepository matchRepository, RIOTSummonerRepository summonerRepository, RIOTMetadataRepository metadataRepository, ApiKeyRepository apiKeyRepository, RIOTSummonerService summonerService) {
         this.matchRepository = matchRepository;
+        this.summonerRepository = summonerRepository;
+        this.metadataRepository = metadataRepository;
         this.apiKeyRepository = apiKeyRepository;
         this.summonerService = summonerService;
     }
@@ -47,70 +55,87 @@ public class TFTMatchService {
         return this.getMatchesCount(puuid, TFTQueueEnum.fromName(queue), set);
     }
 
+    public void updateAllMatches(String puuid) throws IOException, URISyntaxException {
+        if (getLocalMatchesCount(puuid, TFTQueueEnum.ALL_QUEUES.getName(), -1) == 0) {
+            LOGGER.info("Updating TFT legacy matches");
+            updateLegacyMatchesFromLOLChess(puuid);
+        }
+        LOGGER.info("Updating TFT recent matches");
+        updateRecentMatches(puuid);
+    }
+
+    public void updateRecentMatches(String puuid) throws IOException {
+        try {
+            boolean moreMatchToRecovered = true;
+            int firstIndex = 0;
+            while (moreMatchToRecovered) {
+                String url = String.format("https://europe.api.riotgames.com/tft/match/v1/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, firstIndex, 100, apiKeyRepository.findFirstByGame(GameEnum.RIOT).getKey());
+                ObjectMapper mapper = new ObjectMapper();
+                List<String> matchIds = mapper.convertValue(mapper.readTree(new URI(url).toURL()), new TypeReference<>() {});
+                for (String matchId : matchIds) {
+                    TFTMatchEntity existingMatch = this.matchRepository.findFirstById(matchId);
+                    if (existingMatch == null) {
+                        updateMatch(matchId, puuid);
+                        Thread.sleep(2000);
+                    } else if (!existingMatch.getOwners().contains(puuid)) {
+                        saveMatch(existingMatch, puuid);
+                    } else {
+                        moreMatchToRecovered = false;
+                        break;
+                    }
+                }
+                Thread.sleep(2000);
+                firstIndex += 100;
+            }
+        } catch (InterruptedException | URISyntaxException | IOException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException(e);
+        }
+    }
+
+    private void updateLegacyMatchesFromLOLChess(String puuid) throws URISyntaxException, IOException {
+        Optional<RIOTMetadataEntity> metadata = metadataRepository.findFirstByOrderByIdAsc();
+        RIOTSummonerEntity summoner = summonerService.getRemoteSummonerByPuuid(puuid);
+        int latestSet = metadata.map(RIOTMetadataEntity::getCurrentTFTSet).orElse(0);
+        int setNb = 1;
+        while (setNb <= latestSet) {
+            int pageNb = 1;
+            boolean lastPage = false;
+            while (!lastPage) {
+                String url = String.format("https://tft.dakgg.io/api/v1/summoners/euw1/%s-%s/matches?season=set%s&page=%d", summoner.getName(), summoner.getTag(), setNb, pageNb);
+                ObjectMapper mapper = new ObjectMapper();
+                List<TFTMatchEntity> matches = mapper.convertValue(mapper.readTree(new URI(url).toURL()).get("matches"), new TypeReference<>() {});
+                matches.forEach(match -> saveMatch(match, puuid));
+                lastPage = matches.isEmpty();
+                pageNb ++;
+            }
+            setNb ++;
+        }
+    }
+
     private void updateMatch(String matchId, String puuid) throws URISyntaxException, IOException {
         String stringUrl = String.format("https://europe.api.riotgames.com/tft/match/v1/matches/%s?api_key=%s", matchId, apiKeyRepository.findFirstByGame(GameEnum.RIOT).getKey());
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode infoNode = mapper.readTree(new URI(stringUrl).toURL()).get("info");
-        TFTMatchEntity match = mapper.convertValue(infoNode, TFTMatchEntity.class);
-        if (match.getQueue() != null && this.checkIfQueueIsCompatible(match)) {
-            match.setId(matchId);
+        TFTMatchEntity match = mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()).get("info"), TFTMatchEntity.class);
+        saveMatch(match, puuid);
+    }
+
+    private void saveMatch(TFTMatchEntity match, String puuid) {
+        if (match.getQueue() != null && this.checkIfQueueIsCompatible(match) || true) {
+            match.setId("EUW1_" + match.getId());
             match.getOwners().add(puuid);
-            LOGGER.info("Saving TFT match : {}", matchId);
+            LOGGER.info("Saving TFT match : {}", match.getId());
             matchRepository.save(match);
             summonerService.updateTimeSpentOnTFT(puuid, match.getDuration());
         }
     }
 
-    public void updateRemoteToLocalMatches(String puuid, int firstIndex, boolean forceDetectNewMatches) throws IOException {
-        List<TFTMatchEntity> matches = matchRepository.findAll();//TODO test set 11, 7, 7.5
-        matches.forEach(match -> {
-            try {
-                updateMatch(match.getId(), puuid);
-                Thread.sleep(2000);
-            } catch (URISyntaxException | InterruptedException | IOException e) {
-            }
-        });/**
-        try {
-            boolean moreMatchToRecovered = true;
-            String stringUrl = String.format("https://europe.api.riotgames.com/tft/match/v1/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, firstIndex, 100, apiKeyRepository.findFirstByGame(GameEnum.RIOT).getKey());
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode json = mapper.readTree(new URI(stringUrl).toURL());
-            List<String> matchIds = mapper.convertValue(json, new TypeReference<>() {});
-            if (!matchIds.isEmpty()) {
-                for (String matchId : matchIds) {
-                    TFTMatchEntity existingMatch = this.matchRepository.findFirstById(matchId);
-                    if (existingMatch == null) {
-                        this.updateMatch(matchId, puuid);
-                        Thread.sleep(2000);
-                    } else if (!existingMatch.getOwners().contains(puuid)) {
-                        existingMatch.getOwners().add(puuid);
-                        LOGGER.info("Updating TFT match : {}", matchId);
-                        matchRepository.save(existingMatch);
-                        summonerService.updateTimeSpentOnTFT(puuid, existingMatch.getDuration());
-                    } else {
-                        if (!forceDetectNewMatches) {
-                            moreMatchToRecovered = false;
-                            break;
-                        }
-                    }
-                }
-                if (moreMatchToRecovered) {
-                    Thread.sleep(2000);
-                    this.updateRemoteToLocalMatches(puuid, firstIndex + 100, forceDetectNewMatches);
-                }
-            }
-        } catch (InterruptedException | URISyntaxException | IOException e) {
-            Thread.currentThread().interrupt();
-            throw new IOException(e);
-        }**/
-    }
-
     private boolean checkIfQueueIsCompatible(TFTMatchEntity match) {
-        List<String> compatibleQueues = Arrays.stream(TFTQueueEnum.class.getEnumConstants())
+        List<Integer> compatibleQueues = Arrays.stream(TFTQueueEnum.class.getEnumConstants())
                 .map(TFTQueueEnum::getIds)
                 .flatMap(List::stream)
                 .toList();
-        return compatibleQueues.contains(match.getQueue().getId());
+        return compatibleQueues.contains(match.getQueue());
     }
 
     public List<TFTMatchEntity> getMatches(String puuid, int pageNb, TFTQueueEnum queue, int set) {

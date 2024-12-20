@@ -50,10 +50,10 @@ public class TFTMatchController {
     }
 
     @PostMapping("/tft/matches/{puuid}")
-    public ResponseEntity<String> updateRemoteToLocalMatches(@PathVariable String puuid, @RequestParam(required = false, defaultValue = "false") boolean force) {
+    public ResponseEntity<String> updateRemoteToLocalMatches(@PathVariable String puuid) {
         LOGGER.info("Updating TFT matches");
         try {
-            matchService.updateRemoteToLocalMatches(puuid, 0, force);
+            matchService.updateAllMatches(puuid);
             LOGGER.info("TFT matches successfully updated");
             return new ResponseEntity<>("TFT matches successfully updated", HttpStatus.OK);
         } catch (Exception e) {

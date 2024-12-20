@@ -20,6 +20,7 @@ public class TFTPatchNomenclature {
     private String id;
     private String patchId;
     private String language;
+    private Integer set;
     private List<TFTUnitNomenclature> units;
     private List<TFTTraitNomenclature> traits;
     private List<TFTItemNomenclature> items;

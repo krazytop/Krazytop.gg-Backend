@@ -14,13 +14,13 @@ public interface TFTMatchRepository extends MongoRepository<TFTMatchEntity, Stri
     Page<TFTMatchEntity> findAll(String puuid, PageRequest pageRequest);
 
     @Query(value = "{'participants': {$elemMatch: {'summoner.puuid': ?0}}, 'queue._id':  {$in: ?1}}", sort = "{'datetime': -1}")
-    Page<TFTMatchEntity> findAllByQueue(String puuid, List<String> queueIds, PageRequest pageRequest);
+    Page<TFTMatchEntity> findAllByQueue(String puuid, List<Integer> queueIds, PageRequest pageRequest);
 
     @Query(value = "{'participants': {$elemMatch: {'summoner.puuid': ?0}}, 'set': ?1}", sort = "{'datetime': -1}")
     Page<TFTMatchEntity> findAllBySet(String puuid, int set, PageRequest pageRequest);
 
     @Query(value = "{'participants': {$elemMatch: {'summoner.puuid': ?0}}, 'set': ?2, 'queue._id':  {$in: ?1}}", sort = "{'datetime': -1}")
-    Page<TFTMatchEntity> findAllByQueueAndBySet(String puuid, List<String> queueIds, int set, PageRequest pageRequest);
+    Page<TFTMatchEntity> findAllByQueueAndBySet(String puuid, List<Integer> queueIds, int set, PageRequest pageRequest);
 
     TFTMatchEntity findFirstById(String matchId);
 
@@ -28,12 +28,12 @@ public interface TFTMatchRepository extends MongoRepository<TFTMatchEntity, Stri
     Long countAll(String puuid);
 
     @Query(value = "{'participants': {$elemMatch: {'summoner.puuid': ?0}}, 'queue._id': {$in: ?1}}", count = true)
-    Long countAllByQueue(String puuid, List<String> queueIds);
+    Long countAllByQueue(String puuid, List<Integer> queueIds);
 
     @Query(value = "{'participants': {$elemMatch: {'summoner.puuid': ?0}}, 'set': ?1}", count = true)
     Long countAllBySet(String puuid, int set);
 
     @Query(value = "{'participants': {$elemMatch: {'summoner.puuid': ?0}}, 'set': ?2, 'queue._id':  {$in: ?1}}", count = true)
-    Long countAllByQueueAndBySet(String puuid, List<String> queueIds, int set);
+    Long countAllByQueueAndBySet(String puuid, List<Integer> queueIds, int set);
 
 }

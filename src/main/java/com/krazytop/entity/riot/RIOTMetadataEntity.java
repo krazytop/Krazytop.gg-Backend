@@ -1,12 +1,15 @@
 package com.krazytop.entity.riot;
 
+import com.krazytop.nomenclature.riot.RIOTLanguageEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Data
@@ -21,4 +24,6 @@ public class RIOTMetadataEntity {
     private Integer currentTFTSet;
     private String currentPatch;
     private List<String> allPatches = new ArrayList<>();
+    @Transient
+    private List<RIOTLanguageEnum> allLanguages = Arrays.stream(RIOTLanguageEnum.values()).toList();
 }
