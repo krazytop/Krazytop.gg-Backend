@@ -36,18 +36,16 @@ public class TFTNomenclatureService {
         this.metadataRepository = metadataRepository;
     }
 
-    public boolean updateAllNomenclatures() throws IOException, URISyntaxException {
+    public void updateAllNomenclatures() throws IOException, URISyntaxException {
         this.updateCurrentPatchVersion();
         List<String> allPatchesVersion = this.getAllPatchesVersion();
         RIOTMetadataEntity metadata = metadataRepository.findFirstByOrderByIdAsc().orElse(new RIOTMetadataEntity());
-        boolean patchesUpdated = false;
         for (String patchVersion : allPatchesVersion) {
             for (RIOTLanguageEnum language : RIOTLanguageEnum.values()) {
                 if (patchNomenclatureRepository.findFirstByPatchIdAndLanguage(patchVersion, language.getPath()) == null) {
                     this.updatePatchData(patchVersion, language.getPath());
                     TFTPatchNomenclature latestPatch = patchNomenclatureRepository.findLatestPatch();
                     metadata.setCurrentTFTSet(latestPatch.getSet());
-                    patchesUpdated = true;
                 }
                 if (!metadata.getAllPatches().contains(patchVersion)) {
                     metadata.getAllPatches().add(patchVersion);
@@ -55,7 +53,6 @@ public class TFTNomenclatureService {
             }
         }
         metadataRepository.save(metadata);
-        return patchesUpdated;
     }
 
     private void updatePatchData(String patchVersion, String language) throws IOException, URISyntaxException {

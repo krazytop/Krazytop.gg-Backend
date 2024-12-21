@@ -31,7 +31,7 @@ public class LOLMasteryService {
     }
 
     public void updateRemoteToLocalMasteries(String puuid) throws URISyntaxException, IOException {
-        String stringUrl = String.format("https://euw1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/%s?api_key=%s", puuid, apiKeyRepository.findFirstByGame(GameEnum.RIOT).getKey());
+        String stringUrl = String.format("https://euw1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/%s?api_key=%s", puuid, apiKeyRepository.findFirstByGame(GameEnum.LOL).getKey());
         ObjectMapper mapper = new ObjectMapper();
         List<LOLMasteryEntity> masteries = mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()), new TypeReference<>() {});
         masteryRepository.deleteAllByPuuid(puuid);

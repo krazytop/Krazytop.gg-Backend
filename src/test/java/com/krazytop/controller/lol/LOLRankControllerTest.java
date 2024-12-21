@@ -1,6 +1,6 @@
 package com.krazytop.controller.lol;
 
-import com.krazytop.entity.riot.RIOTRankEntity;
+import com.krazytop.entity.riot.rank.RIOTRankEntity;
 import com.krazytop.service.lol.LOLRankService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

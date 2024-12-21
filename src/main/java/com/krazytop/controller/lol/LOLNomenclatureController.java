@@ -1,5 +1,6 @@
 package com.krazytop.controller.lol;
 
+import com.krazytop.entity.HTTPResponse;
 import com.krazytop.service.lol.LOLNomenclatureService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 @RestController
 public class LOLNomenclatureController {
@@ -22,18 +26,10 @@ public class LOLNomenclatureController {
     }
 
     @GetMapping("/lol/nomenclature")
-    public ResponseEntity<String> updateNomenclatures() {
-        LOGGER.info("Updating all LOL nomenclatures");
-        try {
-            if (this.nomenclatureService.updateAllNomenclatures()) {
-                return new ResponseEntity<>("All LOL nomenclatures are successfully updated", HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>("All LOL nomenclatures are already up to date", HttpStatus.OK);
-            }
-        } catch (Exception e) {
-            LOGGER.error("Error while updating all LOL nomenclatures : {}", e.getMessage());
-            return new ResponseEntity<>("Error while updating all LOL nomenclatures", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<HTTPResponse> updateNomenclatures() throws IOException, URISyntaxException {
+        LOGGER.info("Updating all TFT nomenclatures");
+        this.nomenclatureService.updateAllNomenclatures();
+        return new ResponseEntity<>(new HTTPResponse("All LOL nomenclatures are up to date", HttpStatus.OK.value()), HttpStatus.OK);
     }
 
 }

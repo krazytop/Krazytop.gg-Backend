@@ -20,7 +20,7 @@ public class TFTMatchEntity {
     @JsonAlias({"game_version", "gameVersion"})
     private String version;
     @JsonAlias({"gameCreation", "gameCreatedAt", "game_datetime"})
-    private Long datetime;
+    private Long datetime;//TODO to date
     @JsonAlias({"game_length", "gameLength"})
     private Long duration;
     @JsonAlias("tft_set_number")

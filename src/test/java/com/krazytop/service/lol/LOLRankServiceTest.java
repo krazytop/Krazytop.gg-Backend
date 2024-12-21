@@ -1,9 +1,8 @@
 package com.krazytop.service.lol;
 
 import com.krazytop.entity.riot.RIOTMetadataEntity;
-import com.krazytop.entity.riot.RIOTRankEntity;
+import com.krazytop.entity.riot.rank.RIOTRankEntity;
 import com.krazytop.repository.lol.LOLRankRepository;
-import com.krazytop.repository.riot.RIOTMetadataRepository;
 import com.krazytop.repository.riot.RIOTRankRepository;
 import com.krazytop.service.riot.RIOTMetadataService;
 import com.krazytop.service.riot.RIOTRankService;

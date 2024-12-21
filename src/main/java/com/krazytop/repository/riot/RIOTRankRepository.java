@@ -1,9 +1,11 @@
 package com.krazytop.repository.riot;
 
-import com.krazytop.entity.riot.RIOTRankEntity;
+import com.krazytop.entity.riot.rank.RIOTRankEntity;
 import org.springframework.data.mongodb.repository.MongoRepository;
+
+import java.util.Optional;
 
 public interface RIOTRankRepository extends MongoRepository<RIOTRankEntity, String> {
 
-    RIOTRankEntity findFirstByPuuid(String puuid);
+    Optional<RIOTRankEntity> findFirstByPuuid(String puuid);
 }

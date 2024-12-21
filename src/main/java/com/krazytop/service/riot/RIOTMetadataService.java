@@ -5,7 +5,7 @@ import com.krazytop.repository.riot.RIOTMetadataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.function.Consumer;
+import java.util.Optional;
 
 @Service
 public class RIOTMetadataService {

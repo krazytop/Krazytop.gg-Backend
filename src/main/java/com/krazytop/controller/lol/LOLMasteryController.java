@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 
 @RestController
@@ -29,26 +31,16 @@ public class LOLMasteryController {
     @GetMapping("/lol/masteries/{puuid}")
     public ResponseEntity<List<LOLMasteryEntity>> getLocalMasteries(@PathVariable String puuid) {
         LOGGER.info("Retrieving LOL local masteries");
-        try {
-            List<LOLMasteryEntity> masteries = masteryService.getLocalMasteries(puuid);
-            LOGGER.info("LOL local masteries retrieved");
-            return new ResponseEntity<>(masteries, HttpStatus.OK);
-        } catch (Exception e) {
-            LOGGER.error("An error occurred while retrieving LOL local masteries : {}", e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        List<LOLMasteryEntity> masteries = masteryService.getLocalMasteries(puuid);
+        LOGGER.info("LOL local masteries retrieved");
+        return new ResponseEntity<>(masteries, HttpStatus.OK);
     }
 
     @PostMapping("/lol/masteries/{puuid}")
-    public ResponseEntity<String> updateRemoteToLocalMasteries(@PathVariable String puuid) {
+    public ResponseEntity<String> updateRemoteToLocalMasteries(@PathVariable String puuid) throws URISyntaxException, IOException {
         LOGGER.info("Updating LOL masteries");
-        try {
-            masteryService.updateRemoteToLocalMasteries(puuid);
-            LOGGER.info("LOL masteries successfully updated");
-            return new ResponseEntity<>("LOL masteries successfully updated", HttpStatus.OK);
-        } catch (Exception e) {
-            LOGGER.error("An error occurred while updating LOL masteries : {}", e.getMessage());
-            return new ResponseEntity<>("An error occurred while updating LOL masteries", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        masteryService.updateRemoteToLocalMasteries(puuid);
+        LOGGER.info("LOL masteries successfully updated");
+        return new ResponseEntity<>("LOL masteries successfully updated", HttpStatus.OK);
     }
 }

@@ -30,7 +30,7 @@ public class RIOTSummonerService {
         this.apiKeyRepository = apiKeyRepository;
     }
 
-    public RIOTSummonerEntity getLocalSummoner(String region, String tag, String name) {
+    public Optional<RIOTSummonerEntity> getLocalSummoner(String region, String tag, String name) {
         return this.summonerRepository.findFirstByRegionAndTagAndName(region, tag, name);
     }
 
@@ -43,7 +43,7 @@ public class RIOTSummonerService {
     public RIOTSummonerEntity getRemoteSummonerByNameAndTag(String region, String tag, String name) throws URISyntaxException, IOException {
         name = name.replace(" ", "%20");
         ObjectMapper mapper = new ObjectMapper();
-        ApiKeyEntity apiKey = this.apiKeyRepository.findFirstByGame(GameEnum.RIOT);
+        ApiKeyEntity apiKey = this.apiKeyRepository.findFirstByGame(GameEnum.LOL);
         String accountApiUrl = String.format("https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/%s/%s?api_key=%s", name, tag, apiKey.getKey());
         RIOTAccountEntity account = mapper.convertValue(mapper.readTree(new URI(accountApiUrl).toURL()), RIOTAccountEntity.class);
         String summonerApiUrl = String.format("https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/%s?api_key=%s", account.getPuuid(), apiKey.getKey());
@@ -56,7 +56,7 @@ public class RIOTSummonerService {
 
     public RIOTSummonerEntity getRemoteSummonerByPuuid(String puuid) throws URISyntaxException, IOException {
         ObjectMapper mapper = new ObjectMapper();
-        ApiKeyEntity apiKey = this.apiKeyRepository.findFirstByGame(GameEnum.RIOT);
+        ApiKeyEntity apiKey = this.apiKeyRepository.findFirstByGame(GameEnum.LOL);
         String summonerApiUrl = String.format("https://europe.api.riotgames.com/riot/account/v1/accounts/by-puuid/%s?api_key=%s", puuid, apiKey.getKey());
         return mapper.convertValue(mapper.readTree(new URI(summonerApiUrl).toURL()), RIOTSummonerEntity.class);
     }

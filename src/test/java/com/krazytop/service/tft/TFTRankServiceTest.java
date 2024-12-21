@@ -1,7 +1,7 @@
 package com.krazytop.service.tft;
 
 import com.krazytop.entity.riot.RIOTMetadataEntity;
-import com.krazytop.entity.riot.RIOTRankEntity;
+import com.krazytop.entity.riot.rank.RIOTRankEntity;
 import com.krazytop.repository.riot.RIOTRankRepository;
 import com.krazytop.repository.tft.TFTRankRepository;
 import com.krazytop.service.riot.RIOTMetadataService;

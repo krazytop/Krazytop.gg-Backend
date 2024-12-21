@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 public class RIOTSummonerController {
 
@@ -28,10 +30,10 @@ public class RIOTSummonerController {
     public ResponseEntity<RIOTSummonerEntity> getLocalSummoner(@PathVariable String region, @PathVariable String tag, @PathVariable String name) {
         LOGGER.info("Retrieving RIOT local summoner");
         try {
-            RIOTSummonerEntity summoner = riotSummonerService.getLocalSummoner(region, tag, name);
-            if (summoner != null) {
+            Optional<RIOTSummonerEntity> summoner = riotSummonerService.getLocalSummoner(region, tag, name);
+            if (summoner.isPresent()) {
                 LOGGER.info("RIOT local summoner retrieved");
-                return new ResponseEntity<>(summoner, HttpStatus.OK);
+                return new ResponseEntity<>(summoner.get(), HttpStatus.OK);
             } else {
                 LOGGER.info("RIOT local summoner not found");
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -60,9 +62,9 @@ public class RIOTSummonerController {
         }
     }
 
-    @PostMapping("/riot/summoner/update/{region}/{tag}/{name}")
+    @PostMapping("/riot/summoner/update/{region}/{tag}/{name}")//TODO enleverupdate
     public ResponseEntity<String> updateRemoteToLocalSummoner(@PathVariable String region, @PathVariable String tag, @PathVariable String name) {
-        LOGGER.info("Updating RIOT summoner");
+        LOGGER.info("Updating RIOT summoner");//TODO si le tag & name change la page ne sera plus la bonne => retourner le summoner
         try {
             riotSummonerService.updateRemoteToLocalSummoner(region, tag, name);
             LOGGER.info("RIOT summoner successfully updated");

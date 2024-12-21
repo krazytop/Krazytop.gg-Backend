@@ -1,6 +1,6 @@
 package com.krazytop.controller.tft;
 
-import com.krazytop.entity.riot.RIOTRankEntity;
+import com.krazytop.entity.riot.rank.RIOTRankEntity;
 import com.krazytop.service.tft.TFTRankService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

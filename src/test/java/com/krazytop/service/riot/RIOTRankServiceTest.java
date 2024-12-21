@@ -1,7 +1,7 @@
 package com.krazytop.service.riot;
 
 import com.krazytop.entity.api_key.ApiKeyEntity;
-import com.krazytop.entity.riot.RIOTRankEntity;
+import com.krazytop.entity.riot.rank.RIOTRankEntity;
 import com.krazytop.entity.riot.RIOTSummonerEntity;
 import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.repository.api_key.ApiKeyRepository;

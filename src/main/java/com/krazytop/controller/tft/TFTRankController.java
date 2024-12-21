@@ -1,6 +1,8 @@
 package com.krazytop.controller.tft;
 
-import com.krazytop.entity.riot.RIOTRankEntity;
+import com.krazytop.entity.riot.rank.RIOTRankEntity;
+import com.krazytop.nomenclature.GameEnum;
+import com.krazytop.service.riot.RIOTRankService;
 import com.krazytop.service.tft.TFTRankService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,46 +14,42 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Optional;
+
 @RestController
 public class TFTRankController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TFTRankController.class);
 
-    private final TFTRankService rankService;
+    private final TFTRankService tftRankService;
+    private final RIOTRankService riotRankService;
 
     @Autowired
-    public TFTRankController(TFTRankService rankService) {
-        this.rankService = rankService;
+    public TFTRankController(TFTRankService tftRankService, RIOTRankService riotRankService) {
+        this.tftRankService = tftRankService;
+        this.riotRankService = riotRankService;
     }
 
-    @GetMapping("/tft/rank/{puuid}")
-    public ResponseEntity<RIOTRankEntity> getLocalRank(@PathVariable String puuid) {
+    @GetMapping("/tft/ranks/{puuid}")
+    public ResponseEntity<RIOTRankEntity> getRanks(@PathVariable String puuid) {
         LOGGER.info("Retrieving TFT local rank");
-        try {
-            RIOTRankEntity rank = rankService.getLocalRank(puuid);
-            if (rank != null) {
-                LOGGER.info("TFT local rank retrieved");
-                return new ResponseEntity<>(rank, HttpStatus.OK);
-            } else {
-                LOGGER.info("TFT local rank not found");
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-        } catch (Exception e) {
-            LOGGER.error("An error occurred while retrieving TFT local rank : {}", e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        Optional<RIOTRankEntity> rank = riotRankService.getRanks(puuid, GameEnum.TFT);
+        if (rank.isPresent()) {
+            LOGGER.info("TFT local rank retrieved");
+            return new ResponseEntity<>(rank.get(), HttpStatus.OK);
+        } else {
+            LOGGER.info("TFT local rank not found");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
-    @PostMapping("/tft/rank/{summonerId}")
-    public ResponseEntity<String> updateRemoteToLocalRank(@PathVariable String summonerId) {
+    @PostMapping("/tft/ranks/{puuid}")
+    public ResponseEntity<String> updateRanks(@PathVariable String puuid) throws URISyntaxException, IOException {
         LOGGER.info("Updating TFT ranks");
-        try {
-            rankService.updateRemoteToLocalRank(summonerId);
-            LOGGER.info("TFT ranks successfully updated");
-            return new ResponseEntity<>("TFT ranks successfully updated", HttpStatus.OK);
-        } catch (Exception e) {
-            LOGGER.error("An error occurred while updating TFT ranks : {}", e.getMessage());
-            return new ResponseEntity<>("An error occurred while updating TFT ranks", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        tftRankService.updateRanks(puuid);
+        LOGGER.info("TFT ranks successfully updated");
+        return new ResponseEntity<>("TFT ranks successfully updated", HttpStatus.OK);
     }
 }

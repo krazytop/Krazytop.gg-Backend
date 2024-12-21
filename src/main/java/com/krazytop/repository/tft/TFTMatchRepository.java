@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TFTMatchRepository extends MongoRepository<TFTMatchEntity, String> {
 
@@ -22,7 +23,7 @@ public interface TFTMatchRepository extends MongoRepository<TFTMatchEntity, Stri
     @Query(value = "{'participants': {$elemMatch: {'summoner.puuid': ?0}}, 'set': ?2, 'queue._id':  {$in: ?1}}", sort = "{'datetime': -1}")
     Page<TFTMatchEntity> findAllByQueueAndBySet(String puuid, List<Integer> queueIds, int set, PageRequest pageRequest);
 
-    TFTMatchEntity findFirstById(String matchId);
+    Optional<TFTMatchEntity> findFirstById(String matchId);
 
     @Query(value = "{'participants': {$elemMatch: {'summoner.puuid': ?0}}}", count = true)
     Long countAll(String puuid);

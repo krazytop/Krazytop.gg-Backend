@@ -50,7 +50,7 @@ public class LOLMatchService {
     }
 
     private void updateMatch(String matchId, String puuid) throws URISyntaxException, IOException {
-        String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/%s?api_key=%s", matchId, apiKeyRepository.findFirstByGame(GameEnum.RIOT).getKey());
+        String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/%s?api_key=%s", matchId, apiKeyRepository.findFirstByGame(GameEnum.LOL).getKey());
         ObjectMapper mapper = new ObjectMapper();
         JsonNode infoNode = mapper.readTree(new URI(stringUrl).toURL()).get("info");
         LOLMatchEntity match = mapper.convertValue(infoNode, LOLMatchEntity.class);
@@ -72,7 +72,7 @@ public class LOLMatchService {
     public void updateRemoteToLocalMatches(String puuid, int firstIndex, boolean forceDetectNewMatches) throws IOException {
         try {
             boolean moreMatchToRecovered = true;
-            String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, firstIndex, 100, apiKeyRepository.findFirstByGame(GameEnum.RIOT).getKey());
+            String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, firstIndex, 100, apiKeyRepository.findFirstByGame(GameEnum.LOL).getKey());
             ObjectMapper mapper = new ObjectMapper();
             JsonNode json = mapper.readTree(new URI(stringUrl).toURL());
             List<String> matchIds = mapper.convertValue(json, new TypeReference<>() {});
