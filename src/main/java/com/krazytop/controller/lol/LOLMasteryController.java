@@ -1,6 +1,6 @@
 package com.krazytop.controller.lol;
 
-import com.krazytop.entity.lol.LOLMasteryEntity;
+import com.krazytop.entity.lol.LOLMasteriesEntity;
 import com.krazytop.service.lol.LOLMasteryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class LOLMasteryController {
@@ -29,17 +30,22 @@ public class LOLMasteryController {
     }
 
     @GetMapping("/lol/masteries/{puuid}")
-    public ResponseEntity<List<LOLMasteryEntity>> getLocalMasteries(@PathVariable String puuid) {
+    public ResponseEntity<LOLMasteriesEntity> getMasteries(@PathVariable String puuid) {
         LOGGER.info("Retrieving LOL local masteries");
-        List<LOLMasteryEntity> masteries = masteryService.getLocalMasteries(puuid);
-        LOGGER.info("LOL local masteries retrieved");
-        return new ResponseEntity<>(masteries, HttpStatus.OK);
+        Optional<LOLMasteriesEntity> masteries = masteryService.getMasteries(puuid);
+        if (masteries.isPresent()) {
+            LOGGER.info("LOL local masteries retrieved");
+            return new ResponseEntity<>(masteries.get(), HttpStatus.OK);
+        } else {
+            LOGGER.info("LOL local masteries not found");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping("/lol/masteries/{puuid}")
-    public ResponseEntity<String> updateRemoteToLocalMasteries(@PathVariable String puuid) throws URISyntaxException, IOException {
+    public ResponseEntity<String> updateMasteries(@PathVariable String puuid) throws URISyntaxException, IOException {
         LOGGER.info("Updating LOL masteries");
-        masteryService.updateRemoteToLocalMasteries(puuid);
+        masteryService.updateMasteries(puuid);
         LOGGER.info("LOL masteries successfully updated");
         return new ResponseEntity<>("LOL masteries successfully updated", HttpStatus.OK);
     }

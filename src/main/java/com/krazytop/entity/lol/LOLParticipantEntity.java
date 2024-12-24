@@ -1,77 +1,76 @@
 package com.krazytop.entity.lol;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.krazytop.config.SpringConfiguration;
 import com.krazytop.entity.riot.RIOTSummonerEntity;
-import com.krazytop.nomenclature.lol.LOLAugmentNomenclature;
-import com.krazytop.nomenclature.lol.LOLChampionNomenclature;
-import com.krazytop.nomenclature.lol.LOLItemNomenclature;
-import com.krazytop.nomenclature.lol.LOLSummonerSpellNomenclature;
-import com.krazytop.repository.lol.LOLAugmentNomenclatureRepository;
-import com.krazytop.repository.lol.LOLChampionNomenclatureRepository;
-import com.krazytop.repository.lol.LOLItemNomenclatureRepository;
-import com.krazytop.repository.lol.LOLSummonerSpellNomenclatureRepository;
 import lombok.Data;
 import org.springframework.data.annotation.Transient;
-
-import java.util.Objects;
-import java.util.function.Consumer;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LOLParticipantEntity {
 
-    private int champLevel;
-    private int kills;
-    private int assists;
-    private int deaths;
+    private Integer champLevel;
+    private Integer kills;
+    private Integer assists;
+    private Integer deaths;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String role;
-    private int visionScore;
+    private Integer visionScore;
     @JsonAlias("totalMinionsKilled")
-    private int minions;
+    private Integer minions;
     @JsonAlias("neutralMinionsKilled")
-    private int neutralMinions;
-    private int doubleKills;
-    private int tripleKills;
-    private int quadraKills;
-    private int pentaKills;
-    private int physicalDamageDealtToChampions;
-    private int magicDamageDealtToChampions;
-    private int trueDamageDealtToChampions;
-    private int physicalDamageTaken;
-    private int magicDamageTaken;
-    private int trueDamageTaken;
+    private Integer neutralMinions;
+    private Integer doubleKills;
+    private Integer tripleKills;
+    private Integer quadraKills;
+    private Integer pentaKills;
+    private Integer physicalDamageDealtToChampions;
+    private Integer magicDamageDealtToChampions;
+    private Integer trueDamageDealtToChampions;
+    private Integer physicalDamageTaken;
+    private Integer magicDamageTaken;
+    private Integer trueDamageTaken;
     @JsonAlias("goldEarned")
-    private int golds;
-    private String teamId;
+    private Integer golds;
     private boolean gameEndedInEarlySurrender;
     @JsonAlias("perks")
     private LOLRunesEntity runes;
-    private LOLChampionNomenclature champion;
-    private LOLItemNomenclature item0;
-    private LOLItemNomenclature item1;
-    private LOLItemNomenclature item2;
-    private LOLItemNomenclature item3;
-    private LOLItemNomenclature item4;
-    private LOLItemNomenclature item5;
-    private LOLItemNomenclature ward;
+    @JsonAlias("championId")
+    private String champion;
+    private String item0;
+    private String item1;
+    private String item2;
+    private String item3;
+    private String item4;
+    private String item5;
+    @JsonAlias("item6")
+    private String ward;
     private RIOTSummonerEntity summoner = new RIOTSummonerEntity();
-    private LOLSummonerSpellNomenclature summonerSpell1;
-    private LOLSummonerSpellNomenclature summonerSpell2;
-    //TODO transiant sur placement, teamId, subTeamId
-    private int placement;
-    private LOLAugmentNomenclature augment1;
-    private LOLAugmentNomenclature augment2;
-    private LOLAugmentNomenclature augment3;
-    private LOLAugmentNomenclature augment4;
-    private LOLAugmentNomenclature augment5;
-    private LOLAugmentNomenclature augment6;
+    @JsonAlias("summoner1Id")
+    private String summonerSpell1;
+    @JsonAlias("summoner2Id")
+    private String summonerSpell2;
+    @Transient
+    private Integer placement;
+    @JsonAlias("playerAugment1")
+    private String augment1;
+    @JsonAlias("playerAugment2")
+    private String augment2;
+    @JsonAlias("playerAugment3")
+    private String augment3;
+    @JsonAlias("playerAugment4")
+    private String augment4;
+    @JsonAlias("playerAugment5")
+    private String augment5;
+    @JsonAlias("playerAugment6")
+    private String augment6;
+    @Transient
     @JsonAlias("playerSubteamId")
     private String subTeamId;
+    @Transient
+    private String teamId;
 
     @JsonProperty("summonerId")
     private void unpackId(String id) {
@@ -103,103 +102,6 @@ public class LOLParticipantEntity {
         this.getSummoner().setIcon(icon);
     }
 
-    private void getAugment(String id, Consumer<LOLAugmentNomenclature> setter) {
-        if (!Objects.equals(id, "0")) {
-            LOLAugmentNomenclatureRepository augmentNomenclatureRepository = SpringConfiguration.contextProvider().getApplicationContext().getBean(LOLAugmentNomenclatureRepository.class);
-            setter.accept(augmentNomenclatureRepository.findFirstById(id));
-        }
-    }
-
-    @JsonProperty("playerAugment1")
-    private void unpackAugment1(String id) {
-        this.getAugment(id, this::setAugment1);
-    }
-
-    @JsonProperty("playerAugment2")
-    private void unpackAugment2(String id) {
-        this.getAugment(id, this::setAugment2);
-    }
-
-    @JsonProperty("playerAugment3")
-    private void unpackAugment3(String id) {
-        this.getAugment(id, this::setAugment3);
-    }
-
-    @JsonProperty("playerAugment4")
-    private void unpackAugment4(String id) {
-        this.getAugment(id, this::setAugment4);
-    }
-
-    @JsonProperty("playerAugment5")
-    private void unpackAugment5(String id) {
-        this.getAugment(id, this::setAugment5);
-    }
-
-    @JsonProperty("playerAugment6")
-    private void unpackAugment6(String id) {
-        this.getAugment(id, this::setAugment6);
-    }
-
-    private void getSummonerSpell(String id, Consumer<LOLSummonerSpellNomenclature> setter) {
-        LOLSummonerSpellNomenclatureRepository summonerSpellNomenclatureRepository = SpringConfiguration.contextProvider().getApplicationContext().getBean(LOLSummonerSpellNomenclatureRepository.class);
-        setter.accept(summonerSpellNomenclatureRepository.findFirstById(id));
-    }
-
-    @JsonProperty("summoner1Id")
-    private void unpackSummonerSpell1(String id) {
-        this.getSummonerSpell(id, this::setSummonerSpell1);
-    }
-
-    @JsonProperty("summoner2Id")
-    private void unpackSummonerSpell2(String id) {
-        this.getSummonerSpell(id, this::setSummonerSpell2);
-    }
-
-    private void getItem(String id, Consumer<LOLItemNomenclature> setter) {
-        LOLItemNomenclatureRepository itemNomenclatureRepository = SpringConfiguration.contextProvider().getApplicationContext().getBean(LOLItemNomenclatureRepository.class);
-        setter.accept(itemNomenclatureRepository.findFirstById(id));
-    }
-
-    @JsonProperty("item0")
-    private void unpackItem0(String id) {
-        this.getItem(id, this::setItem0);
-    }
-
-    @JsonProperty("item1")
-    private void unpackItem1(String id) {
-        this.getItem(id, this::setItem1);
-    }
-
-    @JsonProperty("item2")
-    private void unpackItem2(String id) {
-        this.getItem(id, this::setItem2);
-    }
-
-    @JsonProperty("item3")
-    private void unpackItem3(String id) {
-        this.getItem(id, this::setItem3);
-    }
-
-    @JsonProperty("item4")
-    private void unpackItem4(String id) {
-        this.getItem(id, this::setItem4);
-    }
-
-    @JsonProperty("item5")
-    private void unpackItem5(String id) {
-        this.getItem(id, this::setItem5);
-    }
-
-    @JsonProperty("item6")
-    private void unpackWard(String id) {
-        this.getItem(id, this::setWard);
-    }
-
-    @JsonProperty("championId")
-    private void unpackChampion(String id) {
-        LOLChampionNomenclatureRepository championNomenclatureRepository = SpringConfiguration.contextProvider().getApplicationContext().getBean(LOLChampionNomenclatureRepository.class);
-        this.setChampion(championNomenclatureRepository.findFirstById(id));
-    }
 
     @JsonProperty("individualPosition")
     private void unpackRole(String role) {

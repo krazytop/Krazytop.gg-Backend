@@ -11,7 +11,6 @@ import java.util.Map;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Document(collection = "ItemNomenclature")
 public class TFTItemNomenclature {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

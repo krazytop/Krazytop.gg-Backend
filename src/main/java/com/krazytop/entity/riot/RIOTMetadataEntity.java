@@ -23,7 +23,8 @@ public class RIOTMetadataEntity {
     private Integer currentLOLSeason;
     private Integer currentTFTSet;
     private String currentPatch;
-    private List<String> allPatches = new ArrayList<>();
+    private List<String> allTFTPatches = new ArrayList<>();
+    private List<String> allLOLPatches = new ArrayList<>();
     @Transient
     private List<RIOTLanguageEnum> allLanguages = Arrays.stream(RIOTLanguageEnum.values()).toList();
 }

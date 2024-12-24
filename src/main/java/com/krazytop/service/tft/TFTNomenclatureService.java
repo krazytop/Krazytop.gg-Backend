@@ -6,17 +6,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.entity.riot.RIOTMetadataEntity;
 import com.krazytop.nomenclature.riot.RIOTLanguageEnum;
 import com.krazytop.nomenclature.tft.*;
-import com.krazytop.repository.riot.RIOTMetadataRepository;
 import com.krazytop.repository.tft.*;
+import com.krazytop.service.riot.RIOTNomenclatureService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.*;
 
 /**
@@ -28,45 +28,37 @@ public class TFTNomenclatureService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TFTNomenclatureService.class);
 
     private final TFTPatchNomenclatureRepository patchNomenclatureRepository;
-    private final RIOTMetadataRepository metadataRepository;
+    private final RIOTNomenclatureService riotNomenclatureService;
 
     @Autowired
-    public TFTNomenclatureService(TFTPatchNomenclatureRepository patchNomenclatureRepository, RIOTMetadataRepository metadataRepository) {
+    public TFTNomenclatureService(TFTPatchNomenclatureRepository patchNomenclatureRepository, @Lazy RIOTNomenclatureService riotNomenclatureService) {
         this.patchNomenclatureRepository = patchNomenclatureRepository;
-        this.metadataRepository = metadataRepository;
+        this.riotNomenclatureService = riotNomenclatureService;
     }
 
-    public void updateAllNomenclatures() throws IOException, URISyntaxException {
-        this.updateCurrentPatchVersion();
-        List<String> allPatchesVersion = this.getAllPatchesVersion();
-        RIOTMetadataEntity metadata = metadataRepository.findFirstByOrderByIdAsc().orElse(new RIOTMetadataEntity());
-        for (String patchVersion : allPatchesVersion) {
-            for (RIOTLanguageEnum language : RIOTLanguageEnum.values()) {
-                if (patchNomenclatureRepository.findFirstByPatchIdAndLanguage(patchVersion, language.getPath()) == null) {
-                    this.updatePatchData(patchVersion, language.getPath());
-                    TFTPatchNomenclature latestPatch = patchNomenclatureRepository.findLatestPatch();
-                    metadata.setCurrentTFTSet(latestPatch.getSet());
-                }
-                if (!metadata.getAllPatches().contains(patchVersion)) {
-                    metadata.getAllPatches().add(patchVersion);
-                }
+    public void updateAllTFTNomenclatures(String patchVersion, RIOTLanguageEnum language, RIOTMetadataEntity metadata) throws IOException, URISyntaxException {
+        if (patchNomenclatureRepository.findFirstByPatchIdAndLanguage(patchVersion, language.getPath()) == null) {
+            updatePatchData(patchVersion, language.getPath());
+            TFTPatchNomenclature latestPatch = patchNomenclatureRepository.findLatestPatch();
+            metadata.setCurrentTFTSet(latestPatch.getSet());
+            if (!metadata.getAllTFTPatches().contains(patchVersion)) {
+                metadata.getAllTFTPatches().add(patchVersion);
             }
         }
-        metadataRepository.save(metadata);
     }
 
     private void updatePatchData(String patchVersion, String language) throws IOException, URISyntaxException {
-        String uri = String.format("https://raw.communitydragon.org/%s/cdragon/tft/%s.json", patchVersion, language);
+        String uri = String.format("https://raw.communitydragon.org/%s/cdragon/tft/%s.json", patchVersion, language.toLowerCase());
         LOGGER.info("Update TFT patch {} for language {}", patchVersion, language);
         JsonNode data = new ObjectMapper().readTree(new URI(uri).toURL());
         TFTPatchNomenclature patch = new TFTPatchNomenclature(patchVersion, language);
         List<TFTItemNomenclature> itemNomenclatures = new ObjectMapper().convertValue(data.get("items"), new TypeReference<>() {});
-        if (isVersionAfterAnOther(patchVersion, "10.11")) {
+        if (riotNomenclatureService.isVersionAfterAnOther(patchVersion, "10.11")) {
             updateRecentPatchData(itemNomenclatures, patch, data.get("setData"));
         } else {
             updateOldPatchData(itemNomenclatures, patch, data.get("sets"));
         }
-        patch.setQueues(this.deserializeQueues(patchVersion, language));
+        patch.setQueues(riotNomenclatureService.getPatchQueues(patchVersion, language));
         patchNomenclatureRepository.save(patch);
     }
 
@@ -109,20 +101,6 @@ public class TFTNomenclatureService {
         patch.setSet(setData.get("number").asInt());
     }
 
-    private List<TFTQueueNomenclature> deserializeQueues(String patchVersion, String language) throws IOException, URISyntaxException {
-        if (Objects.equals(patchVersion, "13.2") || Objects.equals(patchVersion, "13.3")) patchVersion = "13.4";
-        if (Objects.equals(patchVersion, "11.7")) patchVersion = "11.8";
-        ObjectMapper mapper = new ObjectMapper();
-        String queueUri = String.format("https://raw.communitydragon.org/%s/plugins/rcp-be-lol-game-data/global/%s/v1/queues.json", patchVersion, language);
-        if (isVersionAfterAnOther(patchVersion, "14.12")) {
-            return mapper.convertValue(mapper.convertValue(new ObjectMapper().readTree(new URI(queueUri).toURL()), new TypeReference<>() {}), new TypeReference<>() {});
-        } else {
-            Map<String, TFTQueueNomenclature> nomenclaturesMap = mapper.convertValue(new ObjectMapper().readTree(new URI(queueUri).toURL()), new TypeReference<>() {});
-            nomenclaturesMap.forEach((id, nomenclature) -> nomenclature.setId(id));
-            return nomenclaturesMap.values().stream().toList();
-        }
-    }
-
     private JsonNode findCorrectRecentSetDataNode(List<JsonNode> nodes) {
         int higherSet = nodes.stream()
                 .mapToInt(node -> node.get("number").asInt())
@@ -141,41 +119,6 @@ public class TFTNomenclatureService {
             }
         }
         throw new NoSuchElementException(String.format("Data node is not found for set %d", higherSet));
-    }
-
-
-    private void updateCurrentPatchVersion() throws IOException, URISyntaxException {
-        String uri = "https://ddragon.leagueoflegends.com/realms/euw.json";
-        URL url = new URI(uri).toURL();
-        RIOTMetadataEntity metadata = metadataRepository.findFirstByOrderByIdAsc().orElse(new RIOTMetadataEntity());
-        String currentPatch = new ObjectMapper().readTree(url).get("v").asText();
-        if (!Objects.equals(metadata.getCurrentPatch(), currentPatch)) {
-            metadata.setCurrentPatch(currentPatch);
-            metadataRepository.save(metadata);
-        }
-    }
-
-    private List<String> getAllPatchesVersion() throws IOException, URISyntaxException {
-        ObjectMapper mapper = new ObjectMapper();
-        String uri = "https://ddragon.leagueoflegends.com/api/versions.json";
-        JsonNode data = new ObjectMapper().readTree(new URI(uri).toURL());
-        List<String> allPatchesVersion = mapper.convertValue(data, new TypeReference<>() {});
-        allPatchesVersion = allPatchesVersion.stream()
-                .filter(version -> !version.contains("lol"))
-                .filter(version -> !version.startsWith("0."))
-                .map(version -> version.substring(0, version.lastIndexOf('.')))
-                .filter(version -> isVersionAfterAnOther(version, "9.13"))
-                .distinct()
-                .toList();
-        return allPatchesVersion;
-    }
-
-    private boolean isVersionAfterAnOther(String version, String referentVersion) {
-        String[] v1 = version.split("\\.");
-        String[] v2 = referentVersion.split("\\.");
-
-        int majorDiff = Integer.parseInt(v1[0]) - Integer.parseInt(v2[0]);
-        return majorDiff != 0 ? majorDiff > 0 : Integer.parseInt(v1[1]) > Integer.parseInt(v2[1]);
     }
 
 }

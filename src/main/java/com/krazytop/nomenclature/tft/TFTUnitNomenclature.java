@@ -9,7 +9,6 @@ import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Document(collection = "UnitNomenclature")
 public class TFTUnitNomenclature {
 
     @JsonAlias("apiName")

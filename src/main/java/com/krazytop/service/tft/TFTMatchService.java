@@ -1,6 +1,7 @@
 package com.krazytop.service.tft;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.entity.riot.RIOTMetadataEntity;
 import com.krazytop.entity.riot.RIOTSummonerEntity;
@@ -45,15 +46,15 @@ public class TFTMatchService {
     }
 
     public List<TFTMatchEntity> getMatches(String puuid, int pageNb, String queue, int set) {
-        return this.getMatches(puuid, pageNb, TFTQueueEnum.fromName(queue), set);
+        return getMatches(puuid, pageNb, TFTQueueEnum.fromName(queue), set);
     }
 
     public Long getMatchesCount(String puuid, String queue, int set) {
-        return this.getMatchesCount(puuid, TFTQueueEnum.fromName(queue), set);
+        return getMatchesCount(puuid, TFTQueueEnum.fromName(queue), set);
     }
 
     public void updateMatches(String puuid) throws IOException, URISyntaxException, InterruptedException {
-        if (getMatchesCount(puuid, TFTQueueEnum.ALL_QUEUES.getName(), -1) == 0) {
+        if (getMatchesCount(puuid, TFTQueueEnum.ALL_QUEUES, -1) == 0) {
             updateLegacyMatchesFromLOLChess(puuid);
         }
         updateRecentMatches(puuid);
@@ -71,7 +72,9 @@ public class TFTMatchService {
                 Optional<TFTMatchEntity> existingMatch = this.matchRepository.findFirstById(matchId);
                 if (existingMatch.isEmpty()) {
                     String stringUrl = String.format("https://europe.api.riotgames.com/tft/match/v1/matches/%s?api_key=%s", matchId, apiKey);
-                    TFTMatchEntity match = mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()).get("info"), TFTMatchEntity.class);
+                    JsonNode node = mapper.readTree(new URI(stringUrl).toURL());
+                    TFTMatchEntity match = mapper.convertValue(node.get("info"), TFTMatchEntity.class);
+                    match.setId(node.get("metadate").get("match_id").asText());
                     saveMatch(match, puuid);
                     Thread.sleep(2000);
                 } else if (!existingMatch.get().getOwners().contains(puuid)) {
@@ -113,7 +116,6 @@ public class TFTMatchService {
     }
 
     private void saveMatch(TFTMatchEntity match, String puuid) {
-        match.setId("EUW1_" + match.getId());
         match.getOwners().add(puuid);
         LOGGER.info("Saving TFT match : {}", match.getId());
         matchRepository.save(match);

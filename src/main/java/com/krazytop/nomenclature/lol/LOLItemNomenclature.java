@@ -13,7 +13,6 @@ import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Document(collection = "ItemNomenclature")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LOLItemNomenclature extends LOLNomenclature {
 

@@ -16,8 +16,12 @@ public abstract class LOLNomenclature {
     private String description;
 
     @JsonProperty("image")
-    private String unpackImage(JsonNode node) {
+    private void unpackImage(JsonNode node) {
         this.setImage(node.get("full").asText());
-        return image;
+    }
+
+    @JsonProperty("icon")
+    private void unpackIcon(JsonNode icon) {
+        this.setImage(icon.asText());
     }
 }

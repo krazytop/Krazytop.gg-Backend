@@ -8,8 +8,8 @@ import lombok.Getter;
 @AllArgsConstructor
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum RIOTLanguageEnum {
-    FR_FR("fr_fr"),
-    EN_GB("en_gb");
+    FR_FR("fr_FR"),
+    EN_GB("en_GB");
 
     private final String path;
 }

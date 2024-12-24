@@ -3,28 +3,34 @@ package com.krazytop.nomenclature.lol;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Document(collection = "RuneNomenclature")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LOLRuneNomenclature extends LOLNomenclature {
 
-    @JsonAlias("longDesc")
-    private String longDescription;
+    private List<List<LOLRunePerkNomenclature>> perks = new ArrayList<>();
 
-    @JsonProperty("id")
-    private void unpackId(JsonNode node) {
-        this.setId(node.asText());
+    @JsonProperty("slots")
+    private void unpackPerks(List<JsonNode> nodes) {
+        nodes.forEach(node -> this.perks.add(new ObjectMapper().convertValue(node.get("runes"), new TypeReference<>() {})));
     }
 
-    @JsonProperty("icon")
-    private void unpackIcon(JsonNode node) {
-        this.setImage(node.asText());
-    }
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    static class LOLRunePerkNomenclature extends LOLNomenclature {
 
+        @JsonAlias("longDesc")
+        private String longDescription;
+
+    }
 }

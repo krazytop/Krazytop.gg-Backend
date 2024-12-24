@@ -2,7 +2,7 @@ package com.krazytop.service.tft;
 
 import com.krazytop.entity.tft.RIOTPatchEntity;
 import com.krazytop.nomenclature.tft.TFTItemNomenclature;
-import com.krazytop.nomenclature.tft.TFTQueueNomenclature;
+import com.krazytop.nomenclature.riot.RIOTQueueNomenclature;
 import com.krazytop.nomenclature.tft.TFTTraitNomenclature;
 import com.krazytop.nomenclature.tft.TFTUnitNomenclature;
 import com.krazytop.repository.riot.RIOTPatchRepository;
@@ -79,7 +79,7 @@ class TFTNomenclatureServiceTest {
             RIOTPatchEntity version = new RIOTPatchEntity("14.23.6369832+branch.releases-14-23.content.release", "14.18.1");
             when(versionRepository.findFirstByOrderByOfficialVersionAsc()).thenReturn(version);
             ArgumentCaptor<RIOTPatchEntity> versionArgumentCaptor = ArgumentCaptor.forClass(RIOTPatchEntity.class);
-            ArgumentCaptor<List<TFTQueueNomenclature>> queuesArgumentCaptor = ArgumentCaptor.forClass(List.class);
+            ArgumentCaptor<List<RIOTQueueNomenclature>> queuesArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
             assertTrue(nomenclatureService.updateAllNomenclatures());
 
@@ -89,7 +89,7 @@ class TFTNomenclatureServiceTest {
             assertEquals("14.19.1", versionArgumentCaptor.getValue().getCurrent());
             verify(queueNomenclatureRepository, times(1)).saveAll(queuesArgumentCaptor.capture());
             assertEquals(1, queuesArgumentCaptor.getValue().size());
-            TFTQueueNomenclature nomenclature = queuesArgumentCaptor.getValue().get(0);
+            RIOTQueueNomenclature nomenclature = queuesArgumentCaptor.getValue().get(0);
             assertEquals("1130", nomenclature.getId());
             assertEquals("TFTM_ModeIcon_Turbo.png", nomenclature.getImage());
             assertEquals("HYPER ROLL", nomenclature.getName());

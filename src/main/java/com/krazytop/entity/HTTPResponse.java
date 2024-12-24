@@ -1,12 +1,16 @@
 package com.krazytop.entity;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.http.HttpStatus;
 
 @Data
-@AllArgsConstructor
 public class HTTPResponse {
 
     private String message;
     private Integer statusCode;
+
+    public HTTPResponse(String message, HttpStatus status) {
+        this.message = message;
+        this.statusCode = status.value();
+    }
 }
