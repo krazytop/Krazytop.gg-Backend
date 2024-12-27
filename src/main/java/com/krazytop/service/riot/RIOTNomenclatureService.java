@@ -40,16 +40,16 @@ public class RIOTNomenclatureService {
     public void updateAllNomenclatures() throws IOException, URISyntaxException {
         updateCurrentPatchVersion();
         List<String> allPatchesVersion = getAllPatchesVersion();
+        RIOTMetadataEntity metadata = metadataRepository.findFirstByOrderByIdAsc().orElse(new RIOTMetadataEntity());
         for (String patchVersion : allPatchesVersion) {
-            for (RIOTLanguageEnum language : RIOTLanguageEnum.values()) {
-                RIOTMetadataEntity metadata = metadataRepository.findFirstByOrderByIdAsc().orElse(new RIOTMetadataEntity());
+            for (RIOTLanguageEnum language : RIOTLanguageEnum.values()) {//TODO
                 lolNomenclatureService.updateAllLOLNomenclatures(patchVersion, language, metadata);
                 if (isVersionAfterAnOther(removeFixVersion(patchVersion), "9.13")) {
                     tftNomenclatureService.updateAllTFTNomenclatures(removeFixVersion(patchVersion), language, metadata);
                 }
-                metadataRepository.save(metadata);
             }
         }
+        metadataRepository.save(metadata);
     }
 
     public void updateCurrentPatchVersion() throws IOException, URISyntaxException {

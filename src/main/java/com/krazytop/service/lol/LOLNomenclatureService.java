@@ -41,7 +41,7 @@ public class LOLNomenclatureService {
         if (patchNomenclatureRepository.findFirstByPatchIdAndLanguage(shortVersion, language.getPath()) == null) {
             updatePatchData(patchVersion, language.getPath());
             LOLPatchNomenclature latestPatch = patchNomenclatureRepository.findLatestPatch();
-            metadata.setCurrentTFTSet(latestPatch.getSeason());
+            metadata.setCurrentLOLSeason(latestPatch.getSeason());
             if (!metadata.getAllLOLPatches().contains(shortVersion)) {
                 metadata.getAllLOLPatches().add(shortVersion);
             }
@@ -58,6 +58,7 @@ public class LOLNomenclatureService {
         patch.setItems(getPatchSummonerItems(patchVersion, language));
         if (riotNomenclatureService.isVersionAfterAnOther(shortVersion, "8.0")) patch.setRunes(getPatchRunes(patchVersion, language));
         if (riotNomenclatureService.isVersionAfterAnOther(shortVersion, "13.13")) patch.setAugments(getPatchAugments(shortVersion, language));
+        patch.setSeason(Integer.valueOf(shortVersion.split("\\.")[0]));
         patchNomenclatureRepository.save(patch);
     }
 

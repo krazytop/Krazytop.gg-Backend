@@ -19,6 +19,7 @@ public class LOLRunesEntity {
     private List<LOLRuneCategoryEntity> runeCategories;
 
     @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
     static class LOLRuneCategoryEntity {
 
         private Integer style;

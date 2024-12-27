@@ -67,8 +67,7 @@ public class LOLMatchService {
         while (moreMatchToRecovered) {
             String url = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, firstIndex, 100, apiKey);
             ObjectMapper mapper = new ObjectMapper();
-            //List<String> matchIds = mapper.convertValue(mapper.readTree(new URI(url).toURL()), new TypeReference<>() {});
-            List<String> matchIds = test();
+            List<String> matchIds = mapper.convertValue(mapper.readTree(new URI(url).toURL()), new TypeReference<>() {});
             for (String matchId : matchIds) {
                 Optional<LOLMatchEntity> existingMatch = this.matchRepository.findFirstById(matchId);
                 if (existingMatch.isEmpty()) {
@@ -93,17 +92,6 @@ public class LOLMatchService {
             }
             Thread.sleep(2000);
             firstIndex += 100;
-        }
-    }
-
-    public List<String> test() {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-
-            File ids = new File(String.format("%s/src/main/resources/%s.json", System.getProperty("user.dir"), "ids"));
-            return objectMapper.readValue(ids, new TypeReference<>() {});
-        } catch (IOException e) {
-            return List.of();
         }
     }
 

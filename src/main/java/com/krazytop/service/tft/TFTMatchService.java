@@ -142,6 +142,7 @@ public class TFTMatchService {
     public Long getMatchesCount(String puuid, TFTQueueEnum queue, int set) {
         if (queue == TFTQueueEnum.ALL_QUEUES) {
             if (set == -1) {
+                System.out.println(matchRepository.countAll(puuid));
                 return this.matchRepository.countAll(puuid);
             } else {
                 return this.matchRepository.countAllBySet(puuid, set);

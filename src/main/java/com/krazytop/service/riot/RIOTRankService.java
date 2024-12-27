@@ -62,7 +62,7 @@ public class RIOTRankService {
             for (JsonNode node : nodes) {
                 RIOTRankInformationsEntity rank = mapper.convertValue(node, RIOTRankInformationsEntity.class);
                 rank.setDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
-                joinRanks(puuid, List.of(rank), getCurrentSeasonOrSet(game), node.get("queueType").asText(), game);
+                joinRanks(puuid, List.of(rank), getCurrentSeasonOrSet(game), node.get("queueType").asText(), game);//TODO
             }
         }
     }
