@@ -4,9 +4,11 @@ import com.krazytop.nomenclature.lol.LOLPatchNomenclature;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
+import java.util.Optional;
+
 public interface LOLPatchNomenclatureRepository extends MongoRepository<LOLPatchNomenclature, String> {
 
-    LOLPatchNomenclature findFirstByPatchIdAndLanguage(String patchId, String language);
+    Optional<LOLPatchNomenclature> findFirstByPatchIdAndLanguage(String patchId, String language);
 
     @Aggregation(pipeline = {
             "{ $addFields: { patchParts: { $split: ['$patchId', '.'] } } }",

@@ -38,9 +38,9 @@ public class TFTRankService {
     }
 
     public void updateRanks(String puuid) throws URISyntaxException, IOException {
-        if (riotRankService.getRanks(puuid, GameEnum.TFT).isEmpty()) {
+        /**if (riotRankService.getRanks(puuid, GameEnum.TFT).isEmpty()) {
             updateLegacyRanksFromLOLChess(puuid);
-        }
+        }**/
         riotRankService.updateRecentRanks(puuid, GameEnum.TFT);
     }
 
@@ -52,11 +52,11 @@ public class TFTRankService {
         int setNb = 1;
         while (setNb <= latestSet) {
             for (TFTQueueEnum queue : TFTQueueEnum.getAllRankedQueues()) {
-                for (int queueId : queue.getIds()) {
+                for (String queueId : queue.getIds()) {
                     int pageNb = 1;
                     boolean lastPage = false;
                     while (!lastPage) {
-                        String url = String.format("https://tft.dakgg.io/api/v1/summoners/euw1/%s-%s/league-logs?season=set%d&page=%d&size=100&queueId=%d", summoner.getName(), summoner.getTag(), setNb, pageNb, queueId);
+                        String url = String.format("https://tft.dakgg.io/api/v1/summoners/euw1/%s-%s/league-logs?season=set%d&page=%d&size=100&queueId=%s", summoner.getName(), summoner.getTag(), setNb, pageNb, queueId);
                         ObjectMapper mapper = new ObjectMapper();
                         List<List<JsonNode>> nodes = mapper.convertValue(mapper.readTree(new URI(url).toURL()).get("summonerLeagueLogs"), new TypeReference<>() {});
                         List<RIOTRankInformationsEntity> newRanks = nodes.stream().map(node ->

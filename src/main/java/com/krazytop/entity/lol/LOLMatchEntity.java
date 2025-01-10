@@ -25,9 +25,9 @@ public class LOLMatchEntity {
     @Transient
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<LOLParticipantEntity> participants;
-    private boolean remake;
+    private Boolean remake;
     @JsonAlias("queueId")
-    private Integer queue;
+    private String queue;
     @JsonIgnore
     private List<String> owners = new ArrayList<>();
 

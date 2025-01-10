@@ -1,6 +1,7 @@
 package com.krazytop.entity.riot;
 
 import com.krazytop.nomenclature.riot.RIOTLanguageEnum;
+import com.krazytop.nomenclature.riot.RIOTRankEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,4 +28,6 @@ public class RIOTMetadataEntity {
     private List<String> allLOLPatches = new ArrayList<>();
     @Transient
     private List<RIOTLanguageEnum> allLanguages = Arrays.stream(RIOTLanguageEnum.values()).toList();
+    @Transient
+    private List<RIOTRankEnum> allRanks = Arrays.stream(RIOTRankEnum.values()).toList();
 }

@@ -54,9 +54,10 @@ public class LOLMatchService {
     }
 
     public void updateMatches(String puuid) throws IOException, URISyntaxException, InterruptedException {
+        /* TODO update legacy matches
         if (getMatchesCount(puuid, LOLQueueEnum.ALL_QUEUES, LOLRoleEnum.ALL_ROLES) == 0) {
-            //updateLegacyMatchesFromXXX(puuid)
-        }
+            updateLegacyMatchesFromXXX(puuid)
+        }*/
         updateRecentMatches(puuid);
     }
 
@@ -79,7 +80,7 @@ public class LOLMatchService {
                         match.dispatchParticipantsInTeamsArena();
                     } else {
                         match.dispatchParticipantsInTeamsNormalGame();
-                        match.setRemake(match.getTeams().get(0).getParticipants().get(0).isGameEndedInEarlySurrender());
+                        match.setRemake(match.getTeams().get(0).getParticipants().get(0).getGameEndedInEarlySurrender());
                     }
                     saveMatch(match, puuid);
                     Thread.sleep(2000);

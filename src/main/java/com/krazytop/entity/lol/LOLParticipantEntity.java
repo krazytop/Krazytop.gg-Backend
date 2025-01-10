@@ -7,6 +7,8 @@ import com.krazytop.entity.riot.RIOTSummonerEntity;
 import lombok.Data;
 import org.springframework.data.annotation.Transient;
 
+import java.util.Objects;
+
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LOLParticipantEntity {
@@ -34,7 +36,7 @@ public class LOLParticipantEntity {
     private Integer trueDamageTaken;
     @JsonAlias("goldEarned")
     private Integer golds;
-    private boolean gameEndedInEarlySurrender;
+    private Boolean gameEndedInEarlySurrender;
     @JsonAlias("perks")
     private LOLRunesEntity runes;
     @JsonAlias("championId")
@@ -54,17 +56,11 @@ public class LOLParticipantEntity {
     private String summonerSpell2;
     @Transient
     private Integer placement;
-    @JsonAlias("playerAugment1")
     private String augment1;
-    @JsonAlias("playerAugment2")
     private String augment2;
-    @JsonAlias("playerAugment3")
     private String augment3;
-    @JsonAlias("playerAugment4")
     private String augment4;
-    @JsonAlias("playerAugment5")
     private String augment5;
-    @JsonAlias("playerAugment6")
     private String augment6;
     @Transient
     @JsonAlias("playerSubteamId")
@@ -102,6 +98,35 @@ public class LOLParticipantEntity {
         this.getSummoner().setIcon(icon);
     }
 
+    @JsonProperty("playerAugment1")
+    private void unpackAugment1(String node) {
+        if (!Objects.equals(node, "0")) this.augment1 = node;
+    }
+
+    @JsonProperty("playerAugment2")
+    private void unpackAugment2(String node) {
+        if (!Objects.equals(node, "0")) this.augment2 = node;
+    }
+
+    @JsonProperty("playerAugment3")
+    private void unpackAugment3(String node) {
+        if (!Objects.equals(node, "0")) this.augment3 = node;
+    }
+
+    @JsonProperty("playerAugment4")
+    private void unpackAugment4(String node) {
+        if (!Objects.equals(node, "0")) this.augment4 = node;
+    }
+
+    @JsonProperty("playerAugment5")
+    private void unpackAugment5(String node) {
+        if (!Objects.equals(node, "0")) this.augment5 = node;
+    }
+
+    @JsonProperty("playerAugment6")
+    private void unpackAugment6(String node) {
+        if (!Objects.equals(node, "0")) this.augment6 = node;
+    }
 
     @JsonProperty("individualPosition")
     private void unpackRole(String role) {

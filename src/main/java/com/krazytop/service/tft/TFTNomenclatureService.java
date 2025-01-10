@@ -37,7 +37,7 @@ public class TFTNomenclatureService {
     }
 
     public void updateAllTFTNomenclatures(String patchVersion, RIOTLanguageEnum language, RIOTMetadataEntity metadata) throws IOException, URISyntaxException {
-        if (patchNomenclatureRepository.findFirstByPatchIdAndLanguage(patchVersion, language.getPath()) == null) {
+        if (patchNomenclatureRepository.findFirstByPatchIdAndLanguage(patchVersion, language.getPath()).isEmpty()) {
             updatePatchData(patchVersion, language.getPath());
             TFTPatchNomenclature latestPatch = patchNomenclatureRepository.findLatestPatch();
             metadata.setCurrentTFTSet(latestPatch.getSet());
@@ -72,6 +72,7 @@ public class TFTNomenclatureService {
         patch.setAugments(List.of());
         patch.setTraits(mapper.convertValue(mostRecentSet.getValue().get("augments"), new TypeReference<>() {}));
         patch.setUnits(mapper.convertValue(mostRecentSet.getValue().get("champions"), new TypeReference<>() {}));
+        modifyImageForOldPatches(patch);
         patch.setItems(itemNomenclatures);
     }
 
@@ -95,8 +96,13 @@ public class TFTNomenclatureService {
                         .orElseThrow(() -> new NoSuchElementException("Item not found: " + itemId)))
                 .toList();
         patch.setAugments(augments);
-        patch.setItems(items);
+        if (riotNomenclatureService.isVersionAfterAnOther(patch.getPatchId(), "13.9")) {
+            patch.setItems(items);
+        } else {
+            patch.setItems(itemNomenclatures);
+        }
         patch.setUnits(mapper.convertValue(setData.get("champions"), new TypeReference<>() {}));
+        modifyImageForOldPatches(patch);
         patch.setTraits(mapper.convertValue(setData.get("traits"), new TypeReference<>() {}));
         patch.setSet(setData.get("number").asInt());
     }
@@ -107,7 +113,7 @@ public class TFTNomenclatureService {
                 .max()
                 .orElseThrow(() -> new NoSuchElementException("No nodes available"));
 
-        String[] prioritizedPatterns = {"TFTSet%d_Stage2", "TFT_Set%d_Stage2", "TFTSet%d", "TFT_Set%d"};
+        String[] prioritizedPatterns = {"TFTSet%d_Evolved", "TFTSet%d_Stage2", "TFT_Set%d_Stage2", "TFTSet%d", "TFT_Set%d"};
 
         for (String pattern : prioritizedPatterns) {
             String mutator = String.format(pattern, higherSet);
@@ -119,6 +125,18 @@ public class TFTNomenclatureService {
             }
         }
         throw new NoSuchElementException(String.format("Data node is not found for set %d", higherSet));
+    }
+
+    private void modifyImageForOldPatches(TFTPatchNomenclature patch) {
+        if (!riotNomenclatureService.isVersionAfterAnOther(patch.getPatchId(), "13.9")) {
+            patch.getUnits().forEach(unit -> {
+                if (unit.getImage() == null) {
+                    String regex = "ASSETS/UX/TFT/ChampionSplashes/([^/]+)\\.([^.]+)\\.dds";
+                    String replacement = "ASSETS/Characters/$1/HUD/$1_Square.$2.tex";
+                    unit.setImage(unit.getOldImage().replaceAll(regex, replacement));
+                }
+            });
+        }
     }
 
 }

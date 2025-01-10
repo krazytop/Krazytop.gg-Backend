@@ -27,6 +27,8 @@ public class TFTParticipantEntity {
     private List<TFTUnitEntity> units;
     private List<TFTTraitEntity> traits;
     private List<String> augments;
+    @JsonAlias("win")
+    private Boolean hasWin;
 
     @JsonProperty("puuid")
     private void unpackPuuid(String puuid) {

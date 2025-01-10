@@ -26,6 +26,6 @@ public class LOLPatchNomenclature {
     private List<LOLItemNomenclature> items;
     private List<LOLSummonerSpellNomenclature> summonerSpells;
     private List<LOLAugmentNomenclature> augments;
-    private List<RIOTQueueNomenclature> queues;
     private List<LOLRuneNomenclature> runes;
+    private List<RIOTQueueNomenclature> queues;
 }

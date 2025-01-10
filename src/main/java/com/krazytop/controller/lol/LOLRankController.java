@@ -32,7 +32,7 @@ public class LOLRankController {
         this.riotRankService = riotRankService;
     }
 
-    @GetMapping("/lol/rank/{puuid}")
+    @GetMapping("/lol/ranks/{puuid}")
     public ResponseEntity<RIOTRankEntity> getRank(@PathVariable String puuid) {
         LOGGER.info("Retrieving LOL local rank");
         Optional<RIOTRankEntity> rank = riotRankService.getRanks(puuid, GameEnum.LOL);
@@ -45,10 +45,10 @@ public class LOLRankController {
         }
     }
 
-    @PostMapping("/lol/rank/{puuid}")
+    @PostMapping("/lol/ranks/{puuid}")
     public ResponseEntity<String> updateRank(@PathVariable String puuid) throws URISyntaxException, IOException {
         LOGGER.info("Updating LOL ranks");
-        //lolRankService.updateRanks(puuid, GameEnum.LOL);
+        lolRankService.updateRanks(puuid);
         LOGGER.info("LOL ranks successfully updated");
         return new ResponseEntity<>("LOL ranks successfully updated", HttpStatus.OK);
     }

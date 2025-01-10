@@ -9,13 +9,13 @@ import java.util.function.IntConsumer;
 @Data
 public class LOLObjectivesEntity {
 
-    private int baronKills;
-    private int championKills;
-    private int dragonKills;
-    private int hordeKills;
-    private int inhibitorKills;
-    private int riftHeraldKills;
-    private int towerKills;
+    private Integer baronKills;
+    private Integer championKills;
+    private Integer dragonKills;
+    private Integer hordeKills;
+    private Integer inhibitorKills;
+    private Integer riftHeraldKills;
+    private Integer towerKills;
 
     private void getKills(JsonNode node, IntConsumer setter) {
         setter.accept(node.get("kills").asInt());

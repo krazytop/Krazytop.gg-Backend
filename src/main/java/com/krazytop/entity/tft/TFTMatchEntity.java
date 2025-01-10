@@ -25,7 +25,7 @@ public class TFTMatchEntity {
     private Integer set;
     private List<TFTParticipantEntity> participants;
     @JsonAlias({"queueId", "queue_id"})
-    private Integer queue;
+    private String queue;
     @JsonIgnore
     private List<String> owners = new ArrayList<>();
 

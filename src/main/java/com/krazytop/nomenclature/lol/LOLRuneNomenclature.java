@@ -31,6 +31,5 @@ public class LOLRuneNomenclature extends LOLNomenclature {
 
         @JsonAlias("longDesc")
         private String longDescription;
-
     }
 }

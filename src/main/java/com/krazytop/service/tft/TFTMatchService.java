@@ -54,9 +54,10 @@ public class TFTMatchService {
     }
 
     public void updateMatches(String puuid) throws IOException, URISyntaxException, InterruptedException {
+        /* TODO update legacy matches
         if (getMatchesCount(puuid, TFTQueueEnum.ALL_QUEUES, -1) == 0) {
             updateLegacyMatchesFromLOLChess(puuid);
-        }
+        }*/
         updateRecentMatches(puuid);
     }
 
@@ -74,7 +75,7 @@ public class TFTMatchService {
                     String stringUrl = String.format("https://europe.api.riotgames.com/tft/match/v1/matches/%s?api_key=%s", matchId, apiKey);
                     JsonNode node = mapper.readTree(new URI(stringUrl).toURL());
                     TFTMatchEntity match = mapper.convertValue(node.get("info"), TFTMatchEntity.class);
-                    match.setId(node.get("metadate").get("match_id").asText());
+                    match.setId(node.get("metadata").get("match_id").asText());
                     saveMatch(match, puuid);
                     Thread.sleep(2000);
                 } else if (!existingMatch.get().getOwners().contains(puuid)) {

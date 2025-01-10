@@ -7,7 +7,7 @@ import java.util.*;
 @Data
 public class RIOTSeasonOrSetRanksEntity {
 
-    private int nb;
+    private Integer nb;
     private List<RIOTQueueRanksEntity> queueRanks = new ArrayList<>();
 
     public RIOTSeasonOrSetRanksEntity(int nb) {

@@ -28,7 +28,6 @@ public class LOLMasteriesEntity {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class LOLMasteryEntity {
 
-        private String puuid;
         @JsonAlias("championLevel")
         private int level;
         @JsonAlias("championPoints")

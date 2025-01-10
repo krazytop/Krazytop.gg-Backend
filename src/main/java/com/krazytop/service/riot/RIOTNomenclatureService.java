@@ -42,7 +42,7 @@ public class RIOTNomenclatureService {
         List<String> allPatchesVersion = getAllPatchesVersion();
         RIOTMetadataEntity metadata = metadataRepository.findFirstByOrderByIdAsc().orElse(new RIOTMetadataEntity());
         for (String patchVersion : allPatchesVersion) {
-            for (RIOTLanguageEnum language : RIOTLanguageEnum.values()) {//TODO
+            for (RIOTLanguageEnum language : RIOTLanguageEnum.values()) {
                 lolNomenclatureService.updateAllLOLNomenclatures(patchVersion, language, metadata);
                 if (isVersionAfterAnOther(removeFixVersion(patchVersion), "9.13")) {
                     tftNomenclatureService.updateAllTFTNomenclatures(removeFixVersion(patchVersion), language, metadata);
@@ -56,7 +56,7 @@ public class RIOTNomenclatureService {
         String uri = "https://ddragon.leagueoflegends.com/realms/euw.json";
         URL url = new URI(uri).toURL();
         RIOTMetadataEntity metadata = metadataRepository.findFirstByOrderByIdAsc().orElse(new RIOTMetadataEntity());
-        String currentPatch = new ObjectMapper().readTree(url).get("v").asText();
+        String currentPatch = new ObjectMapper().readTree(url).get("v").asText().replaceAll("^(\\d+\\.\\d+).*", "$1");
         if (!Objects.equals(metadata.getCurrentPatch(), currentPatch)) {
             metadata.setCurrentPatch(currentPatch);
             metadataRepository.save(metadata);

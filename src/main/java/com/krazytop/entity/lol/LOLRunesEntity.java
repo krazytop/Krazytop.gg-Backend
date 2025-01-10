@@ -22,12 +22,12 @@ public class LOLRunesEntity {
     @JsonIgnoreProperties(ignoreUnknown = true)
     static class LOLRuneCategoryEntity {
 
-        private Integer style;
-        private List<Integer> perks;
+        private String style;
+        private List<String> perks;
 
         @JsonProperty("selections")
         private void unpackStyles(List<JsonNode> nodes) {
-            this.perks = nodes.stream().map(node -> node.get("perk").asInt()).toList();
+            this.perks = nodes.stream().map(node -> node.get("perk").asText()).toList();
         }
 
     }
