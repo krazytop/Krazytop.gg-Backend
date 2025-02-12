@@ -27,15 +27,15 @@ import java.util.*;
 public class RIOTRankService {
 
     private final ApiKeyRepository apiKeyRepository;
-    private final RIOTSummonerRepository summonerRepository;
+    private final RIOTSummonerService summonerService;
     private final TFTRankRepository tftRankRepository;
     private final LOLRankRepository lolRankRepository;
     private final RIOTMetadataService metadataService;
 
     @Autowired
-    public RIOTRankService(ApiKeyRepository apiKeyRepository, RIOTSummonerRepository summonerRepository, TFTRankRepository tftRankRepository, LOLRankRepository lolRankRepository, RIOTMetadataService metadataService) {
+    public RIOTRankService(ApiKeyRepository apiKeyRepository, RIOTSummonerService summonerService, TFTRankRepository tftRankRepository, LOLRankRepository lolRankRepository, RIOTMetadataService metadataService) {
         this.apiKeyRepository = apiKeyRepository;
-        this.summonerRepository = summonerRepository;
+        this.summonerService = summonerService;
         this.tftRankRepository = tftRankRepository;
         this.lolRankRepository = lolRankRepository;
         this.metadataService = metadataService;
@@ -54,7 +54,7 @@ public class RIOTRankService {
     }
 
     public void updateRecentRanks(String puuid, GameEnum game) throws URISyntaxException, IOException {
-        Optional<RIOTSummonerEntity> summoner = summonerRepository.findFirstByPuuid(puuid);
+        Optional<RIOTSummonerEntity> summoner = summonerService.getLocalSummoner(puuid, game);
         if (summoner.isPresent()) {
             String stringUrl = String.format(getUrl(game), summoner.get().getId(), apiKeyRepository.findFirstByGame(game).getKey());
             ObjectMapper mapper = new ObjectMapper();

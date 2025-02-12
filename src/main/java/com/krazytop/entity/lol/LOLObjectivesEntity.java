@@ -16,6 +16,7 @@ public class LOLObjectivesEntity {
     private Integer inhibitorKills;
     private Integer riftHeraldKills;
     private Integer towerKills;
+    private Integer atakhanKills;
 
     private void getKills(JsonNode node, IntConsumer setter) {
         setter.accept(node.get("kills").asInt());
@@ -39,6 +40,11 @@ public class LOLObjectivesEntity {
     @JsonProperty("horde")
     private void unpackHorde(JsonNode node) {
         this.getKills(node, this::setHordeKills);
+    }
+
+    @JsonProperty("atakhan")
+    private void unpackAtakhan(JsonNode node) {
+        this.getKills(node, this::setAtakhanKills);
     }
 
     @JsonProperty("inhibitor")

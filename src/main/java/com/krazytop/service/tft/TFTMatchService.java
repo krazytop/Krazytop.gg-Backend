@@ -9,7 +9,6 @@ import com.krazytop.entity.tft.TFTMatchEntity;
 import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.nomenclature.tft.*;
 import com.krazytop.repository.api_key.ApiKeyRepository;
-import com.krazytop.repository.riot.RIOTMetadataRepository;
 import com.krazytop.repository.tft.TFTMatchRepository;
 import com.krazytop.service.riot.RIOTMetadataService;
 import com.krazytop.service.riot.RIOTSummonerService;
@@ -120,7 +119,7 @@ public class TFTMatchService {
         match.getOwners().add(puuid);
         LOGGER.info("Saving TFT match : {}", match.getId());
         matchRepository.save(match);
-        summonerService.updateTimeSpentOnTFT(puuid, match.getDuration());
+        summonerService.updateSpentTimeAndPlayedSeasonsOrSets(puuid, match.getDuration(), Integer.valueOf(match.getVersion().replaceAll("\\..*", "")), GameEnum.TFT);
     }
 
     public List<TFTMatchEntity> getMatches(String puuid, int pageNb, TFTQueueEnum queue, int set) {

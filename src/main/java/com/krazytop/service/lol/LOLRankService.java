@@ -25,7 +25,7 @@ public class LOLRankService {
         /**if (riotRankService.getRanks(puuid, GameEnum.TFT).isEmpty()) {
             updateLegacyRanksFromLOLChess(puuid);
         }**/
-        riotRankService.updateRecentRanks(puuid, GameEnum.TFT);
+        riotRankService.updateRecentRanks(puuid, GameEnum.LOL);
     }
 
 }

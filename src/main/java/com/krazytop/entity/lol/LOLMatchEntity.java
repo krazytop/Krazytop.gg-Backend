@@ -16,7 +16,6 @@ import java.util.*;
 public class LOLMatchEntity {
 
     private String id;
-    @JsonAlias("gameVersion")
     private String version;
     private Date datetime;
     @JsonAlias("gameDuration")
@@ -59,5 +58,10 @@ public class LOLMatchEntity {
     @JsonProperty("gameStartTimestamp")
     private void unpackDateTime(Long datetime) {
         this.datetime = new Date(datetime);
+    }
+
+    @JsonProperty("gameVersion")
+    private void unpackVersion(String version) {
+        this.version = version.replaceAll("^([^.]+\\.[^.]+)\\..*$", "$1");
     }
 }

@@ -4,11 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.entity.lol.*;
-import com.krazytop.entity.tft.TFTMatchEntity;
 import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.nomenclature.lol.LOLQueueEnum;
 import com.krazytop.nomenclature.lol.LOLRoleEnum;
-import com.krazytop.nomenclature.tft.TFTQueueEnum;
 import com.krazytop.repository.api_key.ApiKeyRepository;
 import com.krazytop.repository.lol.LOLMatchRepository;
 import com.krazytop.service.riot.RIOTSummonerService;
@@ -19,11 +17,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,7 +60,7 @@ public class LOLMatchService {
     private void updateRecentMatches(String puuid) throws IOException, InterruptedException, URISyntaxException {
         boolean moreMatchToRecovered = true;
         int firstIndex = 0;
-        String apiKey = apiKeyRepository.findFirstByGame(GameEnum.TFT).getKey();
+        String apiKey = apiKeyRepository.findFirstByGame(GameEnum.LOL).getKey();
         while (moreMatchToRecovered) {
             String url = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, firstIndex, 100, apiKey);
             ObjectMapper mapper = new ObjectMapper();
@@ -100,7 +96,7 @@ public class LOLMatchService {
         match.getOwners().add(puuid);
         LOGGER.info("Saving LOL match : {}", match.getId());
         matchRepository.save(match);
-        summonerService.updateTimeSpentOnLOL(puuid, match.getDuration());
+        summonerService.updateSpentTimeAndPlayedSeasonsOrSets(puuid, match.getDuration(), Integer.valueOf(match.getVersion().replaceAll("\\..*", "")), GameEnum.LOL);
     }
 
     private List<LOLMatchEntity> getMatches(String puuid, int pageNb, LOLQueueEnum queue, LOLRoleEnum role) {

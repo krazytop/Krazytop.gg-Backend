@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Document(collection = "Summoner")
@@ -27,7 +29,7 @@ public class RIOTSummonerEntity {
     private String tag;
     private String region;
     private Date updateDate;
-    private Long spentTimeOnLOL;
-    private Long spentTimeOnTFT;
+    private Long spentTime = 0L;
+    private Set<Integer> playedSeasonsOrSets = new HashSet<>();
 
 }

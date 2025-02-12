@@ -16,7 +16,6 @@ public class TFTMatchEntity {
 
     @JsonAlias("matchId")
     private String id;
-    @JsonAlias({"game_version", "gameVersion"})
     private String version;
     private Date datetime;
     @JsonAlias({"game_length", "gameLength"})
@@ -45,4 +44,9 @@ public class TFTMatchEntity {
         this.id = shard.toUpperCase() + "_" + this.id;
     }
 
+    @JsonProperty("game_version")
+    @JsonAlias("gameVersion")
+    private void unpackVersion(String version) {
+        this.version = version.replaceAll(".*<Releases/([^>]+)>.*", "$1");
+    }
 }

@@ -1,6 +1,7 @@
 package com.krazytop.controller.riot;
 
 import com.krazytop.entity.riot.RIOTSummonerEntity;
+import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.service.riot.RIOTSummonerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,52 +27,79 @@ public class RIOTSummonerController {
         this.riotSummonerService = riotSummonerService;
     }
 
-    @GetMapping("/riot/summoner/local/{region}/{tag}/{name}")
-    public ResponseEntity<RIOTSummonerEntity> getLocalSummoner(@PathVariable String region, @PathVariable String tag, @PathVariable String name) {
-        LOGGER.info("Retrieving RIOT local summoner");
+    @GetMapping("/lol/summoner/local/{region}/{tag}/{name}")
+    public ResponseEntity<RIOTSummonerEntity> getLOLLocalSummoner(@PathVariable String region, @PathVariable String tag, @PathVariable String name) {
+        return getLocalSummoner(region, tag, name, GameEnum.LOL);
+    }
+
+    @GetMapping("/tft/summoner/local/{region}/{tag}/{name}")
+    public ResponseEntity<RIOTSummonerEntity> getTFTLocalSummoner(@PathVariable String region, @PathVariable String tag, @PathVariable String name) {
+        return getLocalSummoner(region, tag, name, GameEnum.TFT);
+    }
+
+    private ResponseEntity<RIOTSummonerEntity> getLocalSummoner(String region, String tag, String name, GameEnum game) {
+        LOGGER.info("Retrieving local summoner");
         try {
-            Optional<RIOTSummonerEntity> summoner = riotSummonerService.getLocalSummoner(region, tag, name);
+            Optional<RIOTSummonerEntity> summoner = riotSummonerService.getLocalSummoner(region, tag, name, game);
             if (summoner.isPresent()) {
-                LOGGER.info("RIOT local summoner retrieved");
+                LOGGER.info("Local summoner retrieved");
                 return new ResponseEntity<>(summoner.get(), HttpStatus.OK);
             } else {
-                LOGGER.info("RIOT local summoner not found");
+                LOGGER.info("Local summoner not found");
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
         } catch (Exception e) {
-            LOGGER.error("An error occurred while retrieving RIOT local summoner : {}", e.getMessage());
+            LOGGER.error("An error occurred while retrieving local summoner : {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/riot/summoner/remote/{region}/{tag}/{name}")
-    public ResponseEntity<RIOTSummonerEntity> getRemoteSummoner(@PathVariable String region, @PathVariable String tag, @PathVariable String name) {
-        LOGGER.info("Retrieving RIOT remote summoner");
+    @GetMapping("/lol/summoner/remote/{region}/{tag}/{name}")
+    public ResponseEntity<RIOTSummonerEntity> getLOLRemoteSummoner(@PathVariable String region, @PathVariable String tag, @PathVariable String name) {
+        return getRemoteSummoner(region, tag, name, GameEnum.LOL);
+    }
+
+    @GetMapping("/tft/summoner/remote/{region}/{tag}/{name}")
+    public ResponseEntity<RIOTSummonerEntity> getTFTRemoteSummoner(@PathVariable String region, @PathVariable String tag, @PathVariable String name) {
+        return getRemoteSummoner(region, tag, name, GameEnum.TFT);
+    }
+
+    public ResponseEntity<RIOTSummonerEntity> getRemoteSummoner(String region, String tag, String name, GameEnum game) {
+        LOGGER.info("Retrieving remote summoner");
         try {
-            RIOTSummonerEntity summoner = riotSummonerService.getRemoteSummonerByNameAndTag(region, tag, name);
+            RIOTSummonerEntity summoner = riotSummonerService.getRemoteSummonerByNameAndTag(region, tag, name, game);
             if (summoner != null) {
-                LOGGER.info("RIOT remote summoner successfully retrieved");
+                LOGGER.info("Remote summoner successfully retrieved");
                 return new ResponseEntity<>(summoner, HttpStatus.OK);
             } else {
-                LOGGER.info("RIOT remote summoner not found");
+                LOGGER.info("Remote summoner not found");
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
         } catch (Exception e) {
-            LOGGER.error("An error occurred while retrieving RIOT remote summoner : {}", e.getMessage());
+            LOGGER.error("An error occurred while retrieving remote summoner : {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PostMapping("/riot/summoner/update/{region}/{tag}/{name}")//TODO enleverupdate
-    public ResponseEntity<String> updateRemoteToLocalSummoner(@PathVariable String region, @PathVariable String tag, @PathVariable String name) {
-        LOGGER.info("Updating RIOT summoner");//TODO si le tag & name change la page ne sera plus la bonne => retourner le summoner
+    @PostMapping("/lol/summoner/update/{region}/{tag}/{name}")//TODO enleverupdate
+    public ResponseEntity<String> updateLOLRemoteToLocalSummoner(@PathVariable String region, @PathVariable String tag, @PathVariable String name) {
+        return updateRemoteToLocalSummoner(region, tag, name, GameEnum.LOL);
+    }
+
+    @PostMapping("/tft/summoner/update/{region}/{tag}/{name}")//TODO enleverupdate
+    public ResponseEntity<String> updateTFTRemoteToLocalSummoner(@PathVariable String region, @PathVariable String tag, @PathVariable String name) {
+        return updateRemoteToLocalSummoner(region, tag, name, GameEnum.TFT);
+    }
+
+    public ResponseEntity<String> updateRemoteToLocalSummoner(String region, String tag, String name, GameEnum game) {
+        LOGGER.info("Updating summoner");//TODO si le tag & name change la page ne sera plus la bonne => retourner le summoner
         try {
-            riotSummonerService.updateRemoteToLocalSummoner(region, tag, name);
-            LOGGER.info("RIOT summoner successfully updated");
-            return new ResponseEntity<>("RIOT summoner successfully updated", HttpStatus.OK);
+            riotSummonerService.updateRemoteToLocalSummoner(region, tag, name, game);
+            LOGGER.info("Summoner successfully updated");
+            return new ResponseEntity<>("Summoner successfully updated", HttpStatus.OK);
         } catch (Exception e) {
-            LOGGER.error("An error occurred while updating RIOT summoner : {}", e.getMessage());
-            return new ResponseEntity<>("An error occurred while updating RIOT summoner", HttpStatus.INTERNAL_SERVER_ERROR);
+            LOGGER.error("An error occurred while updating summoner : {}", e.getMessage());
+            return new ResponseEntity<>("An error occurred while updating summoner", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
