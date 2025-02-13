@@ -7,7 +7,7 @@ import com.krazytop.entity.riot.RIOTMetadataEntity;
 import com.krazytop.nomenclature.riot.RIOTLanguageEnum;
 import com.krazytop.nomenclature.tft.*;
 import com.krazytop.repository.tft.*;
-import com.krazytop.service.riot.RIOTNomenclatureService;
+import com.krazytop.service.riot.RIOTPatchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,20 +23,24 @@ import java.util.*;
  * Only EUW
  */
 @Service
-public class TFTNomenclatureService {
+public class TFTPatchService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TFTNomenclatureService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TFTPatchService.class);
 
     private final TFTPatchNomenclatureRepository patchNomenclatureRepository;
-    private final RIOTNomenclatureService riotNomenclatureService;
+    private final RIOTPatchService riotPatchService;
 
     @Autowired
-    public TFTNomenclatureService(TFTPatchNomenclatureRepository patchNomenclatureRepository, @Lazy RIOTNomenclatureService riotNomenclatureService) {
+    public TFTPatchService(TFTPatchNomenclatureRepository patchNomenclatureRepository, @Lazy RIOTPatchService riotPatchService) {
         this.patchNomenclatureRepository = patchNomenclatureRepository;
-        this.riotNomenclatureService = riotNomenclatureService;
+        this.riotPatchService = riotPatchService;
     }
 
-    public void updateAllTFTNomenclatures(String patchVersion, RIOTLanguageEnum language, RIOTMetadataEntity metadata) throws IOException, URISyntaxException {
+    public Optional<TFTPatchNomenclature> getPatch(String patchId, String language) {
+        return patchNomenclatureRepository.findFirstByPatchIdAndLanguage(patchId, language);
+    }
+
+    public void updateAllTFTPatches(String patchVersion, RIOTLanguageEnum language, RIOTMetadataEntity metadata) throws IOException, URISyntaxException {
         if (patchNomenclatureRepository.findFirstByPatchIdAndLanguage(patchVersion, language.getPath()).isEmpty()) {
             updatePatchData(patchVersion, language.getPath());
             TFTPatchNomenclature latestPatch = patchNomenclatureRepository.findLatestPatch();
@@ -53,12 +57,12 @@ public class TFTNomenclatureService {
         JsonNode data = new ObjectMapper().readTree(new URI(uri).toURL());
         TFTPatchNomenclature patch = new TFTPatchNomenclature(patchVersion, language);
         List<TFTItemNomenclature> itemNomenclatures = new ObjectMapper().convertValue(data.get("items"), new TypeReference<>() {});
-        if (riotNomenclatureService.isVersionAfterAnOther(patchVersion, "10.11")) {
+        if (riotPatchService.isVersionAfterAnOther(patchVersion, "10.11")) {
             updateRecentPatchData(itemNomenclatures, patch, data.get("setData"));
         } else {
             updateOldPatchData(itemNomenclatures, patch, data.get("sets"));
         }
-        patch.setQueues(riotNomenclatureService.getPatchQueues(patchVersion, language));
+        patch.setQueues(riotPatchService.getPatchQueues(patchVersion, language));
         patchNomenclatureRepository.save(patch);
     }
 
@@ -96,7 +100,7 @@ public class TFTNomenclatureService {
                         .orElseThrow(() -> new NoSuchElementException("Item not found: " + itemId)))
                 .toList();
         patch.setAugments(augments);
-        if (riotNomenclatureService.isVersionAfterAnOther(patch.getPatchId(), "13.9")) {
+        if (riotPatchService.isVersionAfterAnOther(patch.getPatchId(), "13.9")) {
             patch.setItems(items);
         } else {
             patch.setItems(itemNomenclatures);
@@ -128,7 +132,7 @@ public class TFTNomenclatureService {
     }
 
     private void modifyImageForOldPatches(TFTPatchNomenclature patch) {
-        if (!riotNomenclatureService.isVersionAfterAnOther(patch.getPatchId(), "13.9")) {
+        if (!riotPatchService.isVersionAfterAnOther(patch.getPatchId(), "13.9")) {
             patch.getUnits().forEach(unit -> {
                 if (unit.getImage() == null) {
                     String regex = "ASSETS/UX/TFT/ChampionSplashes/([^/]+)\\.([^.]+)\\.dds";

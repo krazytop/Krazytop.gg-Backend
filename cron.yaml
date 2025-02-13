@@ -1,10 +1,6 @@
 cron:
-  - description: "Check and update League of Legends nomenclatures if needed"
-    url: /lol/nomenclature
-    schedule: every 1 hours
-    target: default
-  - description: "Check and update Teamfight Tactics nomenclatures if needed"
-    url: /tft/nomenclature
+  - description: "Check and update Riot nomenclatures if needed"
+    url: /riot/nomenclatures
     schedule: every 1 hours
     target: default
   - description: "Update Clash Royal nomenclatures"

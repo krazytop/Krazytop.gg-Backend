@@ -6,8 +6,7 @@ import com.krazytop.entity.riot.RIOTMetadataEntity;
 import com.krazytop.nomenclature.lol.*;
 import com.krazytop.nomenclature.riot.RIOTLanguageEnum;
 import com.krazytop.repository.lol.*;
-import com.krazytop.service.riot.RIOTMetadataService;
-import com.krazytop.service.riot.RIOTNomenclatureService;
+import com.krazytop.service.riot.RIOTPatchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,21 +22,25 @@ import java.util.*;
  * Only EUW
  */
 @Service
-public class LOLNomenclatureService {
+public class LOLPatchService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LOLNomenclatureService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LOLPatchService.class);
 
     private final LOLPatchNomenclatureRepository patchNomenclatureRepository;
-    private final RIOTNomenclatureService riotNomenclatureService;
+    private final RIOTPatchService riotPatchService;
 
     @Autowired
-    public LOLNomenclatureService(RIOTMetadataService metadataService, LOLPatchNomenclatureRepository patchNomenclatureRepository, @Lazy RIOTNomenclatureService riotNomenclatureService) {
+    public LOLPatchService(LOLPatchNomenclatureRepository patchNomenclatureRepository, @Lazy RIOTPatchService riotPatchService) {
         this.patchNomenclatureRepository = patchNomenclatureRepository;
-        this.riotNomenclatureService = riotNomenclatureService;
+        this.riotPatchService = riotPatchService;
     }
 
-    public void updateAllLOLNomenclatures(String patchVersion, RIOTLanguageEnum language, RIOTMetadataEntity metadata) throws IOException, URISyntaxException {
-        String shortVersion = riotNomenclatureService.removeFixVersion(patchVersion);
+    public Optional<LOLPatchNomenclature> getPatch(String patchId, String language) {
+        return patchNomenclatureRepository.findFirstByPatchIdAndLanguage(patchId, language);
+    }
+
+    public void updateAllLOLPatches(String patchVersion, RIOTLanguageEnum language, RIOTMetadataEntity metadata) throws IOException, URISyntaxException {
+        String shortVersion = riotPatchService.removeFixVersion(patchVersion);
         if (patchNomenclatureRepository.findFirstByPatchIdAndLanguage(shortVersion, language.getPath()).isEmpty()) {
             updatePatchData(patchVersion, language.getPath());
             LOLPatchNomenclature latestPatch = patchNomenclatureRepository.findLatestPatch();
@@ -49,16 +52,16 @@ public class LOLNomenclatureService {
     }
 
     private void updatePatchData(String patchVersion, String language) throws IOException, URISyntaxException {
-        String shortVersion = riotNomenclatureService.removeFixVersion(patchVersion);
+        String shortVersion = riotPatchService.removeFixVersion(patchVersion);
         LOGGER.info("Update LOL patch {} for language {}", shortVersion, language);
         LOLPatchNomenclature patch = new LOLPatchNomenclature(shortVersion, language);
         patch.setChampions(getPatchChampions(patchVersion, language));
         patch.setSummonerSpells(getPatchSummonerSpells(patchVersion, language));
         patch.setItems(getPatchItems(patchVersion, language));
-        if (riotNomenclatureService.isVersionAfterAnOther(shortVersion, "8.0")) patch.setRunes(getPatchRunes(patchVersion, language));
-        if (riotNomenclatureService.isVersionAfterAnOther(shortVersion, "13.13")) patch.setAugments(getPatchAugments(shortVersion, language));
+        if (riotPatchService.isVersionAfterAnOther(shortVersion, "8.0")) patch.setRunes(getPatchRunes(patchVersion, language));
+        if (riotPatchService.isVersionAfterAnOther(shortVersion, "13.13")) patch.setAugments(getPatchAugments(shortVersion, language));
         patch.setSeason(Integer.valueOf(shortVersion.split("\\.")[0]));
-        patch.setQueues(riotNomenclatureService.getPatchQueues(riotNomenclatureService.isVersionAfterAnOther(shortVersion, "13.13") ? shortVersion : "13.14", language));
+        patch.setQueues(riotPatchService.getPatchQueues(riotPatchService.isVersionAfterAnOther(shortVersion, "13.13") ? shortVersion : "13.14", language));
         patchNomenclatureRepository.save(patch);
     }
 

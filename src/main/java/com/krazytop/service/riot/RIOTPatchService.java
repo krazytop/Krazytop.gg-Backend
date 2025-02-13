@@ -4,11 +4,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.entity.riot.RIOTMetadataEntity;
+import com.krazytop.nomenclature.lol.LOLPatchNomenclature;
 import com.krazytop.nomenclature.riot.RIOTLanguageEnum;
 import com.krazytop.nomenclature.riot.RIOTQueueNomenclature;
+import com.krazytop.nomenclature.tft.TFTPatchNomenclature;
 import com.krazytop.repository.riot.RIOTMetadataRepository;
-import com.krazytop.service.lol.LOLNomenclatureService;
-import com.krazytop.service.tft.TFTNomenclatureService;
+import com.krazytop.service.lol.LOLPatchService;
+import com.krazytop.service.tft.TFTPatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,33 +21,42 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Only EUW
  */
 @Service
-public class RIOTNomenclatureService {
+public class RIOTPatchService {
 
     private final RIOTMetadataRepository metadataRepository;
-    private final TFTNomenclatureService tftNomenclatureService;
-    private final LOLNomenclatureService lolNomenclatureService;
+    private final TFTPatchService tftPatchService;
+    private final LOLPatchService lolPatchService;
 
     @Autowired
-    public RIOTNomenclatureService(RIOTMetadataRepository metadataRepository, TFTNomenclatureService tftNomenclatureService, LOLNomenclatureService lolNomenclatureService) {
+    public RIOTPatchService(RIOTMetadataRepository metadataRepository, TFTPatchService tftPatchService, LOLPatchService lolPatchService) {
         this.metadataRepository = metadataRepository;
-        this.tftNomenclatureService = tftNomenclatureService;
-        this.lolNomenclatureService = lolNomenclatureService;
+        this.tftPatchService = tftPatchService;
+        this.lolPatchService = lolPatchService;
     }
 
-    public void updateAllNomenclatures() throws IOException, URISyntaxException {
+    public Optional<LOLPatchNomenclature> getLOLPatch(String patchId, String language) {
+        return lolPatchService.getPatch(patchId, language);
+    }
+
+    public Optional<TFTPatchNomenclature> getTFTPatch(String patchId, String language) {
+        return tftPatchService.getPatch(patchId, language);
+    }
+
+    public void updateAllPatches() throws IOException, URISyntaxException {
         updateCurrentPatchVersion();
         List<String> allPatchesVersion = getAllPatchesVersion();
         RIOTMetadataEntity metadata = metadataRepository.findFirstByOrderByIdAsc().orElse(new RIOTMetadataEntity());
         for (String patchVersion : allPatchesVersion) {
             for (RIOTLanguageEnum language : RIOTLanguageEnum.values()) {
-                lolNomenclatureService.updateAllLOLNomenclatures(patchVersion, language, metadata);
+                lolPatchService.updateAllLOLPatches(patchVersion, language, metadata);
                 if (isVersionAfterAnOther(removeFixVersion(patchVersion), "9.13")) {
-                    tftNomenclatureService.updateAllTFTNomenclatures(removeFixVersion(patchVersion), language, metadata);
+                    tftPatchService.updateAllTFTPatches(removeFixVersion(patchVersion), language, metadata);
                 }
             }
         }
