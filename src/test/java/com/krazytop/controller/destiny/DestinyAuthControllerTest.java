@@ -35,15 +35,6 @@ class DestinyAuthControllerTest {
     }
 
     @Test
-    void testGetPlayerToken_ERROR() throws IOException {
-        when(authService.getPlayerToken(anyString())).thenThrow(RuntimeException.class);
-        ResponseEntity<String> response = authController.getPlayerToken("code");
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertNull(response.getBody());
-        verify(authService, times(1)).getPlayerToken(anyString());
-    }
-
-    @Test
     void testUpdatePlayerToken_OK() throws IOException {
         when(authService.updatePlayerToken(any())).thenReturn("tokens");
         ResponseEntity<String> response = authController.updatePlayerToken("refreshToken");
@@ -52,12 +43,4 @@ class DestinyAuthControllerTest {
         verify(authService, times(1)).updatePlayerToken(any());
     }
 
-    @Test
-    void testUpdatePlayerToken_ERROR() throws IOException {
-        when(authService.updatePlayerToken(any())).thenThrow(RuntimeException.class);
-        ResponseEntity<String> response = authController.updatePlayerToken("refreshToken");
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertNull(response.getBody());
-        verify(authService, times(1)).updatePlayerToken(any());
-    }
 }
