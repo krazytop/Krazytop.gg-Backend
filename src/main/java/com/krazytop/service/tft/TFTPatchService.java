@@ -41,13 +41,10 @@ public class TFTPatchService {
     }
 
     public void updateAllTFTPatches(String patchVersion, RIOTLanguageEnum language, RIOTMetadataEntity metadata) throws IOException, URISyntaxException {
-        if (patchNomenclatureRepository.findFirstByPatchIdAndLanguage(patchVersion, language.getPath()).isEmpty()) {
+        if (getPatch(patchVersion, language.getPath()).isEmpty()) {
             updatePatchData(patchVersion, language.getPath());
-            TFTPatchNomenclature latestPatch = patchNomenclatureRepository.findLatestPatch();
-            metadata.setCurrentTFTSet(latestPatch.getSet());
-            if (!metadata.getAllTFTPatches().contains(patchVersion)) {
-                metadata.getAllTFTPatches().add(patchVersion);
-            }
+            metadata.setCurrentTFTSet(patchNomenclatureRepository.findLatestPatch().getSet());
+            metadata.getAllTFTPatches().add(patchVersion);
         }
     }
 

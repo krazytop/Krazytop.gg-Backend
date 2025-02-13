@@ -41,13 +41,10 @@ public class LOLPatchService {
 
     public void updateAllLOLPatches(String patchVersion, RIOTLanguageEnum language, RIOTMetadataEntity metadata) throws IOException, URISyntaxException {
         String shortVersion = riotPatchService.removeFixVersion(patchVersion);
-        if (patchNomenclatureRepository.findFirstByPatchIdAndLanguage(shortVersion, language.getPath()).isEmpty()) {
+        if (getPatch(shortVersion, language.getPath()).isEmpty()) {
             updatePatchData(patchVersion, language.getPath());
-            LOLPatchNomenclature latestPatch = patchNomenclatureRepository.findLatestPatch();
-            metadata.setCurrentLOLSeason(latestPatch.getSeason());
-            if (!metadata.getAllLOLPatches().contains(shortVersion)) {
-                metadata.getAllLOLPatches().add(shortVersion);
-            }
+            metadata.setCurrentLOLSeason(patchNomenclatureRepository.findLatestPatch().getSeason());
+            metadata.getAllLOLPatches().add(shortVersion);
         }
     }
 
