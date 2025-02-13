@@ -44,7 +44,7 @@ public class LOLMatchController {
     @PostMapping("/lol/matches/{puuid}")
     public ResponseEntity<String> updateRemoteToLocalMatches(@PathVariable String puuid) throws IOException, URISyntaxException, InterruptedException {
         LOGGER.info("Updating LOL matches");
-        matchService.updateMatches(puuid);
+        matchService.updateRecentMatches(puuid);
         LOGGER.info("LOL matches successfully updated");
         return new ResponseEntity<>("LOL matches successfully updated", HttpStatus.OK);
     }

@@ -32,14 +32,12 @@ public class TFTMatchService {
     @Value("${spring.data.web.pageable.default-page-size:5}")
     private int pageSize;
     private final TFTMatchRepository matchRepository;
-    private final RIOTMetadataService metadataService;
     private final ApiKeyRepository apiKeyRepository;
     private final RIOTSummonerService summonerService;
 
     @Autowired
-    public TFTMatchService(TFTMatchRepository matchRepository, RIOTMetadataService metadataService, ApiKeyRepository apiKeyRepository, RIOTSummonerService summonerService) {
+    public TFTMatchService(TFTMatchRepository matchRepository, ApiKeyRepository apiKeyRepository, RIOTSummonerService summonerService) {
         this.matchRepository = matchRepository;
-        this.metadataService = metadataService;
         this.apiKeyRepository = apiKeyRepository;
         this.summonerService = summonerService;
     }
@@ -52,15 +50,7 @@ public class TFTMatchService {
         return getMatchesCount(puuid, TFTQueueEnum.fromName(queue), set);
     }
 
-    public void updateMatches(String puuid) throws IOException, URISyntaxException, InterruptedException {
-        /* TODO update legacy matches
-        if (getMatchesCount(puuid, TFTQueueEnum.ALL_QUEUES, -1) == 0) {
-            updateLegacyMatchesFromLOLChess(puuid);
-        }*/
-        updateRecentMatches(puuid);
-    }
-
-    private void updateRecentMatches(String puuid) throws IOException, InterruptedException, URISyntaxException {
+    public void updateRecentMatches(String puuid) throws IOException, InterruptedException, URISyntaxException {
         boolean moreMatchToRecovered = true;
         int firstIndex = 0;
         String apiKey = apiKeyRepository.findFirstByGame(GameEnum.TFT).getKey();
@@ -86,32 +76,6 @@ public class TFTMatchService {
             }
             Thread.sleep(2000);
             firstIndex += 100;
-        }
-    }
-
-    private void updateLegacyMatchesFromLOLChess(String puuid) throws URISyntaxException, IOException {
-        LOGGER.info("Updating legacy TFT matches from LOLChess");
-        RIOTMetadataEntity metadata = metadataService.getMetadata();
-        RIOTSummonerEntity summoner = summonerService.getRemoteSummonerByPuuid(puuid);
-        int latestSet = metadata.getCurrentTFTSet();
-        int setNb = 1;
-        while (setNb <= latestSet) {
-            int pageNb = 1;
-            boolean lastPage = false;
-            while (!lastPage) {
-                String url = String.format("https://tft.dakgg.io/api/v1/summoners/euw1/%s-%s/matches?season=set%s&page=%d", summoner.getName(), summoner.getTag(), setNb, pageNb);
-                ObjectMapper mapper = new ObjectMapper();
-                List<TFTMatchEntity> matches = mapper.convertValue(mapper.readTree(new URI(url).toURL()).get("matches"), new TypeReference<>() {});
-                matches.forEach(match -> {
-                    Optional<TFTMatchEntity> existingMatch = matchRepository.findFirstById("EUW1_" + match.getId());
-                    if (existingMatch.isEmpty() || !existingMatch.get().getOwners().contains(puuid)) {
-                        saveMatch(match, puuid);
-                    }
-                });
-                lastPage = matches.isEmpty();
-                pageNb ++;
-            }
-            setNb ++;
         }
     }
 

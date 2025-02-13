@@ -66,7 +66,6 @@ public class RIOTSummonerService {
         return summoner;
     }
 
-    // Useless
     public RIOTSummonerEntity getRemoteSummonerByPuuid(String puuid) throws URISyntaxException, IOException {
         ObjectMapper mapper = new ObjectMapper();
         ApiKeyEntity apiKey = this.apiKeyRepository.findFirstByGame(GameEnum.TFT);

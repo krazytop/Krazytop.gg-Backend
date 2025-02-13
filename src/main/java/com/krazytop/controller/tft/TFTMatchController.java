@@ -44,7 +44,7 @@ public class TFTMatchController {
     @PostMapping("/tft/matches/{puuid}")
     public ResponseEntity<String> updateMatches(@PathVariable String puuid) throws IOException, URISyntaxException, InterruptedException {
         LOGGER.info("Updating TFT matches");
-        matchService.updateMatches(puuid);
+        matchService.updateRecentMatches(puuid);
         LOGGER.info("TFT matches successfully updated");
         return new ResponseEntity<>("TFT matches successfully updated", HttpStatus.OK);
     }

@@ -37,7 +37,7 @@ public class TFTRankService {
         this.summonerService = summonerService;
     }
 
-    public void updateRanks(String puuid) throws URISyntaxException, IOException {
+    public void updateRanks(String puuid) throws URISyntaxException, IOException {//TODO changer le puuid par celui de mon api et le scraping devrait fonctionner
         /**if (riotRankService.getRanks(puuid, GameEnum.TFT).isEmpty()) {
             updateLegacyRanksFromLOLChess(puuid);
         }**/

@@ -49,15 +49,7 @@ public class LOLMatchService {
         return this.getMatchesCount(puuid, LOLQueueEnum.fromName(queue), LOLRoleEnum.fromName(role));
     }
 
-    public void updateMatches(String puuid) throws IOException, URISyntaxException, InterruptedException {
-        /* TODO update legacy matches
-        if (getMatchesCount(puuid, LOLQueueEnum.ALL_QUEUES, LOLRoleEnum.ALL_ROLES) == 0) {
-            updateLegacyMatchesFromXXX(puuid)
-        }*/
-        updateRecentMatches(puuid);
-    }
-
-    private void updateRecentMatches(String puuid) throws IOException, InterruptedException, URISyntaxException {
+    public void updateRecentMatches(String puuid) throws IOException, InterruptedException, URISyntaxException {
         boolean moreMatchToRecovered = true;
         int firstIndex = 0;
         String apiKey = apiKeyRepository.findFirstByGame(GameEnum.LOL).getKey();
