@@ -59,8 +59,8 @@ public class RIOTPatchService {
                     tftPatchService.updateAllTFTPatches(removeFixVersion(patchVersion), language, metadata);
                 }
             }
+            metadataRepository.save(metadata);
         }
-        metadataRepository.save(metadata);
     }
 
     public void updateCurrentPatchVersion() throws IOException, URISyntaxException {
