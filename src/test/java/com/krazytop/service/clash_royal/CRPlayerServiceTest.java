@@ -75,7 +75,7 @@ class CRPlayerServiceTest {
         CRAccountLevelNomenclature accountLevelNomenclature = new CRAccountLevelNomenclature();
         accountLevelNomenclature.setSummonerLevel(51);
         when(accountLevelNomenclatureRepository.findFirstByLevel(anyInt())).thenReturn(new CRAccountLevelNomenclature());
-        when(apiKeyRepository.findFirstByGame(GameEnum.CLASH_ROYAL)).thenReturn(new ApiKeyEntity(GameEnum.RIOT, "API_KEY"));
+        when(apiKeyRepository.findFirstByGame(GameEnum.CLASH_ROYAL)).thenReturn(new ApiKeyEntity(GameEnum.CLASH_ROYAL, "API_KEY"));
     }
 
     @Test
