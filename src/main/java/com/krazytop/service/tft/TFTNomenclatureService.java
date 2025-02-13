@@ -1,169 +1,142 @@
 package com.krazytop.service.tft;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.krazytop.entity.riot.RIOTMetadataEntity;
+import com.krazytop.nomenclature.riot.RIOTLanguageEnum;
 import com.krazytop.nomenclature.tft.*;
 import com.krazytop.repository.tft.*;
+import com.krazytop.service.riot.RIOTNomenclatureService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
 
+/**
+ * Only EUW
+ */
 @Service
 public class TFTNomenclatureService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TFTNomenclatureService.class);
 
-    private static final List<String> VERSIONS = List.of("set8", "set8_5", "set9", "set9_5");
-    private static final String FOLDER = "/src/main/resources/data/tft/";
-
-    private final TFTTraitNomenclatureRepository traitNomenclatureRepository;
-    private final TFTUnitNomenclatureRepository unitNomenclatureRepository;
-    private final TFTQueueNomenclatureRepository queueNomenclatureRepository;
-    private final TFTItemNomenclatureRepository itemNomenclatureRepository;
-    private final TFTAugmentNomenclatureRepository augmentNomenclatureRepository;
+    private final TFTPatchNomenclatureRepository patchNomenclatureRepository;
+    private final RIOTNomenclatureService riotNomenclatureService;
 
     @Autowired
-    public TFTNomenclatureService(TFTTraitNomenclatureRepository traitNomenclatureRepository, TFTUnitNomenclatureRepository unitNomenclatureRepository, TFTQueueNomenclatureRepository queueNomenclatureRepository, TFTItemNomenclatureRepository itemNomenclatureRepository, TFTAugmentNomenclatureRepository augmentNomenclatureRepository) {
-        this.traitNomenclatureRepository = traitNomenclatureRepository;
-        this.unitNomenclatureRepository = unitNomenclatureRepository;
-        this.queueNomenclatureRepository = queueNomenclatureRepository;
-        this.itemNomenclatureRepository = itemNomenclatureRepository;
-        this.augmentNomenclatureRepository = augmentNomenclatureRepository;
+    public TFTNomenclatureService(TFTPatchNomenclatureRepository patchNomenclatureRepository, @Lazy RIOTNomenclatureService riotNomenclatureService) {
+        this.patchNomenclatureRepository = patchNomenclatureRepository;
+        this.riotNomenclatureService = riotNomenclatureService;
     }
 
-    public boolean updateTraitNomenclature() {
-        traitNomenclatureRepository.deleteAll();
-        try {
-            for (String version : VERSIONS) {
-                ObjectMapper objectMapper = new ObjectMapper();
-                File itemFile = new File(getCurrentWorkingDirectory() + FOLDER + version + "/tft-traits.json");
-                JsonNode rootNode = objectMapper.readTree(itemFile);
-                JsonNode dataNode = rootNode.path("data");
+    public void updateAllTFTNomenclatures(String patchVersion, RIOTLanguageEnum language, RIOTMetadataEntity metadata) throws IOException, URISyntaxException {
+        if (patchNomenclatureRepository.findFirstByPatchIdAndLanguage(patchVersion, language.getPath()).isEmpty()) {
+            updatePatchData(patchVersion, language.getPath());
+            TFTPatchNomenclature latestPatch = patchNomenclatureRepository.findLatestPatch();
+            metadata.setCurrentTFTSet(latestPatch.getSet());
+            if (!metadata.getAllTFTPatches().contains(patchVersion)) {
+                metadata.getAllTFTPatches().add(patchVersion);
+            }
+        }
+    }
 
-                for (JsonNode field : dataNode) {
-                    TFTTraitNomenclature trait = new TFTTraitNomenclature();
-                    trait.setName(field.get("name").asText());
-                    trait.setId(field.get("id").asText());
-                    trait.setImage(field.path("image").get("full").asText());
-                    traitNomenclatureRepository.save(trait);
+    private void updatePatchData(String patchVersion, String language) throws IOException, URISyntaxException {
+        String uri = String.format("https://raw.communitydragon.org/%s/cdragon/tft/%s.json", patchVersion, language.toLowerCase());
+        LOGGER.info("Update TFT patch {} for language {}", patchVersion, language);
+        JsonNode data = new ObjectMapper().readTree(new URI(uri).toURL());
+        TFTPatchNomenclature patch = new TFTPatchNomenclature(patchVersion, language);
+        List<TFTItemNomenclature> itemNomenclatures = new ObjectMapper().convertValue(data.get("items"), new TypeReference<>() {});
+        if (riotNomenclatureService.isVersionAfterAnOther(patchVersion, "10.11")) {
+            updateRecentPatchData(itemNomenclatures, patch, data.get("setData"));
+        } else {
+            updateOldPatchData(itemNomenclatures, patch, data.get("sets"));
+        }
+        patch.setQueues(riotNomenclatureService.getPatchQueues(patchVersion, language));
+        patchNomenclatureRepository.save(patch);
+    }
+
+    private void updateOldPatchData(List<TFTItemNomenclature> itemNomenclatures, TFTPatchNomenclature patch, JsonNode data) {
+        ObjectMapper mapper = new ObjectMapper();
+        Map<Integer, JsonNode> dataMap = mapper.convertValue(data, new TypeReference<>() {});
+        Map.Entry<Integer, JsonNode> mostRecentSet = dataMap.entrySet().stream()
+                .max(Map.Entry.comparingByKey())
+                .orElseThrow(() -> new NoSuchElementException("No entries found in the map"));
+        patch.setSet(mostRecentSet.getKey());
+        patch.setAugments(List.of());
+        patch.setTraits(mapper.convertValue(mostRecentSet.getValue().get("augments"), new TypeReference<>() {}));
+        patch.setUnits(mapper.convertValue(mostRecentSet.getValue().get("champions"), new TypeReference<>() {}));
+        modifyImageForOldPatches(patch);
+        patch.setItems(itemNomenclatures);
+    }
+
+    private void updateRecentPatchData(List<TFTItemNomenclature> itemNomenclatures, TFTPatchNomenclature patch, JsonNode data) {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode setData = findCorrectRecentSetDataNode(mapper.convertValue(data, new TypeReference<>() {}));
+        List<TFTItemNomenclature> augments = Optional.ofNullable(mapper.convertValue(setData.get("augments"), new TypeReference<List<String>>() {}))
+                .orElse(List.of())
+                .stream()
+                .map(augmentId -> itemNomenclatures.stream()
+                        .filter(item -> Objects.equals(item.getId(), augmentId))
+                        .findFirst()
+                        .orElseThrow(() -> new NoSuchElementException("Augment not found: " + augmentId)))
+                .toList();
+        List<TFTItemNomenclature> items = Optional.ofNullable(mapper.convertValue(setData.get("items"), new TypeReference<List<String>>() {}))
+                .orElse(List.of())
+                .stream()
+                .map(itemId -> itemNomenclatures.stream()
+                        .filter(item -> Objects.equals(item.getId(), itemId))
+                        .findFirst()
+                        .orElseThrow(() -> new NoSuchElementException("Item not found: " + itemId)))
+                .toList();
+        patch.setAugments(augments);
+        if (riotNomenclatureService.isVersionAfterAnOther(patch.getPatchId(), "13.9")) {
+            patch.setItems(items);
+        } else {
+            patch.setItems(itemNomenclatures);
+        }
+        patch.setUnits(mapper.convertValue(setData.get("champions"), new TypeReference<>() {}));
+        modifyImageForOldPatches(patch);
+        patch.setTraits(mapper.convertValue(setData.get("traits"), new TypeReference<>() {}));
+        patch.setSet(setData.get("number").asInt());
+    }
+
+    private JsonNode findCorrectRecentSetDataNode(List<JsonNode> nodes) {
+        int higherSet = nodes.stream()
+                .mapToInt(node -> node.get("number").asInt())
+                .max()
+                .orElseThrow(() -> new NoSuchElementException("No nodes available"));
+
+        String[] prioritizedPatterns = {"TFTSet%d_Evolved", "TFTSet%d_Stage2", "TFT_Set%d_Stage2", "TFTSet%d", "TFT_Set%d"};
+
+        for (String pattern : prioritizedPatterns) {
+            String mutator = String.format(pattern, higherSet);
+            Optional<JsonNode> node = nodes.stream()
+                    .filter(n -> Objects.equals(n.get("mutator").asText(), mutator))
+                    .findFirst();
+            if (node.isPresent()) {
+                return node.get();
+            }
+        }
+        throw new NoSuchElementException(String.format("Data node is not found for set %d", higherSet));
+    }
+
+    private void modifyImageForOldPatches(TFTPatchNomenclature patch) {
+        if (!riotNomenclatureService.isVersionAfterAnOther(patch.getPatchId(), "13.9")) {
+            patch.getUnits().forEach(unit -> {
+                if (unit.getImage() == null) {
+                    String regex = "ASSETS/UX/TFT/ChampionSplashes/([^/]+)\\.([^.]+)\\.dds";
+                    String replacement = "ASSETS/Characters/$1/HUD/$1_Square.$2.tex";
+                    unit.setImage(unit.getOldImage().replaceAll(regex, replacement));
                 }
-            }
-            return true;
-        } catch (IOException e) {
-            LOGGER.error("Error while updating trait nomenclature : {}", e.getMessage());
-            return false;
+            });
         }
     }
 
-    public boolean updateUnitNomenclature() {
-        unitNomenclatureRepository.deleteAll();
-        try {
-            for (String version : VERSIONS) {
-                ObjectMapper objectMapper = new ObjectMapper();
-                File itemFile = new File(getCurrentWorkingDirectory() + FOLDER + version + "/tft-units.json");
-                JsonNode rootNode = objectMapper.readTree(itemFile);
-                JsonNode dataNode = rootNode.path("data");
-
-                for (JsonNode field : dataNode) {
-                    TFTUnitNomenclature unit = new TFTUnitNomenclature();
-                    unit.setName(field.get("name").asText());
-                    unit.setId(field.get("id").asText());
-                    unitNomenclatureRepository.save(unit);
-                }
-                // Add other specials units
-                TFTUnitNomenclature tHex = new TFTUnitNomenclature();
-                tHex.setId("TFT9_THex");
-                tHex.setName("T-Hex");
-                unitNomenclatureRepository.save(tHex);
-                TFTUnitNomenclature turret = new TFTUnitNomenclature();
-                turret.setId("TFT9_HeimerdingerTurret");
-                turret.setName("Heimerdinger-Turret");
-                unitNomenclatureRepository.save(turret);
-            }
-            return true;
-        } catch (IOException e) {
-            LOGGER.error("Error while updating unit nomenclature : {}", e.getMessage());
-            return false;
-        }
-    }
-
-    public boolean updateQueueNomenclature() {
-        queueNomenclatureRepository.deleteAll();
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            File itemFile = new File(getCurrentWorkingDirectory() + FOLDER + "/tft-queues.json");
-            JsonNode rootNode = objectMapper.readTree(itemFile);
-            JsonNode dataNode = rootNode.path("data");
-
-            for (JsonNode field : dataNode) {
-                TFTQueueNomenclature queue = new TFTQueueNomenclature();
-                queue.setName(field.get("name").asText());
-                queue.setQueueType(field.get("queueType").asText());
-                queue.setId(field.get("id").asText());
-                queue.setImage(field.path("image").get("full").asText());
-                queueNomenclatureRepository.save(queue);
-            }
-            return true;
-        } catch (IOException e) {
-            LOGGER.error("Error while updating queue nomenclature : {}", e.getMessage());
-            return false;
-        }
-    }
-
-    public boolean updateItemNomenclature() {
-        itemNomenclatureRepository.deleteAll();
-        try {
-            for (String version : VERSIONS) {
-                ObjectMapper objectMapper = new ObjectMapper();
-                File itemFile = new File(getCurrentWorkingDirectory() + FOLDER + version + "/tft-items.json");
-                JsonNode rootNode = objectMapper.readTree(itemFile);
-                JsonNode dataNode = rootNode.path("data");
-
-                for (JsonNode field : dataNode) {
-                    TFTItemNomenclature item = new TFTItemNomenclature();
-                    item.setName(field.get("name").asText());
-                    item.setId(field.get("id").asText());
-                    item.setImage(field.path("image").get("full").asText());
-                    itemNomenclatureRepository.save(item);
-                }
-            }
-            return true;
-        } catch (IOException e) {
-            LOGGER.error("Error while updating item nomenclature : {}", e.getMessage());
-            return false;
-        }
-    }
-
-    public boolean updateAugmentNomenclature() {
-        augmentNomenclatureRepository.deleteAll();
-        try {
-            for (String version : VERSIONS) {
-                ObjectMapper objectMapper = new ObjectMapper();
-                File itemFile = new File(getCurrentWorkingDirectory() + FOLDER + version + "/tft-augments.json");
-                JsonNode rootNode = objectMapper.readTree(itemFile);
-                JsonNode dataNode = rootNode.path("data");
-
-                for (JsonNode field : dataNode) {
-                    TFTAugmentNomenclature augment = new TFTAugmentNomenclature();
-                    augment.setName(field.get("name").asText());
-                    augment.setId(field.get("id").asText());
-                    augment.setImage(field.path("image").get("full").asText());
-                    augmentNomenclatureRepository.save(augment);
-                }
-            }
-            return true;
-        } catch (IOException e) {
-            LOGGER.error("Error while updating augment nomenclature : {}", e.getMessage());
-            return false;
-        }
-    }
-
-    private String getCurrentWorkingDirectory() {
-        return System.getProperty("user.dir");
-    }
 }

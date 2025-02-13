@@ -1,9 +1,7 @@
 package com.krazytop.repository.lol;
 
-import com.krazytop.entity.lol.LOLRankEntity;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import com.krazytop.repository.riot.RIOTRankRepository;
 
-public interface LOLRankRepository extends MongoRepository<LOLRankEntity, String> {
+public interface LOLRankRepository extends RIOTRankRepository {
 
-    LOLRankEntity findFirstBySummonerIdAndQueueOrderByUpdateDateDesc(String summonerId, String queue);
 }

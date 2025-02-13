@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 
 @RestController
@@ -26,40 +28,25 @@ public class LOLMatchController {
     @GetMapping("/lol/matches/{puuid}/{pageNb}/{queue}/{role}")
     public ResponseEntity<List<LOLMatchEntity>> getLocalMatches(@PathVariable String puuid, @PathVariable int pageNb, @PathVariable String queue, @PathVariable String role) {
         LOGGER.info("Retrieving LOL local matches");
-        try {
-            List<LOLMatchEntity> matches = matchService.getLocalMatches(puuid, pageNb, queue, role);
-            LOGGER.info("LOL local matches successfully retrieved");
-            return new ResponseEntity<>(matches, HttpStatus.OK);
-        } catch (Exception e) {
-            LOGGER.error("An error occurred while retrieving LOL matches : {}", e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        List<LOLMatchEntity> matches = matchService.getLocalMatches(puuid, pageNb, queue, role);
+        LOGGER.info("LOL local matches successfully retrieved");
+        return new ResponseEntity<>(matches, HttpStatus.OK);
     }
 
     @GetMapping("/lol/matches/count/{puuid}/{queue}/{role}")
     public ResponseEntity<Long> getLocalMatchesCount(@PathVariable String puuid, @PathVariable String queue, @PathVariable String role) {
         LOGGER.info("Retrieving LOL local matches count");
-        try {
-            Long matchesCount = matchService.getLocalMatchesCount(puuid, queue, role);
-            LOGGER.info("LOL local matches count successfully retrieved");
-            return new ResponseEntity<>(matchesCount, HttpStatus.OK);
-        } catch (Exception e) {
-            LOGGER.error("An error occurred while retrieving LOL local matches count : {}", e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        Long matchesCount = matchService.getLocalMatchesCount(puuid, queue, role);
+        LOGGER.info("LOL local matches count successfully retrieved");
+        return new ResponseEntity<>(matchesCount, HttpStatus.OK);
     }
 
     @PostMapping("/lol/matches/{puuid}")
-    public ResponseEntity<String> updateRemoteToLocalMatches(@PathVariable String puuid, @RequestParam(required = false, defaultValue = "false") boolean force) {
+    public ResponseEntity<String> updateRemoteToLocalMatches(@PathVariable String puuid) throws IOException, URISyntaxException, InterruptedException {
         LOGGER.info("Updating LOL matches");
-        try {
-            matchService.updateRemoteToLocalMatches(puuid, 0, force);
-            LOGGER.info("LOL matches successfully updated");
-            return new ResponseEntity<>("LOL matches successfully updated", HttpStatus.OK);
-        } catch (Exception e) {
-            LOGGER.error("An error occurred while updating LOL matches : {}", e.getMessage());
-            return new ResponseEntity<>("An error occurred while updating LOL matches", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        matchService.updateRecentMatches(puuid);
+        LOGGER.info("LOL matches successfully updated");
+        return new ResponseEntity<>("LOL matches successfully updated", HttpStatus.OK);
     }
 
 }

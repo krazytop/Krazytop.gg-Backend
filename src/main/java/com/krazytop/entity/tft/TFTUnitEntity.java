@@ -1,18 +1,19 @@
 package com.krazytop.entity.tft;
 
-import com.krazytop.nomenclature.tft.TFTItemNomenclature;
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TFTUnitEntity {
 
+    @JsonAlias("character_id")
     private String id;
-    private List<TFTItemNomenclature> items;
-    private List<String> itemsIds;
     private int rarity;
     private int tier;
-    private String name;
-
+    @JsonAlias("itemNames")
+    private List<String> items;
 }

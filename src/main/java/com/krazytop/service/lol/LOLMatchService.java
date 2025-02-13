@@ -20,8 +20,8 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LOLMatchService {
@@ -49,71 +49,49 @@ public class LOLMatchService {
         return this.getMatchesCount(puuid, LOLQueueEnum.fromName(queue), LOLRoleEnum.fromName(role));
     }
 
-    private void updateMatch(String matchId, String puuid) throws URISyntaxException, IOException {
-        String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/%s?api_key=%s", matchId, apiKeyRepository.findFirstByGame(GameEnum.RIOT).getKey());
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode infoNode = mapper.readTree(new URI(stringUrl).toURL()).get("info");
-        LOLMatchEntity match = mapper.convertValue(infoNode, LOLMatchEntity.class);
-        if (this.checkIfQueueIsCompatible(match)) {
-            match.setId(matchId);
-            match.getOwners().add(puuid);
-            if (match.isQueue(LOLQueueEnum.ARENA)) {
-                match.dispatchParticipantsInTeamsArena();
-            } else {
-                match.dispatchParticipantsInTeamsNormalGame();
-                match.setRemake(match.getTeams().get(0).getParticipants().get(0).isGameEndedInEarlySurrender());
-            }
-            LOGGER.info("Saving match : {}", matchId);
-            matchRepository.save(match);
-            summonerService.updateTimeSpentOnLOL(puuid, match.getDuration());
-        }
-    }
-
-    public void updateRemoteToLocalMatches(String puuid, int firstIndex, boolean forceDetectNewMatches) throws IOException {
-        try {
-            boolean moreMatchToRecovered = true;
-            String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, firstIndex, 100, apiKeyRepository.findFirstByGame(GameEnum.RIOT).getKey());
+    public void updateRecentMatches(String puuid) throws IOException, InterruptedException, URISyntaxException {
+        boolean moreMatchToRecovered = true;
+        int firstIndex = 0;
+        String apiKey = apiKeyRepository.findFirstByGame(GameEnum.LOL).getKey();
+        while (moreMatchToRecovered) {
+            String url = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, firstIndex, 100, apiKey);
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode json = mapper.readTree(new URI(stringUrl).toURL());
-            List<String> matchIds = mapper.convertValue(json, new TypeReference<>() {});
-            if (!matchIds.isEmpty()) {
-                for (String matchId : matchIds) {
-                    LOLMatchEntity existingMatch = this.matchRepository.findFirstById(matchId);
-                    if (existingMatch == null) {
-                        this.updateMatch(matchId, puuid);
-                        Thread.sleep(2000);
-                    } else if (!existingMatch.getOwners().contains(puuid)) {
-                        existingMatch.getOwners().add(puuid);
-                        LOGGER.info("Updating match : {}", matchId);
-                        matchRepository.save(existingMatch);
-                        summonerService.updateTimeSpentOnLOL(puuid, existingMatch.getDuration());
+            List<String> matchIds = mapper.convertValue(mapper.readTree(new URI(url).toURL()), new TypeReference<>() {});
+            for (String matchId : matchIds) {
+                Optional<LOLMatchEntity> existingMatch = this.matchRepository.findFirstById(matchId);
+                if (existingMatch.isEmpty()) {
+                    String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/%s?api_key=%s", matchId, apiKey);
+                    JsonNode node = mapper.readTree(new URI(stringUrl).toURL());
+                    LOLMatchEntity match = mapper.convertValue(node.get("info"), LOLMatchEntity.class);
+                    match.setId(node.get("metadata").get("matchId").asText());
+                    if (LOLQueueEnum.ARENA.getIds().contains(match.getQueue())) {
+                        match.dispatchParticipantsInTeamsArena();
                     } else {
-                        if (!forceDetectNewMatches) {
-                            moreMatchToRecovered = false;
-                            break;
-                        }
+                        match.dispatchParticipantsInTeamsNormalGame();
+                        match.setRemake(match.getTeams().get(0).getParticipants().get(0).getGameEndedInEarlySurrender());
                     }
-                }
-                if (moreMatchToRecovered) {
+                    saveMatch(match, puuid);
                     Thread.sleep(2000);
-                    this.updateRemoteToLocalMatches(puuid, firstIndex + 100, forceDetectNewMatches);
+                } else if (!existingMatch.get().getOwners().contains(puuid)) {
+                    saveMatch(existingMatch.get(), puuid);
+                } else {
+                    moreMatchToRecovered = false;
+                    break;
                 }
             }
-        } catch (InterruptedException | URISyntaxException | IOException e) {
-            Thread.currentThread().interrupt();
-            throw new IOException(e);
+            Thread.sleep(2000);
+            firstIndex += 100;
         }
     }
 
-    private boolean checkIfQueueIsCompatible(LOLMatchEntity match) {
-        List<String> compatibleQueues = Arrays.stream(LOLQueueEnum.class.getEnumConstants())
-                .map(LOLQueueEnum::getIds)
-                .flatMap(List::stream)
-                .toList();
-        return compatibleQueues.contains(match.getQueue().getId());
+    private void saveMatch(LOLMatchEntity match, String puuid) {
+        match.getOwners().add(puuid);
+        LOGGER.info("Saving LOL match : {}", match.getId());
+        matchRepository.save(match);
+        summonerService.updateSpentTimeAndPlayedSeasonsOrSets(puuid, match.getDuration(), Integer.valueOf(match.getVersion().replaceAll("\\..*", "")), GameEnum.LOL);
     }
 
-    public List<LOLMatchEntity> getMatches(String puuid, int pageNb, LOLQueueEnum queue, LOLRoleEnum role) {
+    private List<LOLMatchEntity> getMatches(String puuid, int pageNb, LOLQueueEnum queue, LOLRoleEnum role) {
         PageRequest pageRequest = PageRequest.of(pageNb, pageSize);
         if (queue == LOLQueueEnum.ALL_QUEUES) {
             if (role == LOLRoleEnum.ALL_ROLES) {
@@ -130,7 +108,7 @@ public class LOLMatchService {
         }
     }
 
-    public Long getMatchesCount(String puuid, LOLQueueEnum queue, LOLRoleEnum role) {
+    private Long getMatchesCount(String puuid, LOLQueueEnum queue, LOLRoleEnum role) {
         if (queue == LOLQueueEnum.ALL_QUEUES) {
             if (role == LOLRoleEnum.ALL_ROLES) {
                 return this.matchRepository.countAll(puuid);

@@ -172,7 +172,7 @@ class LOLMatchServiceTest {
                 assertNotNull(argumentCaptor.getValue());
                 LOLMatchEntity match = argumentCaptor.getValue();
                 assertEquals(2, match.getTeams().size());
-                match.getTeams().forEach(team -> assertEquals(5, team.getParticipants().size()));
+                match.getTeams().forEach(team -> assertEquals(5, team.getParticipants().size()));//TODO test
             }
         }
     }

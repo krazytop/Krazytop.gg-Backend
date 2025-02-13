@@ -1,7 +1,9 @@
 package com.krazytop.controller.lol;
 
-import com.krazytop.entity.lol.LOLRankEntity;
+import com.krazytop.entity.riot.rank.RIOTRankEntity;
+import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.service.lol.LOLRankService;
+import com.krazytop.service.riot.RIOTRankService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,46 +14,42 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Optional;
+
 @RestController
 public class LOLRankController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LOLRankController.class);
 
-    private final LOLRankService rankService;
+    private final LOLRankService lolRankService;
+    private final RIOTRankService riotRankService;
 
     @Autowired
-    public LOLRankController(LOLRankService rankService) {
-        this.rankService = rankService;
+    public LOLRankController(LOLRankService lolRankService, RIOTRankService riotRankService) {
+        this.lolRankService = lolRankService;
+        this.riotRankService = riotRankService;
     }
 
-    @GetMapping("/lol/rank/{summonerId}/{queueType}")
-    public ResponseEntity<LOLRankEntity> getLocalRank(@PathVariable String summonerId, @PathVariable String queueType) {
+    @GetMapping("/lol/ranks/{puuid}")
+    public ResponseEntity<RIOTRankEntity> getRank(@PathVariable String puuid) {
         LOGGER.info("Retrieving LOL local rank");
-        try {
-            LOLRankEntity rank = rankService.getLocalRank(summonerId, queueType);
-            if (rank != null) {
-                LOGGER.info("LOL local rank retrieved");
-                return new ResponseEntity<>(rank, HttpStatus.OK);
-            } else {
-                LOGGER.info("LOL local rank not found");
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-        } catch (Exception e) {
-            LOGGER.error("An error occurred while retrieving LOL local rank : {}", e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        Optional<RIOTRankEntity> rank = riotRankService.getRanks(puuid, GameEnum.LOL);
+        if (rank.isPresent()) {
+            LOGGER.info("LOL local rank retrieved");
+            return new ResponseEntity<>(rank.get(), HttpStatus.OK);
+        } else {
+            LOGGER.info("LOL local rank not found");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
-    @PostMapping("/lol/rank/{summonerId}")
-    public ResponseEntity<String> updateRemoteToLocalRank(@PathVariable String summonerId) {
+    @PostMapping("/lol/ranks/{puuid}")
+    public ResponseEntity<String> updateRank(@PathVariable String puuid) throws URISyntaxException, IOException {
         LOGGER.info("Updating LOL ranks");
-        try {
-            rankService.updateRemoteToLocalRank(summonerId);
-            LOGGER.info("LOL ranks successfully updated");
-            return new ResponseEntity<>("LOL ranks successfully updated", HttpStatus.OK);
-        } catch (Exception e) {
-            LOGGER.error("An error occurred while updating LOL ranks : {}", e.getMessage());
-            return new ResponseEntity<>("An error occurred while updating LOL ranks", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        lolRankService.updateRanks(puuid);
+        LOGGER.info("LOL ranks successfully updated");
+        return new ResponseEntity<>("LOL ranks successfully updated", HttpStatus.OK);
     }
 }

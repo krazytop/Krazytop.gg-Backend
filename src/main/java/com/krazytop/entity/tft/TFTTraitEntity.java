@@ -1,16 +1,20 @@
 package com.krazytop.entity.tft;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TFTTraitEntity {
 
+    @JsonAlias("name")
     private String id;
-    private int numberUnits;
-    private int style;
-    private int currentTier;
-    private int maxTier;
-    private String image;
-    private String name;
-
+    @JsonAlias("tier_current")
+    private Integer tier;
+    @JsonAlias("tier_total")
+    private Integer maxTier;
+    @JsonAlias("num_units")
+    private Integer unitsNb;
+    private Integer style;
 }

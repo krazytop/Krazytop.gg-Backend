@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 public class DestinyAuthController {
 
@@ -21,29 +23,19 @@ public class DestinyAuthController {
     }
 
     @GetMapping("/destiny/get/{code}")
-    public ResponseEntity<String> getPlayerToken(@PathVariable String code) {
+    public ResponseEntity<String> getPlayerToken(@PathVariable String code) throws IOException {
         LOGGER.info("Retrieving BUNGIE player tokens with code");
-        try {
-            String playerToken = destinyAuthService.getPlayerToken(code);
-            LOGGER.info("BUNGIE player tokens retrieved");
-            return new ResponseEntity<>(playerToken, HttpStatus.OK);
-        } catch (Exception e) {
-            LOGGER.error("Error while retrieving BUNGIE player tokens : {}", e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        String playerToken = destinyAuthService.getPlayerToken(code);
+        LOGGER.info("BUNGIE player tokens retrieved");
+        return new ResponseEntity<>(playerToken, HttpStatus.OK);
     }
 
     @PostMapping("/destiny/update")
-    public ResponseEntity<String> updatePlayerToken(@RequestBody String refreshToken) {
+    public ResponseEntity<String> updatePlayerToken(@RequestBody String refreshToken) throws IOException {
         LOGGER.info("Updating BUNGIE player tokens with refresh token");
-        try {
-            String playerToken = destinyAuthService.updatePlayerToken(refreshToken);
-            LOGGER.info("BUNGIE player tokens refreshed");
-            return new ResponseEntity<>(playerToken, HttpStatus.OK);
-        } catch (Exception e) {
-            LOGGER.error("Error while refreshing BUNGIE player tokens : {}", e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        String playerToken = destinyAuthService.updatePlayerToken(refreshToken);
+        LOGGER.info("BUNGIE player tokens refreshed");
+        return new ResponseEntity<>(playerToken, HttpStatus.OK);
     }
 
 }

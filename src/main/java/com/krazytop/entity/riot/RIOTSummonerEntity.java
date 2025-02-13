@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Document(collection = "Summoner")
@@ -15,25 +17,19 @@ import java.util.Date;
 public class RIOTSummonerEntity {
 
     private String id;
+    @JsonAlias("gameName")
     private String name;
     private String accountId;
     @JsonAlias("summonerLevel")
-    private int level;
+    private Integer level;
     @JsonAlias("profileIconId")
-    private int icon;
+    private Integer icon;
     private String puuid;
+    @JsonAlias("tagLine")
     private String tag;
     private String region;
     private Date updateDate;
-    private Long spentTimeOnLOL = 0L;
-    private Long spentTimeOnTFT = 0L;
+    private Long spentTime = 0L;
+    private Set<Integer> playedSeasonsOrSets = new HashSet<>();
 
-    public RIOTSummonerEntity(String id, String puuid, String name, String tag, int level, int icon) {
-        this.id = id;
-        this.puuid = puuid;
-        this.name = name;
-        this.tag = tag;
-        this.level = level;
-        this.icon = icon;
-    }
 }

@@ -1,6 +1,6 @@
 package com.krazytop.controller.lol;
 
-import com.krazytop.entity.lol.LOLRankEntity;
+import com.krazytop.entity.riot.rank.RIOTRankEntity;
 import com.krazytop.service.lol.LOLRankService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,29 +28,29 @@ class LOLRankControllerTest {
 
     @Test
     void testGetLocalRank_OK() {
-        when(rankService.getLocalRank(anyString(), anyString())).thenReturn(new LOLRankEntity());
-        ResponseEntity<LOLRankEntity> response = rankController.getLocalRank("puuid", "queue");
+        when(rankService.getLocalRank(anyString())).thenReturn(new RIOTRankEntity());
+        ResponseEntity<RIOTRankEntity> response = rankController.getLocalRank("puuid");
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        verify(rankService, times(1)).getLocalRank(anyString(), anyString());
+        verify(rankService, times(1)).getLocalRank(anyString());
     }
 
     @Test
     void testGetLocalRank_NO_CONTENT() {
-        when(rankService.getLocalRank(anyString(), anyString())).thenReturn(null);
-        ResponseEntity<LOLRankEntity> response = rankController.getLocalRank("puuid", "queue");
+        when(rankService.getLocalRank(anyString())).thenReturn(null);
+        ResponseEntity<RIOTRankEntity> response = rankController.getLocalRank("puuid");
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         assertNull(response.getBody());
-        verify(rankService, times(1)).getLocalRank(anyString(), anyString());
+        verify(rankService, times(1)).getLocalRank(anyString());
     }
 
     @Test
     void testGetLocalRank_ERROR() {
-        when(rankService.getLocalRank(anyString(), anyString())).thenThrow(RuntimeException.class);
-        ResponseEntity<LOLRankEntity> response = rankController.getLocalRank("puuid", "queue");
+        when(rankService.getLocalRank(anyString())).thenThrow(RuntimeException.class);
+        ResponseEntity<RIOTRankEntity> response = rankController.getLocalRank("puuid");
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNull(response.getBody());
-        verify(rankService, times(1)).getLocalRank(anyString(), anyString());
+        verify(rankService, times(1)).getLocalRank(anyString());
     }
 
     @Test

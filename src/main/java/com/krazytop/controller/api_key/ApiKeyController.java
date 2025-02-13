@@ -8,12 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 public class ApiKeyController {
@@ -27,22 +24,14 @@ public class ApiKeyController {
         this.apiKeyRepository = apiKeyRepository;
     }
 
-    @GetMapping("/api-key")
-    public ResponseEntity<List<ApiKeyEntity>> getAllApiKeys() {
-        LOGGER.info("Retrieving all API keys");
-        try {
-            List<ApiKeyEntity> apiKeys = apiKeyRepository.findAll();
-            LOGGER.info("All API key successfully retrieved");
-            return new ResponseEntity<>(apiKeys, HttpStatus.OK);
-        } catch (Exception e) {
-            LOGGER.error("An error occurred while retrieving all API keys : {}", e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @PostMapping("/api-key/tft/{key}")
+    public ResponseEntity<String> setTFTApiKey(@PathVariable String key) {
+        return setApiKey(key, GameEnum.TFT);
     }
 
-    @PostMapping("/api-key/riot/{key}")
-    public ResponseEntity<String> setRIOTApiKey(@PathVariable String key) {
-        return setApiKey(key, GameEnum.RIOT);
+    @PostMapping("/api-key/lol/{key}")
+    public ResponseEntity<String> setLOLApiKey(@PathVariable String key) {
+        return setApiKey(key, GameEnum.LOL);
     }
 
     @PostMapping("/api-key/clash-royal/{key}")
@@ -52,13 +41,8 @@ public class ApiKeyController {
 
     public ResponseEntity<String> setApiKey(String key, GameEnum game) {
         LOGGER.info("Updating {} API key", game);
-        try {
-            apiKeyRepository.save(new ApiKeyEntity(game, key));
-            LOGGER.info("{} API key successfully updated", game);
-            return new ResponseEntity<>(String.format("%s API key successfully updated", game), HttpStatus.OK);
-        } catch (Exception e) {
-            LOGGER.error("An error occurred while updating {} API key : {}", game, e.getMessage());
-            return new ResponseEntity<>(String.format("An error occurred while updating %s API key", game), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        apiKeyRepository.save(new ApiKeyEntity(game, key));
+        LOGGER.info("{} API key successfully updated", game);
+        return new ResponseEntity<>(String.format("%s API key successfully updated", game), HttpStatus.OK);
     }
 }
