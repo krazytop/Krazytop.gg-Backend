@@ -134,7 +134,7 @@ public class TFTPatchService {
     private void modifyImageForOldPatches(TFTPatchNomenclature patch) {
         if (!riotPatchService.isVersionAfterAnOther(patch.getPatchId(), "13.9")) {
             patch.getUnits().forEach(unit -> {
-                if (unit.getImage() == null) {
+                if (unit.getImage() == null && unit.getOldImage() != null) {
                     String regex = "ASSETS/UX/TFT/ChampionSplashes/([^/]+)\\.([^.]+)\\.dds";
                     String replacement = "ASSETS/Characters/$1/HUD/$1_Square.$2.tex";
                     unit.setImage(unit.getOldImage().replaceAll(regex, replacement));
