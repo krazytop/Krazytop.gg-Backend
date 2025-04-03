@@ -8,8 +8,8 @@ import java.util.Optional;
 
 public interface RIOTSummonerRepository extends MongoRepository<RIOTSummonerEntity, String> {
 
-    @Query("{'region' : ?0, 'tag' : {$regex : '^?1$', $options : 'i'}, 'name' : {$regex : '^?2$', $options : 'i'}}")
-    Optional<RIOTSummonerEntity> findFirstByRegionAndTagAndName(String region, String tag, String name);
+    @Query("{'tag' : {$regex : '^?0$', $options : 'i'}, 'name' : {$regex : '^?1$', $options : 'i'}}")
+    Optional<RIOTSummonerEntity> findFirstByTagAndName(String tag, String name);
 
-    Optional<RIOTSummonerEntity> findFirstByPuuid(String puuid);
+    Optional<RIOTSummonerEntity> findFirstById(String summonerId);
 }

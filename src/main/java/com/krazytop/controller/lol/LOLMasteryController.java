@@ -1,6 +1,8 @@
 package com.krazytop.controller.lol;
 
+import com.krazytop.config.CustomHTTPException;
 import com.krazytop.entity.lol.LOLMasteriesEntity;
+import com.krazytop.http_responses.RIOTHTTPErrorResponsesEnum;
 import com.krazytop.service.lol.LOLMasteryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,11 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class LOLMasteryController {
@@ -31,22 +28,15 @@ public class LOLMasteryController {
 
     @GetMapping("/lol/masteries/{puuid}")
     public ResponseEntity<LOLMasteriesEntity> getMasteries(@PathVariable String puuid) {
-        LOGGER.info("Retrieving LOL local masteries");
-        Optional<LOLMasteriesEntity> masteries = masteryService.getMasteries(puuid);
-        if (masteries.isPresent()) {
-            LOGGER.info("LOL local masteries retrieved");
-            return new ResponseEntity<>(masteries.get(), HttpStatus.OK);
-        } else {
-            LOGGER.info("LOL local masteries not found");
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        LOGGER.info("Retrieving LOL masteries");
+        return new ResponseEntity<>(masteryService.getMasteries(puuid)
+                .orElseThrow(() -> new CustomHTTPException(RIOTHTTPErrorResponsesEnum.MASTERIES_NOT_FOUND)), HttpStatus.OK);
     }
 
-    @PostMapping("/lol/masteries/{puuid}")
-    public ResponseEntity<String> updateMasteries(@PathVariable String puuid) throws URISyntaxException, IOException {
+    @PostMapping("/lol/masteries/{region}/{puuid}")
+    public ResponseEntity<String> updateMasteries(@PathVariable String region, @PathVariable String puuid) {
         LOGGER.info("Updating LOL masteries");
-        masteryService.updateMasteries(puuid);
-        LOGGER.info("LOL masteries successfully updated");
-        return new ResponseEntity<>("LOL masteries successfully updated", HttpStatus.OK);
+        masteryService.updateMasteries(region, puuid);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

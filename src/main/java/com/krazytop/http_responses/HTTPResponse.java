@@ -1,10 +1,10 @@
-package com.krazytop.entity;
+package com.krazytop.http_responses;
 
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 
 @Data
-public class HTTPResponse {
+public class HTTPResponse {//TODO supprimer au profit des enums HTTPResponses
 
     private String message;
     private Integer statusCode;

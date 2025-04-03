@@ -1,13 +1,14 @@
 package com.krazytop.service.riot;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.krazytop.config.CustomHTTPException;
 import com.krazytop.entity.api_key.ApiKeyEntity;
 import com.krazytop.entity.riot.RIOTAccountEntity;
 import com.krazytop.entity.riot.RIOTSummonerEntity;
+import com.krazytop.http_responses.RIOTHTTPErrorResponsesEnum;
 import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.repository.api_key.ApiKeyRepository;
 import com.krazytop.repository.lol.LOLSummonerRepository;
-import com.krazytop.repository.riot.RIOTRankRepository;
 import com.krazytop.repository.riot.RIOTSummonerRepository;
 import com.krazytop.repository.tft.TFTSummonerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +19,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Optional;
 
 @Service
@@ -37,44 +36,89 @@ public class RIOTSummonerService {
         this.apiKeyRepository = apiKeyRepository;
     }
 
-    public Optional<RIOTSummonerEntity> getLocalSummoner(String puuid, GameEnum game) {
-        return getRepository(game).findFirstByPuuid(puuid);
+    public RIOTSummonerEntity getSummoner(String region, String tag, String name, GameEnum game) {
+        return getLocalSummoner(tag, name, game).orElse(getRemoteSummoner(region, tag, name, game));
     }
 
-    public Optional<RIOTSummonerEntity> getLocalSummoner(String region, String tag, String name, GameEnum game) {
-        return getRepository(game)
-                .findFirstByRegionAndTagAndName(region, tag, name);
+    public RIOTSummonerEntity getSummoner(String region, String summonerId, GameEnum game) {
+        return getLocalSummoner(summonerId, game).orElse(getRemoteSummoner(region, summonerId, game));
     }
 
-    public void updateRemoteToLocalSummoner(String region, String tag, String name, GameEnum game) throws URISyntaxException, IOException {
-        RIOTSummonerEntity summoner = getRemoteSummonerByNameAndTag(region, tag, name, game);
+    public RIOTSummonerEntity updateSummoner(String region, String puuid, GameEnum game) {
+        /*
+        TODO Erreur lors de l'appel API => on test par région => return
+         */
+        RIOTSummonerEntity summoner = getRemoteSummoner(region, puuid, game);
+        summoner.setRegion(region);
         summoner.setUpdateDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
         getRepository(game).save(summoner);
-    }
-
-    public RIOTSummonerEntity getRemoteSummonerByNameAndTag(String region, String tag, String name, GameEnum game) throws URISyntaxException, IOException {
-        name = name.replace(" ", "%20");
-        ObjectMapper mapper = new ObjectMapper();
-        ApiKeyEntity apiKey = this.apiKeyRepository.findFirstByGame(game);
-        String accountApiUrl = String.format("https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/%s/%s?api_key=%s", name, tag, apiKey.getKey());
-        RIOTAccountEntity account = mapper.convertValue(mapper.readTree(new URI(accountApiUrl).toURL()), RIOTAccountEntity.class);
-        String summonerApiUrl = String.format("https://euw1.api.riotgames.com/%s/summoners/by-puuid/%s?api_key=%s", game.equals(GameEnum.LOL) ? "lol/summoner/v4" : "tft/summoner/v1", account.getPuuid(), apiKey.getKey());
-        RIOTSummonerEntity summoner = mapper.convertValue(mapper.readTree(new URI(summonerApiUrl).toURL()), RIOTSummonerEntity.class);
-        summoner.setRegion(region);
-        summoner.setName(account.getName());
-        summoner.setTag(account.getTag());
         return summoner;
     }
 
-    public RIOTSummonerEntity getRemoteSummonerByPuuid(String puuid) throws URISyntaxException, IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        ApiKeyEntity apiKey = this.apiKeyRepository.findFirstByGame(GameEnum.TFT);
-        String summonerApiUrl = String.format("https://europe.api.riotgames.com/riot/account/v1/accounts/by-puuid/%s?api_key=%s", puuid, apiKey.getKey());
-        return mapper.convertValue(mapper.readTree(new URI(summonerApiUrl).toURL()), RIOTSummonerEntity.class);
+    private Optional<RIOTSummonerEntity> getLocalSummoner(String summonerId, GameEnum game) {
+        return getRepository(game).findFirstById(summonerId);
     }
 
-    public void updateSpentTimeAndPlayedSeasonsOrSets(String puuid, Long matchDuration, Integer season, GameEnum game) {
-        Optional<RIOTSummonerEntity> summonerOpt = getLocalSummoner(puuid, game);
+    private Optional<RIOTSummonerEntity> getLocalSummoner(String tag, String name, GameEnum game) {
+        return getRepository(game).findFirstByTagAndName(tag, name);
+    }
+
+    private RIOTSummonerEntity getRemoteSummoner(String region, String summonerId, GameEnum game) {//TODO summonerId getSummoner => getAccount
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            ApiKeyEntity apiKey = this.apiKeyRepository.findFirstByGame(game);
+            String summonerApiUrl = String.format("https://euw1.api.riotgames.com/%s/summoners/%s?api_key=%s", game.equals(GameEnum.LOL) ? "lol/summoner/v4" : "tft/summoner/v1", summonerId, apiKey.getKey());
+            RIOTSummonerEntity summoner = mapper.convertValue(mapper.readTree(new URI(summonerApiUrl).toURL()), RIOTSummonerEntity.class);
+            RIOTAccountEntity account = getAccount(summoner.getPuuid(), game);
+            summoner.setName(account.getName());
+            summoner.setTag(account.getTag());
+            return summoner;
+        } catch (URISyntaxException | IOException e) {
+            throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.SUMMONER_NOT_FOUND);
+        }
+    }
+
+    private RIOTSummonerEntity getRemoteSummoner(String region, String tag, String name, GameEnum game) {
+        try {
+            name = name.replace(" ", "%20");
+            ObjectMapper mapper = new ObjectMapper();
+            ApiKeyEntity apiKey = this.apiKeyRepository.findFirstByGame(game);
+            RIOTAccountEntity account = getAccount(tag, name, game);
+            String summonerApiUrl = String.format("https://euw1.api.riotgames.com/%s/summoners/by-puuid/%s?api_key=%s", game.equals(GameEnum.LOL) ? "lol/summoner/v4" : "tft/summoner/v1", account.getPuuid(), apiKey.getKey());
+            RIOTSummonerEntity summoner = mapper.convertValue(mapper.readTree(new URI(summonerApiUrl).toURL()), RIOTSummonerEntity.class);
+            summoner.setRegion(region);
+            summoner.setName(account.getName());
+            summoner.setTag(account.getTag());
+            return summoner;
+        } catch (URISyntaxException | IOException e) {
+            throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.SUMMONER_NOT_FOUND);
+        }
+    }
+
+    private RIOTAccountEntity getAccount(String puuid, GameEnum game) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            ApiKeyEntity apiKey = this.apiKeyRepository.findFirstByGame(game);
+            String accountApiUrl = String.format("https://europe.api.riotgames.com/riot/account/v1/accounts/by-puuid/%s?api_key=%s", puuid, apiKey.getKey());
+            return mapper.convertValue(mapper.readTree(new URI(accountApiUrl).toURL()), RIOTAccountEntity.class);
+        } catch (URISyntaxException | IOException e) {
+            throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.ACCOUNT_NOT_FOUND);
+        }
+    }
+
+    private RIOTAccountEntity getAccount(String tag, String name, GameEnum game) throws URISyntaxException, IOException {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            ApiKeyEntity apiKey = this.apiKeyRepository.findFirstByGame(game);
+            String accountApiUrl = String.format("https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/%s/%s?api_key=%s", name, tag, apiKey.getKey());
+            return mapper.convertValue(mapper.readTree(new URI(accountApiUrl).toURL()), RIOTAccountEntity.class);
+        } catch (URISyntaxException | IOException e) {
+            throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.ACCOUNT_NOT_FOUND);
+        }
+    }
+
+    public void updateSpentTimeAndPlayedSeasonsOrSets(String summonerId, Long matchDuration, Integer season, GameEnum game) {
+        Optional<RIOTSummonerEntity> summonerOpt = getLocalSummoner(summonerId, game);
         if (summonerOpt.isPresent()) {
             RIOTSummonerEntity summoner = summonerOpt.get();
             summoner.setSpentTime(summoner.getSpentTime() + matchDuration);
