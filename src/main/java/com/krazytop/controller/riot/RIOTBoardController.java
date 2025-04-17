@@ -1,4 +1,4 @@
-package com.krazytop.controller.lol;
+package com.krazytop.controller.riot;
 
 import com.krazytop.config.CustomHTTPException;
 import com.krazytop.entity.riot.RIOTBoardEntity;
@@ -14,14 +14,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-public class LOLBoardController {
+public class RIOTBoardController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LOLBoardController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RIOTBoardController.class);
 
     private final RIOTBoardService boardService;
 
     @Autowired
-    public LOLBoardController(RIOTBoardService boardService) {
+    public RIOTBoardController(RIOTBoardService boardService) {
         this.boardService = boardService;
     }
 
@@ -39,6 +39,22 @@ public class LOLBoardController {
         LOGGER.info("Retrieving {} board", game);
         return new ResponseEntity<>(boardService.getBoard(boardId, game)
                 .orElseThrow(() -> new CustomHTTPException(RIOTHTTPErrorResponsesEnum.BOARD_NOT_FOUND)), HttpStatus.OK);
+    }
+
+    @PostMapping("/lol/board/{boardId}")
+    public ResponseEntity<Void> updateLOLBoardSummoners(@PathVariable String boardId) {
+        return updateBoardSummoners(boardId, GameEnum.LOL);
+    }
+
+    @PostMapping("/tft/board/{boardId}")
+    public ResponseEntity<Void> updateTFTBoardSummoners(@PathVariable String boardId) {
+        return updateBoardSummoners(boardId, GameEnum.TFT);
+    }
+
+    private ResponseEntity<Void> updateBoardSummoners(String boardId, GameEnum game) {
+        LOGGER.info("Updating {} board", game);
+        boardService.updateBoardSummoners(boardId, game);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/lol/board")
@@ -84,6 +100,22 @@ public class LOLBoardController {
     private ResponseEntity<Void> removeSummonerOfBoard(String boardId, String summonerId, GameEnum game) {
         LOGGER.info("Updating {} board without the summoner", game);
         boardService.removeSummonerOfBoard(boardId, summonerId, game);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/lol/board/{boardId}/{name}")
+    public ResponseEntity<RIOTSummonerEntity> updateLOLBoardName(@PathVariable String boardId, @PathVariable String name) {
+        return updateBoardName(boardId, name, GameEnum.LOL);
+    }
+
+    @PostMapping("/tft/board/{boardId}/{name}")
+    public ResponseEntity<RIOTSummonerEntity> updateTFTBoardName(@PathVariable String boardId, @PathVariable String name) {
+        return updateBoardName(boardId, name, GameEnum.TFT);
+    }
+
+    private ResponseEntity<RIOTSummonerEntity> updateBoardName(String boardId, String name, GameEnum game) {
+        LOGGER.info("Updating {} board name", game);
+        boardService.updateBoardName(boardId, name, game);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

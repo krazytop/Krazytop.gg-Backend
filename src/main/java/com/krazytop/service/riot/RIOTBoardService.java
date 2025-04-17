@@ -7,13 +7,14 @@ import com.krazytop.http_responses.RIOTHTTPErrorResponsesEnum;
 import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.repository.lol.LOLBoardRepository;
 import com.krazytop.repository.riot.RIOTBoardRepository;
-import com.krazytop.repository.riot.RIOTRankRepository;
 import com.krazytop.repository.tft.TFTBoardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class RIOTBoardService {
@@ -64,6 +65,34 @@ public class RIOTBoardService {
             } else {
                 throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.SUMMONER_ABSENT_OF_BOARD);
             }
+        } else {
+            throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.BOARD_NOT_FOUND);
+        }
+    }
+
+    public void updateBoardSummoners(String boardId, GameEnum game) {
+        Optional<RIOTBoardEntity> boardOpt = getBoard(boardId, game);
+        if (boardOpt.isPresent()) {
+            RIOTBoardEntity board = boardOpt.get();
+            board.getSummonerIds().forEach(summonerId -> {
+                RIOTSummonerEntity summoner = summonerService.getSummoner("region", summonerId, game);
+                if (summoner.getUpdateDate() != null) {
+                    summonerService.updateSummoner(summoner.getRegion(), summoner.getId(), game);
+                }
+            });
+            board.setUpdateDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
+            getRepository(game).save(board);
+        } else {
+            throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.BOARD_NOT_FOUND);
+        }
+    }
+
+    public void updateBoardName(String boardId, String name, GameEnum game) {
+        Optional<RIOTBoardEntity> boardOpt = getBoard(boardId, game);
+        if (boardOpt.isPresent()) {
+            RIOTBoardEntity board = boardOpt.get();
+            board.setName(name);
+            getRepository(game).save(board);
         } else {
             throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.BOARD_NOT_FOUND);
         }

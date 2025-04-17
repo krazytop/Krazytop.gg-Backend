@@ -20,6 +20,7 @@ import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -37,18 +38,18 @@ public class RIOTSummonerService {
     }
 
     public RIOTSummonerEntity getSummoner(String region, String tag, String name, GameEnum game) {
-        return getLocalSummoner(tag, name, game).orElse(getRemoteSummoner(region, tag, name, game));
+        return getLocalSummoner(region, tag, name, game).orElse(getRemoteSummoner(region, tag, name, game));
     }
 
     public RIOTSummonerEntity getSummoner(String region, String summonerId, GameEnum game) {
         return getLocalSummoner(summonerId, game).orElse(getRemoteSummoner(region, summonerId, game));
     }
 
-    public RIOTSummonerEntity updateSummoner(String region, String puuid, GameEnum game) {
+    public RIOTSummonerEntity updateSummoner(String region, String summonerId, GameEnum game) {
         /*
         TODO Erreur lors de l'appel API => on test par région => return
          */
-        RIOTSummonerEntity summoner = getRemoteSummoner(region, puuid, game);
+        RIOTSummonerEntity summoner = getRemoteSummoner(region, summonerId, game);
         summoner.setRegion(region);
         summoner.setUpdateDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
         getRepository(game).save(summoner);
@@ -59,12 +60,13 @@ public class RIOTSummonerService {
         return getRepository(game).findFirstById(summonerId);
     }
 
-    private Optional<RIOTSummonerEntity> getLocalSummoner(String tag, String name, GameEnum game) {
-        return getRepository(game).findFirstByTagAndName(tag, name);
+    private Optional<RIOTSummonerEntity> getLocalSummoner(String region, String tag, String name, GameEnum game) {
+        return getRepository(game).findFirstByRegionAndTagAndName(region, tag, name);
     }
 
-    private RIOTSummonerEntity getRemoteSummoner(String region, String summonerId, GameEnum game) {//TODO summonerId getSummoner => getAccount
+    private RIOTSummonerEntity getRemoteSummoner(String region, String summonerId, GameEnum game) {
         try {
+            if (Objects.equals(region, "null")) region = "EUW"; //TODO check region par api (uniquement utile pour les boards car on stock uniquement les summonerId)
             ObjectMapper mapper = new ObjectMapper();
             ApiKeyEntity apiKey = this.apiKeyRepository.findFirstByGame(game);
             String summonerApiUrl = String.format("https://euw1.api.riotgames.com/%s/summoners/%s?api_key=%s", game.equals(GameEnum.LOL) ? "lol/summoner/v4" : "tft/summoner/v1", summonerId, apiKey.getKey());
@@ -72,6 +74,7 @@ public class RIOTSummonerService {
             RIOTAccountEntity account = getAccount(summoner.getPuuid(), game);
             summoner.setName(account.getName());
             summoner.setTag(account.getTag());
+            summoner.setRegion(region);
             return summoner;
         } catch (URISyntaxException | IOException e) {
             throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.SUMMONER_NOT_FOUND);
@@ -80,6 +83,7 @@ public class RIOTSummonerService {
 
     private RIOTSummonerEntity getRemoteSummoner(String region, String tag, String name, GameEnum game) {
         try {
+            if (!Objects.equals(region, "EUW")) throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.SUMMONER_NOT_FOUND);
             name = name.replace(" ", "%20");
             ObjectMapper mapper = new ObjectMapper();
             ApiKeyEntity apiKey = this.apiKeyRepository.findFirstByGame(game);
