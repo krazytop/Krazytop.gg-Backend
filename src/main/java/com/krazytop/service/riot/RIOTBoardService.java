@@ -98,6 +98,10 @@ public class RIOTBoardService {
         }
     }
 
+    public void deleteBoard(String boardId, GameEnum game) {
+        getRepository(game).deleteById(boardId);
+    }
+
     private RIOTBoardRepository getRepository(GameEnum game) {
         return game == GameEnum.LOL ? lolBoardRepository : tftBoardRepository;
     }

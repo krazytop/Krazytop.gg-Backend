@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class CorsConfig {
 
-    private static final String ALLOWED_ORIGIN = "*"; //TODO http://localhost:4200 voir avec Destiny
+    private static final String ALLOWED_ORIGIN = "*"; //TODO http://localhost:4200 ou domaine (voir app.yaml) et voir avec Destiny
 
     @Bean
     public WebMvcConfigurer getCorsConfiguration() {

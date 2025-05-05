@@ -119,4 +119,20 @@ public class RIOTBoardController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @DeleteMapping("/lol/board/{boardId}")
+    public ResponseEntity<RIOTSummonerEntity> deleteLOLBoard(@PathVariable String boardId) {
+        return deleteBoard(boardId, GameEnum.LOL);
+    }
+
+    @DeleteMapping("/tft/board/{boardId}")
+    public ResponseEntity<RIOTSummonerEntity> deleteTFTBoard(@PathVariable String boardId) {
+        return deleteBoard(boardId, GameEnum.TFT);
+    }
+
+    private ResponseEntity<RIOTSummonerEntity> deleteBoard(String boardId, GameEnum game) {
+        LOGGER.info("Deleting {} board name", game);
+        boardService.deleteBoard(boardId, game);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }
