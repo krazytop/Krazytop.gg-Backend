@@ -27,26 +27,21 @@ public class TFTMatchController {
 
     @GetMapping("/tft/matches/{puuid}/{pageNb}/{queue}/{set}")
     public ResponseEntity<List<TFTMatchEntity>> getMatches(@PathVariable String puuid, @PathVariable int pageNb, @PathVariable String queue, @PathVariable int set) {
-        LOGGER.info("Retrieving TFT local matches");
-        List<TFTMatchEntity> matches = matchService.getMatches(puuid, pageNb, queue, set);
-        LOGGER.info("TFT local matches successfully retrieved");
-        return new ResponseEntity<>(matches, HttpStatus.OK);
+        LOGGER.info("Retrieving TFT matches");
+        return new ResponseEntity<>(matchService.getMatches(puuid, pageNb, queue, set), HttpStatus.OK);
     }
 
     @GetMapping("/tft/matches/count/{puuid}/{queue}/{set}")
     public ResponseEntity<Long> getMatchesCount(@PathVariable String puuid, @PathVariable String queue, @PathVariable int set) {
-        LOGGER.info("Retrieving TFT local matches count");
-        Long matchesCount = matchService.getMatchesCount(puuid, queue, set);
-        LOGGER.info("TFT local matches count successfully retrieved");
-        return new ResponseEntity<>(matchesCount, HttpStatus.OK);
+        LOGGER.info("Retrieving TFT matches count");
+        return new ResponseEntity<>(matchService.getMatchesCount(puuid, queue, set), HttpStatus.OK);
     }
 
-    @PostMapping("/tft/matches/{puuid}")
-    public ResponseEntity<String> updateMatches(@PathVariable String puuid) throws IOException, URISyntaxException, InterruptedException {
+    @PostMapping("/tft/matches/{region}/{puuid}")
+    public ResponseEntity<Void> updateMatches(@PathVariable String region, @PathVariable String puuid) {
         LOGGER.info("Updating TFT matches");
-        matchService.updateRecentMatches(puuid);
-        LOGGER.info("TFT matches successfully updated");
-        return new ResponseEntity<>("TFT matches successfully updated", HttpStatus.OK);
+        matchService.updateMatches(region, puuid);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

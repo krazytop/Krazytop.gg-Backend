@@ -1,6 +1,8 @@
 package com.krazytop.controller;
 
-import com.krazytop.entity.HTTPResponse;
+import com.krazytop.config.CustomHTTPException;
+import com.krazytop.http_responses.HTTPResponse;
+import com.krazytop.http_responses.RIOTHTTPErrorResponsesEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,13 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 public class GlobalExceptionHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler(CustomHTTPException.class)
+    public ResponseEntity<RIOTHTTPErrorResponsesEnum> handleCustomHTTPException(CustomHTTPException e) {
+        RIOTHTTPErrorResponsesEnum response = e.getResponse();
+        LOGGER.error(response.getMessage());
+        return new ResponseEntity<>(response, response.getHttpResponseCode());
+    }
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<HTTPResponse> handleNoController() {

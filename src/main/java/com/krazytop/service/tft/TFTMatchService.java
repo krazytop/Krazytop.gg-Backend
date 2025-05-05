@@ -3,14 +3,15 @@ package com.krazytop.service.tft;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.krazytop.entity.riot.RIOTMetadataEntity;
+import com.krazytop.config.CustomHTTPException;
 import com.krazytop.entity.riot.RIOTSummonerEntity;
 import com.krazytop.entity.tft.TFTMatchEntity;
+import com.krazytop.entity.tft.TFTParticipantEntity;
+import com.krazytop.http_responses.RIOTHTTPErrorResponsesEnum;
 import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.nomenclature.tft.*;
 import com.krazytop.repository.api_key.ApiKeyRepository;
 import com.krazytop.repository.tft.TFTMatchRepository;
-import com.krazytop.service.riot.RIOTMetadataService;
 import com.krazytop.service.riot.RIOTSummonerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,40 +51,49 @@ public class TFTMatchService {
         return getMatchesCount(puuid, TFTQueueEnum.fromName(queue), set);
     }
 
-    public void updateRecentMatches(String puuid) throws IOException, InterruptedException, URISyntaxException {
-        boolean moreMatchToRecovered = true;
-        int firstIndex = 0;
-        String apiKey = apiKeyRepository.findFirstByGame(GameEnum.TFT).getKey();
-        while (moreMatchToRecovered) {
-            String url = String.format("https://europe.api.riotgames.com/tft/match/v1/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, firstIndex, 100, apiKey);
-            ObjectMapper mapper = new ObjectMapper();
-            List<String> matchIds = mapper.convertValue(mapper.readTree(new URI(url).toURL()), new TypeReference<>() {});
-            for (String matchId : matchIds) {
-                Optional<TFTMatchEntity> existingMatch = this.matchRepository.findFirstById(matchId);
-                if (existingMatch.isEmpty()) {
-                    String stringUrl = String.format("https://europe.api.riotgames.com/tft/match/v1/matches/%s?api_key=%s", matchId, apiKey);
-                    JsonNode node = mapper.readTree(new URI(stringUrl).toURL());
-                    TFTMatchEntity match = mapper.convertValue(node.get("info"), TFTMatchEntity.class);
-                    match.setId(node.get("metadata").get("match_id").asText());
-                    saveMatch(match, puuid);
-                    Thread.sleep(2000);
-                } else if (!existingMatch.get().getOwners().contains(puuid)) {
-                    saveMatch(existingMatch.get(), puuid);
-                } else {
-                    moreMatchToRecovered = false;
-                    break;
+    public void updateMatches(String region, String puuid) {
+        try {
+            boolean moreMatchToRecovered = true;
+            int firstIndex = 0;
+            String apiKey = apiKeyRepository.findFirstByGame(GameEnum.TFT).getKey();
+            while (moreMatchToRecovered) {
+                String url = String.format("https://europe.api.riotgames.com/tft/match/v1/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, firstIndex, 100, apiKey);
+                ObjectMapper mapper = new ObjectMapper();
+                List<String> matchIds = mapper.convertValue(mapper.readTree(new URI(url).toURL()), new TypeReference<>() {});
+                for (String matchId : matchIds) {
+                    Optional<TFTMatchEntity> existingMatch = this.matchRepository.findFirstById(matchId);
+                    if (existingMatch.isEmpty()) {
+                        String stringUrl = String.format("https://europe.api.riotgames.com/tft/match/v1/matches/%s?api_key=%s", matchId, apiKey);
+                        JsonNode node = mapper.readTree(new URI(stringUrl).toURL());
+                        TFTMatchEntity match = mapper.convertValue(node.get("info"), TFTMatchEntity.class);
+                        match.setId(node.get("metadata").get("match_id").asText());
+                        saveMatch(match, puuid);
+                        Thread.sleep(2000);
+                    } else if (!existingMatch.get().getOwners().contains(puuid)) {
+                        saveMatch(existingMatch.get(), puuid);
+                    } else {
+                        moreMatchToRecovered = false;
+                        break;
+                    }
                 }
+                Thread.sleep(2000);
+                firstIndex += 100;
             }
-            Thread.sleep(2000);
-            firstIndex += 100;
+        } catch (IOException | URISyntaxException | InterruptedException e) {
+            throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.MATCHES_CANT_BE_UPDATED);
         }
     }
 
     private void saveMatch(TFTMatchEntity match, String puuid) {
+        String summonerId = match.getParticipants().stream()
+                .map(TFTParticipantEntity::getSummoner)
+                .filter(summoner -> summoner.getPuuid().equals(puuid))
+                .map(RIOTSummonerEntity::getId)
+                .findFirst().orElse("");
         match.getOwners().add(puuid);
         LOGGER.info("Saving TFT match : {}", match.getId());
         matchRepository.save(match);
-        summonerService.updateSpentTimeAndPlayedSeasonsOrSets(puuid, match.getDuration(), match.getSet(), GameEnum.TFT);
+        summonerService.updateSpentTimeAndPlayedSeasonsOrSets(summonerId, match.getDuration(), match.getSet(), GameEnum.TFT);
     }
 
     public List<TFTMatchEntity> getMatches(String puuid, int pageNb, TFTQueueEnum queue, int set) {

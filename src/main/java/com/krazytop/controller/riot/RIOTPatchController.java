@@ -1,10 +1,8 @@
 package com.krazytop.controller.riot;
 
-import com.krazytop.entity.HTTPResponse;
+import com.krazytop.http_responses.HTTPResponse;
 import com.krazytop.nomenclature.lol.LOLPatchNomenclature;
 import com.krazytop.nomenclature.tft.TFTPatchNomenclature;
-import com.krazytop.repository.lol.LOLPatchNomenclatureRepository;
-import com.krazytop.repository.tft.TFTPatchNomenclatureRepository;
 import com.krazytop.service.riot.RIOTPatchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

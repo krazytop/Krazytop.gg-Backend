@@ -25,28 +25,23 @@ public class LOLMatchController {
         this.matchService = matchService;
     }
 
-    @GetMapping("/lol/matches/{puuid}/{pageNb}/{queue}/{role}")
-    public ResponseEntity<List<LOLMatchEntity>> getLocalMatches(@PathVariable String puuid, @PathVariable int pageNb, @PathVariable String queue, @PathVariable String role) {
-        LOGGER.info("Retrieving LOL local matches");
-        List<LOLMatchEntity> matches = matchService.getLocalMatches(puuid, pageNb, queue, role);
-        LOGGER.info("LOL local matches successfully retrieved");
-        return new ResponseEntity<>(matches, HttpStatus.OK);
+    @GetMapping("/lol/matches/{summonerId}/{pageNb}/{queue}/{role}")
+    public ResponseEntity<List<LOLMatchEntity>> getMatches(@PathVariable String summonerId, @PathVariable int pageNb, @PathVariable String queue, @PathVariable String role) {
+        LOGGER.info("Retrieving LOL matches");
+        return new ResponseEntity<>(matchService.getMatches(summonerId, pageNb, queue, role), HttpStatus.OK);
     }
 
-    @GetMapping("/lol/matches/count/{puuid}/{queue}/{role}")
-    public ResponseEntity<Long> getLocalMatchesCount(@PathVariable String puuid, @PathVariable String queue, @PathVariable String role) {
-        LOGGER.info("Retrieving LOL local matches count");
-        Long matchesCount = matchService.getLocalMatchesCount(puuid, queue, role);
-        LOGGER.info("LOL local matches count successfully retrieved");
-        return new ResponseEntity<>(matchesCount, HttpStatus.OK);
+    @GetMapping("/lol/matches/count/{summonerId}/{queue}/{role}")
+    public ResponseEntity<Long> getMatchesCount(@PathVariable String summonerId, @PathVariable String queue, @PathVariable String role) {
+        LOGGER.info("Retrieving LOL matches count");
+        return new ResponseEntity<>(matchService.getMatchesCount(summonerId, queue, role), HttpStatus.OK);
     }
 
-    @PostMapping("/lol/matches/{puuid}")
-    public ResponseEntity<String> updateRemoteToLocalMatches(@PathVariable String puuid) throws IOException, URISyntaxException, InterruptedException {
+    @PostMapping("/lol/matches/{region}/{puuid}")
+    public ResponseEntity<Void> updateMatches(@PathVariable String region, @PathVariable String puuid) {
         LOGGER.info("Updating LOL matches");
-        matchService.updateRecentMatches(puuid);
-        LOGGER.info("LOL matches successfully updated");
-        return new ResponseEntity<>("LOL matches successfully updated", HttpStatus.OK);
+        matchService.updateMatches(region, puuid);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }
