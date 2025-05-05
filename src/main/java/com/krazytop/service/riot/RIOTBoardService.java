@@ -8,6 +8,9 @@ import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.repository.lol.LOLBoardRepository;
 import com.krazytop.repository.riot.RIOTBoardRepository;
 import com.krazytop.repository.tft.TFTBoardRepository;
+import com.krazytop.service.lol.LOLMasteryService;
+import com.krazytop.service.lol.LOLMatchService;
+import com.krazytop.service.tft.TFTMatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,12 +25,20 @@ public class RIOTBoardService {
     private final LOLBoardRepository lolBoardRepository;
     private final TFTBoardRepository tftBoardRepository;
     private final RIOTSummonerService summonerService;
+    private final TFTMatchService tftMatchService;
+    private final LOLMatchService lolMatchService;
+    private final LOLMasteryService lolMasteryService;
+    private final RIOTRankService rankService;
 
     @Autowired
-    public RIOTBoardService(LOLBoardRepository lolBoardRepository, TFTBoardRepository tftBoardRepository, RIOTSummonerService summonerService) {
+    public RIOTBoardService(LOLBoardRepository lolBoardRepository, TFTBoardRepository tftBoardRepository, RIOTSummonerService summonerService, TFTMatchService tftMatchService, LOLMatchService lolMatchService, LOLMasteryService lolMasteryService, RIOTRankService rankService) {
         this.lolBoardRepository = lolBoardRepository;
         this.tftBoardRepository = tftBoardRepository;
         this.summonerService = summonerService;
+        this.tftMatchService = tftMatchService;
+        this.lolMatchService = lolMatchService;
+        this.lolMasteryService = lolMasteryService;
+        this.rankService = rankService;
     }
 
     public Optional<RIOTBoardEntity> getBoard(String boardId, GameEnum game) {
@@ -78,6 +89,13 @@ public class RIOTBoardService {
                 RIOTSummonerEntity summoner = summonerService.getSummoner("region", summonerId, game);
                 if (summoner.getUpdateDate() != null) {
                     summonerService.updateSummoner(summoner.getRegion(), summoner.getId(), game);
+                    rankService.updateRanks(summoner.getRegion(), summoner.getId(), game);
+                    if (game.equals(GameEnum.LOL)) {
+                        lolMatchService.updateMatches(summoner.getRegion(), summoner.getPuuid());
+                        lolMasteryService.updateMasteries(summoner.getRegion(), summoner.getPuuid());
+                    } else {
+                        tftMatchService.updateMatches(summoner.getRegion(), summoner.getPuuid());
+                    }
                 }
             });
             board.setUpdateDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
