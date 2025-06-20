@@ -24,7 +24,10 @@ public class CRCardEntity {
     @JsonProperty("id")
     private void unpackNomenclature(JsonNode node) {
         CRCardNomenclatureRepository cardNomenclatureRepository = SpringConfiguration.contextProvider().getApplicationContext().getBean(CRCardNomenclatureRepository.class);
-        this.setNomenclature(cardNomenclatureRepository.findFirstById(node.asInt()));
+        CRCardNomenclature cardNomenclature = cardNomenclatureRepository.findFirstById(node.asInt());
+        if (cardNomenclature != null) {
+            this.setNomenclature(cardNomenclature);
+        }
     }
 
     @JsonProperty("rarity")
@@ -33,6 +36,7 @@ public class CRCardEntity {
         String rarity = node.asText();
         rarity = rarity.substring(0, 1).toUpperCase() + rarity.substring(1);
         CRCardRarityNomenclature rarityNomenclature = cardRarityNomenclatureRepository.findFirstByName(rarity);
-        this.setUpgradeCost(rarityNomenclature.getUpgradeCost().get(this.getLevel() -1));
+        this.setUpgradeCost(rarityNomenclature.getUpgradeCost().get(this.getLevel() - 1));
+        this.level = rarityNomenclature.getRelativeLevel() + this.level;
     }
 }
