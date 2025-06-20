@@ -18,10 +18,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Only EUW
@@ -41,11 +38,19 @@ public class RIOTPatchService {
     }
 
     public Optional<LOLPatchNomenclature> getLOLPatch(String patchId, String language) {
-        return lolPatchService.getPatch(patchId, language);
+        return lolPatchService.getPatch(patchId, this.getFrontRiotPath(language));
     }
 
     public Optional<TFTPatchNomenclature> getTFTPatch(String patchId, String language) {
-        return tftPatchService.getPatch(patchId, language);
+        return tftPatchService.getPatch(patchId, this.getFrontRiotPath(language));
+    }
+
+    private String getFrontRiotPath(String frontRiotPath) {
+        return Arrays.stream(RIOTLanguageEnum.values())
+                .filter(language -> language.getFrontRiotPath().equals(frontRiotPath))
+                .map(RIOTLanguageEnum::getPath)
+                .findFirst()
+                .orElse(null);
     }
 
     public void updateAllPatches() throws IOException, URISyntaxException {
