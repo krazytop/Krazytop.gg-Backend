@@ -85,15 +85,10 @@ public class TFTMatchService {
     }
 
     private void saveMatch(TFTMatchEntity match, String puuid) {
-        String summonerId = match.getParticipants().stream()
-                .map(TFTParticipantEntity::getSummoner)
-                .filter(summoner -> summoner.getPuuid().equals(puuid))
-                .map(RIOTSummonerEntity::getId)
-                .findFirst().orElse("");
         match.getOwners().add(puuid);
         LOGGER.info("Saving TFT match : {}", match.getId());
         matchRepository.save(match);
-        summonerService.updateSpentTimeAndPlayedSeasonsOrSets(summonerId, match.getDuration(), match.getSet(), GameEnum.TFT);
+        summonerService.updateSpentTimeAndPlayedSeasonsOrSets(puuid, match.getDuration(), match.getSet(), GameEnum.TFT);
     }
 
     public List<TFTMatchEntity> getMatches(String puuid, int pageNb, TFTQueueEnum queue, int set) {

@@ -44,12 +44,12 @@ public class LOLMatchService {
         this.summonerService = summonerService;
     }
 
-    public List<LOLMatchEntity> getMatches(String summonerId, int pageNb, String queue, String role) {
-        return this.getMatches(summonerId, pageNb, LOLQueueEnum.fromName(queue), LOLRoleEnum.fromName(role));
+    public List<LOLMatchEntity> getMatches(String puuid, int pageNb, String queue, String role) {
+        return this.getMatches(puuid, pageNb, LOLQueueEnum.fromName(queue), LOLRoleEnum.fromName(role));
     }
 
-    public Long getMatchesCount(String summonerId, String queue, String role) {
-        return this.getMatchesCount(summonerId, LOLQueueEnum.fromName(queue), LOLRoleEnum.fromName(role));
+    public Long getMatchesCount(String puuid, String queue, String role) {
+        return this.getMatchesCount(puuid, LOLQueueEnum.fromName(queue), LOLRoleEnum.fromName(role));
     }
 
     public void updateMatches(String region, String puuid) {
@@ -93,48 +93,41 @@ public class LOLMatchService {
     }
 
     private void saveMatch(LOLMatchEntity match, String puuid) {
-        String summonerId = match.getTeams().stream()
-                .flatMap(team -> team.getParticipants().stream())
-                .map(LOLParticipantEntity::getSummoner)
-                .filter(summoner -> summoner.getPuuid().equals(puuid))
-                .map(RIOTSummonerEntity::getId)
-                .findFirst().orElse("");
         match.getOwners().add(puuid);
         LOGGER.info("Saving LOL match : {}", match.getId());
         matchRepository.save(match);
-        summonerService.updateSpentTimeAndPlayedSeasonsOrSets(summonerId, match.getDuration(), Integer.valueOf(match.getVersion().replaceAll("\\..*", "")), GameEnum.LOL);
-
+        summonerService.updateSpentTimeAndPlayedSeasonsOrSets(puuid, match.getDuration(), Integer.valueOf(match.getVersion().replaceAll("\\..*", "")), GameEnum.LOL);
     }
 
-    private List<LOLMatchEntity> getMatches(String summonerId, int pageNb, LOLQueueEnum queue, LOLRoleEnum role) {
+    private List<LOLMatchEntity> getMatches(String puuid, int pageNb, LOLQueueEnum queue, LOLRoleEnum role) {
         PageRequest pageRequest = PageRequest.of(pageNb, pageSize);
         if (queue == LOLQueueEnum.ALL_QUEUES) {
             if (role == LOLRoleEnum.ALL_ROLES) {
-                return this.matchRepository.findAll(summonerId, pageRequest).getContent();
+                return this.matchRepository.findAll(puuid, pageRequest).getContent();
             } else {
-                return this.matchRepository.findAllByRole(summonerId, role.getRiotName(), pageRequest).getContent();
+                return this.matchRepository.findAllByRole(puuid, role.getRiotName(), pageRequest).getContent();
             }
         } else {
             if (role == LOLRoleEnum.ALL_ROLES) {
-                return this.matchRepository.findAllByQueue(summonerId, queue.getIds(), pageRequest).getContent();
+                return this.matchRepository.findAllByQueue(puuid, queue.getIds(), pageRequest).getContent();
             } else {
-                return this.matchRepository.findAllByQueueAndByRole(summonerId, queue.getIds(), role.getRiotName(), pageRequest).getContent();
+                return this.matchRepository.findAllByQueueAndByRole(puuid, queue.getIds(), role.getRiotName(), pageRequest).getContent();
             }
         }
     }
 
-    private Long getMatchesCount(String summonerId, LOLQueueEnum queue, LOLRoleEnum role) {
+    private Long getMatchesCount(String puuid, LOLQueueEnum queue, LOLRoleEnum role) {
         if (queue == LOLQueueEnum.ALL_QUEUES) {
             if (role == LOLRoleEnum.ALL_ROLES) {
-                return this.matchRepository.countAll(summonerId);
+                return this.matchRepository.countAll(puuid);
             } else {
-                return this.matchRepository.countAllByRole(summonerId, role.getRiotName());
+                return this.matchRepository.countAllByRole(puuid, role.getRiotName());
             }
         } else {
             if (role == LOLRoleEnum.ALL_ROLES) {
-                return this.matchRepository.countAllByQueue(summonerId, queue.getIds());
+                return this.matchRepository.countAllByQueue(puuid, queue.getIds());
             } else {
-                return this.matchRepository.countAllByQueueAndByRole(summonerId, queue.getIds(), role.getRiotName());
+                return this.matchRepository.countAllByQueueAndByRole(puuid, queue.getIds(), role.getRiotName());
             }
         }
     }

@@ -11,7 +11,7 @@ import java.util.*;
 @Document(collection = "Board")
 public class RIOTBoardEntity {
     private String id;
-    private List<String> summonerIds = new ArrayList<>();
+    private List<String> puuids = new ArrayList<>();
     private Date updateDate;
     private String name;
 

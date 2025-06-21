@@ -87,19 +87,19 @@ public class RIOTBoardController {
         return new ResponseEntity<>(boardService.addSummonerToBoard(boardId, region, tag, name, game), HttpStatus.OK);
     }
 
-    @PostMapping("/lol/board/{boardId}/remove/{summonerId}")
-    public ResponseEntity<Void> removeSummonerOfLOLBoard(@PathVariable String boardId, @PathVariable String summonerId) {
-        return removeSummonerOfBoard(boardId, summonerId, GameEnum.LOL);
+    @PostMapping("/lol/board/{boardId}/remove/{puuid}")
+    public ResponseEntity<Void> removeSummonerOfLOLBoard(@PathVariable String boardId, @PathVariable String puuid) {
+        return removeSummonerOfBoard(boardId, puuid, GameEnum.LOL);
     }
 
-    @PostMapping("/tft/board/{boardId}/remove/{summonerId}")
-    public ResponseEntity<Void> removeSummonerOfTFTBoard(@PathVariable String boardId, @PathVariable String summonerId) {
-        return removeSummonerOfBoard(boardId, summonerId, GameEnum.TFT);
+    @PostMapping("/tft/board/{boardId}/remove/{puuid}")
+    public ResponseEntity<Void> removeSummonerOfTFTBoard(@PathVariable String boardId, @PathVariable String puuid) {
+        return removeSummonerOfBoard(boardId, puuid, GameEnum.TFT);
     }
 
-    private ResponseEntity<Void> removeSummonerOfBoard(String boardId, String summonerId, GameEnum game) {
+    private ResponseEntity<Void> removeSummonerOfBoard(String boardId, String puuid, GameEnum game) {
         LOGGER.info("Updating {} board without the summoner", game);
-        boardService.removeSummonerOfBoard(boardId, summonerId, game);
+        boardService.removeSummonerOfBoard(boardId, puuid, game);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

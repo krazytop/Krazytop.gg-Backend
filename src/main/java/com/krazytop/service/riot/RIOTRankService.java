@@ -39,29 +39,29 @@ public class RIOTRankService {
         this.metadataService = metadataService;
     }
 
-    public Optional<RIOTRankEntity> getRanks(String summonerId, GameEnum game) {
-        return getRepository(game).findBySummonerId(summonerId);
+    public Optional<RIOTRankEntity> getRanks(String puuid, GameEnum game) {
+        return getRepository(game).findByPuuid(puuid);
     }
 
-    public void updateRanks(String region, String summonerId, GameEnum game) {
+    public void updateRanks(String region, String puuid, GameEnum game) {
         try {
             int currentSeasonOrSet = getCurrentSeasonOrSet(game);
-            String stringUrl = String.format(getUrl(region, game), summonerId, apiKeyRepository.findFirstByGame(game).getKey());
+            String stringUrl = String.format(getUrl(region, game), puuid, apiKeyRepository.findFirstByGame(game).getKey());
             ObjectMapper mapper = new ObjectMapper();
             List<JsonNode> nodes = mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()), new TypeReference<>() {});
             for (JsonNode node : nodes) {
                 RIOTRankInformationsEntity rank = mapper.convertValue(node, RIOTRankInformationsEntity.class);
                 rank.setDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
-                joinRanks(summonerId, List.of(rank), currentSeasonOrSet, node.get("queueType").asText(), game);//TODO je ne sais plus quoi
+                joinRanks(puuid, List.of(rank), currentSeasonOrSet, node.get("queueType").asText(), game);//TODO je ne sais plus quoi
             }
         } catch (URISyntaxException | IOException e) {
             throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.RANKS_CANT_BE_UPDATED);
         }
     }
 
-    public void joinRanks(String summonerId, List<RIOTRankInformationsEntity> newRanks, int seasonOrSet, String queue, GameEnum game) {
+    public void joinRanks(String puuid, List<RIOTRankInformationsEntity> newRanks, int seasonOrSet, String queue, GameEnum game) {
         if (!newRanks.isEmpty()) {
-            RIOTRankEntity existingRanks = getRanks(summonerId, game).orElse(new RIOTRankEntity(summonerId));
+            RIOTRankEntity existingRanks = getRanks(puuid, game).orElse(new RIOTRankEntity(puuid));
             existingRanks.joinRanks(newRanks, seasonOrSet, queue);
             getRepository(game).save(existingRanks);
         }
@@ -73,7 +73,7 @@ public class RIOTRankService {
     }
 
     private String getUrl(String region, GameEnum game) {
-        return "https://euw1.api.riotgames.com/" + (game == GameEnum.LOL ? "lol/league/v4" : "tft/league/v1") + "/entries/by-summoner/%s?api_key=%s";
+        return "https://euw1.api.riotgames.com/" + (game == GameEnum.LOL ? "lol/league/v4" : "tft/league/v1") + "/entries/by-puuid/%s?api_key=%s";
     }
 
     private RIOTRankRepository getRepository(GameEnum game) {

@@ -43,19 +43,19 @@ public class RIOTRankController {
                 .orElseThrow(() -> new CustomHTTPException(RIOTHTTPErrorResponsesEnum.RANKS_NOT_FOUND)), HttpStatus.OK);
     }
 
-    @PostMapping("/lol/ranks/{region}/{summonerId}")
-    public ResponseEntity<Void> updateLOLRanks(@PathVariable String region, @PathVariable String summonerId) {
-        return updateRanks(region, summonerId, GameEnum.LOL);
+    @PostMapping("/lol/ranks/{region}/{puuid}")
+    public ResponseEntity<Void> updateLOLRanks(@PathVariable String region, @PathVariable String puuid) {
+        return updateRanks(region, puuid, GameEnum.LOL);
     }
 
-    @PostMapping("/tft/ranks/{region}/{summonerId}")
-    public ResponseEntity<Void> updateTFTRanks(@PathVariable String region, @PathVariable String summonerId) {
-        return updateRanks(region, summonerId, GameEnum.TFT);
+    @PostMapping("/tft/ranks/{region}/{puuid}")
+    public ResponseEntity<Void> updateTFTRanks(@PathVariable String region, @PathVariable String puuid) {
+        return updateRanks(region, puuid, GameEnum.TFT);
     }
 
-    private ResponseEntity<Void> updateRanks(String region, String summonerId, GameEnum game) {
+    private ResponseEntity<Void> updateRanks(String region, String puuid, GameEnum game) {
         LOGGER.info("Updating {} ranks", game);
-        rankService.updateRanks(region, summonerId, game);
+        rankService.updateRanks(region, puuid, game);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
