@@ -16,7 +16,7 @@ public enum RIOTHTTPErrorResponsesEnum {
     RANKS_NOT_FOUND(6, "RIOT Ranks not found", HttpStatus.NOT_FOUND),
     RANKS_CANT_BE_UPDATED(7, "RIOT Ranks can't be updated", HttpStatus.NOT_FOUND),
     MASTERIES_NOT_FOUND(8, "RIOT Masteries not found", HttpStatus.NOT_FOUND),
-    MASTERIES_CANT_BE_UPDATED(9, "RIOT Masteries not found", HttpStatus.NOT_FOUND),
+    MASTERIES_CANT_BE_UPDATED(9, "RIOT Masteries can't be updated", HttpStatus.NOT_FOUND),
     MATCHES_CANT_BE_UPDATED(10, "RIOT matches can't be updated", HttpStatus.NOT_FOUND),
     SUMMONER_ALREADY_ADDED_TO_BOARD(11, "RIOT Summoner already added to board", HttpStatus.BAD_REQUEST),
     SUMMONER_ABSENT_OF_BOARD(11, "RIOT Summoner isn't present on board", HttpStatus.BAD_REQUEST),;

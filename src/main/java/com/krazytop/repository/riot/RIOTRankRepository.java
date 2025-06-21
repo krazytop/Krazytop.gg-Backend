@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface RIOTRankRepository extends MongoRepository<RIOTRankEntity, String> {
 
-    Optional<RIOTRankEntity> findBySummonerId(String summonerId);
+    Optional<RIOTRankEntity> findByPuuid(String puuid);
 }

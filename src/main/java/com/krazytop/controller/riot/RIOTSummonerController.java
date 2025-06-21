@@ -41,35 +41,35 @@ public class RIOTSummonerController {
         return new ResponseEntity<>(summoner, HttpStatus.OK);
     }
 
-    @GetMapping("/lol/summoner/{region}/{summonerId}")
-    public ResponseEntity<RIOTSummonerEntity> getLOLSummoner(@PathVariable String region, @PathVariable String summonerId) {
-        return getSummoner(region, summonerId, GameEnum.LOL);
+    @GetMapping("/lol/summoner/{region}/{puuid}")
+    public ResponseEntity<RIOTSummonerEntity> getLOLSummoner(@PathVariable String region, @PathVariable String puuid) {
+        return getSummoner(region, puuid, GameEnum.LOL);
     }
 
-    @GetMapping("/tft/summoner/{region}/{summonerId}")
-    public ResponseEntity<RIOTSummonerEntity> getTFTSummoner(@PathVariable String region, @PathVariable String summonerId) {
-        return getSummoner(region, summonerId, GameEnum.TFT);
+    @GetMapping("/tft/summoner/{region}/{puuid}")
+    public ResponseEntity<RIOTSummonerEntity> getTFTSummoner(@PathVariable String region, @PathVariable String puuid) {
+        return getSummoner(region, puuid, GameEnum.TFT);
     }
 
-    private ResponseEntity<RIOTSummonerEntity> getSummoner(String region, String summonerId, GameEnum game) {
-        LOGGER.info("Retrieving {} summoner with id", game);
-        RIOTSummonerEntity summoner = riotSummonerService.getSummoner(region, summonerId, game);
+    private ResponseEntity<RIOTSummonerEntity> getSummoner(String region, String puuid, GameEnum game) {
+        LOGGER.info("Retrieving {} summoner with puuid", game);
+        RIOTSummonerEntity summoner = riotSummonerService.getSummoner(region, puuid, game);
         return new ResponseEntity<>(summoner, HttpStatus.OK);
     }
 
-    @PostMapping("/lol/summoner/{region}/{summonerId}")
-    public ResponseEntity<RIOTSummonerEntity> updateLOLSummoner(@PathVariable String region, @PathVariable String summonerId) {
-        return updateSummoner(region, summonerId, GameEnum.LOL);
+    @PostMapping("/lol/summoner/{region}/{puuid}")
+    public ResponseEntity<RIOTSummonerEntity> updateLOLSummoner(@PathVariable String region, @PathVariable String puuid) {
+        return updateSummoner(region, puuid, GameEnum.LOL);
     }
 
-    @PostMapping("/tft/summoner/{region}/{summonerId}")
-    public ResponseEntity<RIOTSummonerEntity> updateTFTSummoner(@PathVariable String region, @PathVariable String summonerId) {
-        return updateSummoner(region, summonerId, GameEnum.TFT);
+    @PostMapping("/tft/summoner/{region}/{puuid}")
+    public ResponseEntity<RIOTSummonerEntity> updateTFTSummoner(@PathVariable String region, @PathVariable String puuid) {
+        return updateSummoner(region, puuid, GameEnum.TFT);
     }
 
-    private ResponseEntity<RIOTSummonerEntity> updateSummoner(String region, String summonerId, GameEnum game) {
+    private ResponseEntity<RIOTSummonerEntity> updateSummoner(String region, String puuid, GameEnum game) {
         LOGGER.info("Updating {} summoner", game);
-        RIOTSummonerEntity summoner = riotSummonerService.updateSummoner(region, summonerId, game);
+        RIOTSummonerEntity summoner = riotSummonerService.updateSummoner(region, puuid, game);
         return new ResponseEntity<>(summoner, HttpStatus.OK);
     }
 }

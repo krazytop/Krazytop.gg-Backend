@@ -11,11 +11,11 @@ import java.util.*;
 public class RIOTRankEntity {
 
     @Id
-    private String summonerId;
+    private String puuid;
     private List<RIOTSeasonOrSetRanksEntity> seasonOrSetRanks = new ArrayList<>();
 
-    public RIOTRankEntity(String summonerId) {
-        this.summonerId = summonerId;
+    public RIOTRankEntity(String puuid) {
+        this.puuid = puuid;
     }
 
     public void joinRanks(List<RIOTRankInformationsEntity> newRanksInformations, int seasonOrSetNb, String queueName) {

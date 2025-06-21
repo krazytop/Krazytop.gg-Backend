@@ -25,16 +25,16 @@ public class LOLMatchController {
         this.matchService = matchService;
     }
 
-    @GetMapping("/lol/matches/{summonerId}/{pageNb}/{queue}/{role}")
-    public ResponseEntity<List<LOLMatchEntity>> getMatches(@PathVariable String summonerId, @PathVariable int pageNb, @PathVariable String queue, @PathVariable String role) {
+    @GetMapping("/lol/matches/{puuid}/{pageNb}/{queue}/{role}")
+    public ResponseEntity<List<LOLMatchEntity>> getMatches(@PathVariable String puuid, @PathVariable int pageNb, @PathVariable String queue, @PathVariable String role) {
         LOGGER.info("Retrieving LOL matches");
-        return new ResponseEntity<>(matchService.getMatches(summonerId, pageNb, queue, role), HttpStatus.OK);
+        return new ResponseEntity<>(matchService.getMatches(puuid, pageNb, queue, role), HttpStatus.OK);
     }
 
-    @GetMapping("/lol/matches/count/{summonerId}/{queue}/{role}")
-    public ResponseEntity<Long> getMatchesCount(@PathVariable String summonerId, @PathVariable String queue, @PathVariable String role) {
+    @GetMapping("/lol/matches/count/{puuid}/{queue}/{role}")
+    public ResponseEntity<Long> getMatchesCount(@PathVariable String puuid, @PathVariable String queue, @PathVariable String role) {
         LOGGER.info("Retrieving LOL matches count");
-        return new ResponseEntity<>(matchService.getMatchesCount(summonerId, queue, role), HttpStatus.OK);
+        return new ResponseEntity<>(matchService.getMatchesCount(puuid, queue, role), HttpStatus.OK);
     }
 
     @PostMapping("/lol/matches/{region}/{puuid}")

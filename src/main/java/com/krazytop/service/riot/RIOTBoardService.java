@@ -55,8 +55,8 @@ public class RIOTBoardService {
         Optional<RIOTBoardEntity> board = getBoard(boardId, game);
         if (board.isPresent()) {
             RIOTSummonerEntity summoner = summonerService.getSummoner(region, tag, name, GameEnum.LOL);
-            if (!board.get().getSummonerIds().contains(summoner.getId())) {
-                board.get().getSummonerIds().add(summoner.getId());
+            if (!board.get().getPuuids().contains(summoner.getId())) {
+                board.get().getPuuids().add(summoner.getId());
                 getRepository(game).save(board.get());
             } else {
                 throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.SUMMONER_ALREADY_ADDED_TO_BOARD);
@@ -67,11 +67,11 @@ public class RIOTBoardService {
         }
     }
 
-    public void removeSummonerOfBoard(String boardId, String summonerId, GameEnum game) {
+    public void removeSummonerOfBoard(String boardId, String puuid, GameEnum game) {
         Optional<RIOTBoardEntity> board = getBoard(boardId, game);
         if (board.isPresent()) {
-            if (board.get().getSummonerIds().contains(summonerId)) {
-                board.get().getSummonerIds().remove(summonerId);
+            if (board.get().getPuuids().contains(puuid)) {
+                board.get().getPuuids().remove(puuid);
                 getRepository(game).save(board.get());
             } else {
                 throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.SUMMONER_ABSENT_OF_BOARD);
@@ -85,8 +85,8 @@ public class RIOTBoardService {
         Optional<RIOTBoardEntity> boardOpt = getBoard(boardId, game);
         if (boardOpt.isPresent()) {
             RIOTBoardEntity board = boardOpt.get();
-            board.getSummonerIds().forEach(summonerId -> {
-                RIOTSummonerEntity summoner = summonerService.getSummoner("region", summonerId, game);
+            board.getPuuids().forEach(puuid -> {
+                RIOTSummonerEntity summoner = summonerService.getSummoner("region", puuid, game);
                 if (summoner.getUpdateDate() != null) {
                     summonerService.updateSummoner(summoner.getRegion(), summoner.getId(), game);
                     rankService.updateRanks(summoner.getRegion(), summoner.getId(), game);
