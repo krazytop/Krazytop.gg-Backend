@@ -14,11 +14,11 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CRCardEntity {
 
-    private int level;
-    private int evolutionLevel;
-    private int count;
-    private int starLevel;
-    private int upgradeCost;
+    private Integer level;
+    private Integer evolutionLevel;
+    private Integer count;
+    private Integer starLevel;
+    private Integer upgradeCost;
     private CRCardNomenclature nomenclature;
 
     @JsonProperty("id")
@@ -29,10 +29,12 @@ public class CRCardEntity {
 
     @JsonProperty("rarity")
     private void unpackUpgradeCost(JsonNode node) {
-        CRCardRarityNomenclatureRepository cardRarityNomenclatureRepository = SpringConfiguration.contextProvider().getApplicationContext().getBean(CRCardRarityNomenclatureRepository.class);
-        String rarity = node.asText();
-        rarity = rarity.substring(0, 1).toUpperCase() + rarity.substring(1);
-        CRCardRarityNomenclature rarityNomenclature = cardRarityNomenclatureRepository.findFirstByName(rarity);
-        this.setUpgradeCost(rarityNomenclature.getUpgradeCost().get(this.getLevel() -1));
+        if (this.getLevel() != null) {
+            CRCardRarityNomenclatureRepository cardRarityNomenclatureRepository = SpringConfiguration.contextProvider().getApplicationContext().getBean(CRCardRarityNomenclatureRepository.class);
+            String rarity = node.asText();
+            rarity = rarity.substring(0, 1).toUpperCase() + rarity.substring(1);
+            CRCardRarityNomenclature rarityNomenclature = cardRarityNomenclatureRepository.findFirstByName(rarity);
+            this.setUpgradeCost(rarityNomenclature.getUpgradeCost().get(this.getLevel() - 1));
+        }
     }
 }

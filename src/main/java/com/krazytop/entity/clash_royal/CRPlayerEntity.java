@@ -51,7 +51,7 @@ public class CRPlayerEntity {
     @JsonProperty("arena")
     private void unpackArena(JsonNode node) {
         CRArenaNomenclatureRepository arenaNomenclatureRepository = SpringConfiguration.contextProvider().getApplicationContext().getBean(CRArenaNomenclatureRepository.class);
-        this.arenaNomenclature = arenaNomenclatureRepository.findFirstById(node.asInt());
+        this.arenaNomenclature = arenaNomenclatureRepository.findFirstById(node.get("id").asInt());
     }
 
     @JsonProperty("currentPathOfLegendSeasonResult")
