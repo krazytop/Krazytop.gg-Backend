@@ -1,0 +1,59 @@
+getPlayerToken:
+  get:
+    summary: Retrieve Bungie player tokens
+    operationId: getPlayerToken
+    tags:
+      - Destiny
+      - Authentification
+    parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+        description: The authorization code received from Bungie.net.
+    responses:
+      '200':
+        description: Player tokens retrieved successfully. Returns a JSON string of tokens.
+        content:
+          application/json:
+            schema:
+              type: string
+              example: "{'access_token':'access_token','refresh_token':'refresh_token','expires_in':3600}"
+      '500':
+        description: Internal Server Error or IO Error when communicating with Bungie.
+        content:
+          application/json:
+            schema:
+              $ref: '../../models/ApiError.yaml'
+              example: "Failed to retrieve tokens due to external service error."
+
+updatePlayerToken:
+  post:
+    summary: Update Bungie player tokens using a refresh token
+    operationId: updatePlayerToken
+    tags:
+      - Destiny
+      - Authentification
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: string
+            example: "refresh_token"
+    responses:
+      '200':
+        description: Player tokens successfully refreshed. Returns a JSON string of new tokens.
+        content:
+          application/json:
+            schema:
+              type: string
+              example: "{'access_token':'access_token','refresh_token':'refresh_token','expires_in':3600}"
+      '500':
+        description: Internal Server Error or IO Error when communicating with Bungie.
+        content:
+          application/json:
+            schema:
+              $ref: '../../models/ApiError.yaml'
+              example: "Failed to refresh tokens due to external service error."
