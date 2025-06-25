@@ -14,7 +14,7 @@ public class CustomException extends RuntimeException {
         this.errorEnum = errorEnum;
     }
 
-    public CustomException(ApiErrorEnum errorEnum,  Throwable cause) {
+    public CustomException(ApiErrorEnum errorEnum, Throwable cause) {
         super(errorEnum.getMessage(), cause);
         this.errorEnum = errorEnum;
     }

@@ -2,7 +2,6 @@ openapi: 3.0.0
 info:
   title: Global API Gateway
   version: 1.0.0
-  description: Central API
 
 servers:
   - url: http://localhost:8080
@@ -13,16 +12,158 @@ servers:
 tags:
   - name: Destiny
     description: Operations related to Destiny 2.
+  - name: League of Legends
+    description: Operations related to League of Legends.
+  - name: Teamfight Tactics
+    description: Operations related to Teamfight Tactics.
   - name: Authentification
     description: Operations related to user authentication.
+  - name: Metadata
+    description: Operations related to game metadata.
 
 paths:
   /destiny/auth/{code}:
-    $ref: './controllers/destiny/destiny-auth.yaml#/getPlayerToken'
+    $ref: './controllers/destiny/destiny-auth.yaml#/getPlayerTokens'
   /destiny/auth:
-    $ref: './controllers/destiny/destiny-auth.yaml#/updatePlayerToken'
+    $ref: './controllers/destiny/destiny-auth.yaml#/updatePlayerTokens'
+  /lol/metadata:
+    $ref: './controllers/lol/lol-metadata.yaml#/getMetadata'
+  /tft/metadata:
+    $ref: './controllers/tft/tft-metadata.yaml#/getMetadata'
 
 components:
   schemas:
     ApiError:
-      $ref: './models/ApiError.yaml'
+      type: object
+      description: |
+        Represents a standardized error response returned by the API when a request
+        cannot be processed successfully. It provides a machine-readable code,
+        a human-readable message, and optional detailed information for specific issues.
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: A unique, application-specific error code.
+          example: "INVALID_INPUT"
+        message:
+          type: string
+          description: A human-readable error message that provides a brief explanation of the error.
+          example: "The provided 'date' parameter has an invalid format."
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: The name of the field that caused the error.
+                example: "date"
+              issue:
+                type: string
+                description: A specific issue with the field.
+                example: "must respect the format"
+          description: A list of specific validation errors.
+    LanguageDTO:
+      type: object
+      description: Entity representing a language and its associated game patch paths.
+      required:
+        - name
+        - lolPatchPath
+        - tftPatchPath
+      properties:
+        name:
+          type: string
+          description: The name of the language.
+          example: "Français"
+        lolPatchPath:
+          type: string
+          description: The League of Legends patch path.
+          example: "fr_FR"
+        tftPatchPath:
+          type: string
+          description: The Teamfight Tactics patch path.
+          example: "fr_FR"
+    SupportedLanguagesDTO:
+      type: array
+      items:
+        $ref: '#/components/schemas/LanguageDTO'
+    DestinyAuthTokensDTO:
+      type: object
+      description: |
+        Represents Bungie authentification tokens containing access and refresh tokens,
+        along with expiration information and the membership ID.
+      required:
+        - access_token
+        - token_type
+        - expires_in
+        - refresh_token
+        - refresh_expires_in
+        - membership_id
+      properties:
+        access_token:
+          type: string
+          description: The access token used to authenticate future API requests.
+          example: "CKy1BxKGAgAgHxlqkdJcDjAJ3Dkh4ILp3ddvxxqnBpj+YJDm++dhWNDgAAAAqJgWwVRarfCcmdKvQUi6A9tHfETM3NjLhQuWou6+YdLaUFq8Jp3cibIj+xUNqc8k3i3RsU0E6hJmYrblrZ6Z6DcUmFW9SgpIaIxuB4BU15VJUmnmDNxXRntelyctsC++fY0HLdICV+9aEK7VmQHCO0j3TYrRMf2aof7lS59ct821K48DEVg8KdLEOMvOPoX6ohW/TV7wbJLXpSnhrzS2TnanzMIyycJJHqTu1zcGaJ5iOnEL6oIRKN0bJRl23tJdgXH+dJlIOKoB+1QcGAxZdqkjGdI8TGYAf9pBVl0aJsM="
+        token_type:
+          type: string
+          description: The type of token, typically "Bearer".
+          example: "Bearer"
+        expires_in:
+          type: integer
+          format: int32
+          description: The validity duration of the access token in seconds.
+          example: 3600
+        refresh_token:
+          type: string
+          description: The refresh token used to obtain a new access token.
+          example: "CKy1BxKGAgAgf5vy8riRnThQj+l79abfpE/2rIL/CAMy4DSJXdZ3fH7gAAAAEGCNeHJQIOOGTwDDzQfOVybHsiVJhJoLgCfsUdH6PslsiNNfN+Ba2aG2b8ibOqYOvFKm0BqAUx6PQhusbgjOIeCs+rPViOJ5HQfId/aFaJ1GpSMrV9tw7xAGVPFZzVZ/xjv3mF4f+thMq9MQD6VuxqCa8BBXvplWlDX/CluYEinqZlXpDABgAanj2O5nkuu1AubLy3f0Jdt8mjr8ikPmA2DAE44mnhtSLcJF49rAa7/z0VYDRK94nMjjLrI8t+cOeCJNUpSrexbx4CQXUo5TaOmtQquIpl/APwYqh44Bnh4="
+        refresh_expires_in:
+          type: integer
+          format: int32
+          description: The validity duration of the refresh token in seconds.
+          example: 7776000
+        membership_id:
+          type: string
+          description: The unique Bungie membership ID associated with these tokens.
+          example: "14865130"
+    RIOTMetadataDTO:
+      type: object
+      description: Entity representing current game season, patch, and historical patch information for RIOT games.
+      required:
+        - currentSeasonOrSet
+        - currentPatch
+        - allPatches
+      properties:
+        currentSeasonOrSet:
+          type: integer
+          format: int32
+          description: The current League of Legends season number or Teamfight Tactics set number.
+          example: 15
+        currentPatch:
+          type: string
+          description: The current RIOT game patch version.
+          example: "15.12"
+        allPatches:
+          type: array
+          description: A list of all available RIOT games patch versions.
+          items:
+            type: string
+          example:
+            - "14.24"
+            - "14.23"
+            - "14.22"
+    LOLAvailableRanks:
+      description: Enum representing all available ranks in League of Legends.
+      type: string
+      enum:
+        - "RANKED_SOLO_5x5"
+        - "RANKED_TEAM_5x5"
+    TFTAvailableRanks:
+      description: Enum representing all available ranks in Teamfight Tactics.
+      type: string
+      enum:
+        - "RANKED_TFT"
+        - "RANKED_TFT_TURBO"
+        - "RANKED_TFT_DOUBLE_UP"

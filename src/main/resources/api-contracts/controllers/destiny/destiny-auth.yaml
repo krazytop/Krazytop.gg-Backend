@@ -1,7 +1,7 @@
-getPlayerToken:
+getPlayerTokens:
   get:
     summary: Retrieve Bungie player tokens
-    operationId: getPlayerToken
+    operationId: getPlayerTokens
     tags:
       - Destiny
       - Authentification
@@ -14,46 +14,42 @@ getPlayerToken:
         description: The authorization code received from Bungie.net.
     responses:
       '200':
-        description: Player tokens retrieved successfully. Returns a JSON string of tokens.
+        description: Player tokens successfully retrieved.
         content:
           application/json:
             schema:
-              type: string
-              example: "{'access_token':'access_token','refresh_token':'refresh_token','expires_in':3600}"
+              $ref: '../../api-contracts.yaml#/components/schemas/DestinyAuthTokensDTO'
       '500':
         description: Internal Server Error or IO Error when communicating with Bungie.
         content:
           application/json:
             schema:
-              $ref: '../../models/ApiError.yaml'
-              example: "Failed to retrieve tokens due to external service error."
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
 
-updatePlayerToken:
+updatePlayerTokens:
   post:
-    summary: Update Bungie player tokens using a refresh token
-    operationId: updatePlayerToken
+    summary: Update Bungie player tokens.
+    operationId: updatePlayerTokens
     tags:
       - Destiny
       - Authentification
     requestBody:
       required: true
+      description: Player tokens to refresh.
       content:
         application/json:
           schema:
-            type: string
-            example: "refresh_token"
+            $ref: '../../api-contracts.yaml#/components/schemas/DestinyAuthTokensDTO'
     responses:
       '200':
-        description: Player tokens successfully refreshed. Returns a JSON string of new tokens.
+        description: Player tokens successfully refreshed.
         content:
           application/json:
             schema:
-              type: string
-              example: "{'access_token':'access_token','refresh_token':'refresh_token','expires_in':3600}"
+              $ref: '../../api-contracts.yaml#/components/schemas/DestinyAuthTokensDTO'
       '500':
         description: Internal Server Error or IO Error when communicating with Bungie.
         content:
           application/json:
             schema:
-              $ref: '../../models/ApiError.yaml'
-              example: "Failed to refresh tokens due to external service error."
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'

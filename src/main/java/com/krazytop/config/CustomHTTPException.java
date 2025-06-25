@@ -4,7 +4,7 @@ import com.krazytop.http_responses.RIOTHTTPErrorResponsesEnum;
 import lombok.Getter;
 
 @Getter
-public class CustomHTTPException extends RuntimeException {
+public class CustomHTTPException extends RuntimeException {//TODO supprimer
 
     private final RIOTHTTPErrorResponsesEnum response;
 

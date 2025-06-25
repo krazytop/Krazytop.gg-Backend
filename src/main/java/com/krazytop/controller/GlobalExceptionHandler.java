@@ -3,19 +3,18 @@ package com.krazytop.controller;
 import com.krazytop.api_gateway.model.generated.ApiError;
 import com.krazytop.api_gateway.model.generated.ApiErrorDetailsInner;
 import com.krazytop.config.CustomHTTPException;
-import com.krazytop.exception.ExternalServiceException;
-import com.krazytop.exception.InternalServiceException;
-import com.krazytop.exception.InvalidInputException;
+import com.krazytop.exception.CustomException;
 import com.krazytop.http_responses.RIOTHTTPErrorResponsesEnum;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import static com.krazytop.exception.CustomApiError.buildApiError;
 import static com.krazytop.http_responses.ApiErrorEnum.*;
@@ -32,37 +31,23 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, response.getHttpResponseCode());
     }
 
-    /* TODO voir si il faut modifier
-    spring:
-  mvc:
-    throw-exception-if-no-handler-found: true
-  web:
-    resources:
-      add-mappings: false # Important pour éviter que Spring ne serve des ressources statiques et masque l'exception
-      => NoHandlerFoundException.class ?
-     */
-    @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<ApiError> handleNoController(NoResourceFoundException ex) {
-        LOGGER.error(ex.getMessage(), ex);
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ApiError> handleNoController() {
         return new ResponseEntity<>(buildApiError(NOT_FOUND), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(InvalidInputException.class)
-    public ResponseEntity<ApiError> handleInvalidInputException(InvalidInputException ex) {
-        LOGGER.error("Invalid input error: {}", ex.getMessage(), ex);
-        return new ResponseEntity<>(buildApiError(ex.getErrorEnum()), HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiError> handleNoController(HttpRequestMethodNotSupportedException ex) {
+        LOGGER.warn(ex.getMessage());
+        return new ResponseEntity<>(buildApiError(METHOD_NOT_ALLOWED), HttpStatus.METHOD_NOT_ALLOWED);
     }
 
-    @ExceptionHandler(ExternalServiceException.class)
-    public ResponseEntity<ApiError> handleExternalServiceException(ExternalServiceException ex) {
-        LOGGER.error("External service error occurred: {}", ex.getMessage(), ex);
-        return new ResponseEntity<>(buildApiError(ex.getErrorEnum()), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(InternalServiceException.class)
-    public ResponseEntity<ApiError> handleInternalServiceException(InternalServiceException ex) {
-        LOGGER.error("Internal service error occurred: {}", ex.getMessage(), ex);
-        return new ResponseEntity<>(buildApiError(ex.getErrorEnum()), HttpStatus.INTERNAL_SERVER_ERROR);
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ApiError> handleCustomException(CustomException ex) {
+        ApiError apiError = buildApiError(ex.getErrorEnum());
+        LOGGER.error(apiError.getMessage());
+        if (ex.getCause() != null) LOGGER.error(ex.getCause().toString());
+        return new ResponseEntity<>(apiError, ex.getErrorEnum().getStatus());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

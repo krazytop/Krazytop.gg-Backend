@@ -5,6 +5,9 @@ spring:
     user:
       name: krazytop
       password: password
+  web:
+    resources:
+      add-mappings: false
   data:
     mongodb:
       tft:

@@ -1,6 +1,7 @@
 package com.krazytop.controller.destiny;
 
 import com.krazytop.api_gateway.api.generated.DestinyApi;
+import com.krazytop.api_gateway.model.generated.DestinyAuthTokensDTO;
 import com.krazytop.service.destiny.DestinyAuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,19 +23,19 @@ public class DestinyAuthController implements DestinyApi {
     }
 
     @Override
-    public ResponseEntity<String> getPlayerToken(String code) {
+    public ResponseEntity<DestinyAuthTokensDTO> getPlayerTokens(String code) {
         LOGGER.info("Retrieving BUNGIE player tokens with code");
-        String playerToken = destinyAuthService.getPlayerToken(code);
+        DestinyAuthTokensDTO playerTokens = destinyAuthService.getPlayerTokens(code);
         LOGGER.info("BUNGIE player tokens retrieved");
-        return new ResponseEntity<>(playerToken, HttpStatus.OK);
+        return new ResponseEntity<>(playerTokens, HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<String> updatePlayerToken(String refreshToken) {
+    public ResponseEntity<DestinyAuthTokensDTO> updatePlayerTokens(DestinyAuthTokensDTO tokens) {
         LOGGER.info("Updating BUNGIE player tokens with refresh token");
-        String playerToken = destinyAuthService.updatePlayerToken(refreshToken);
+        DestinyAuthTokensDTO newTokens = destinyAuthService.updatePlayerTokens(tokens.getRefreshToken());
         LOGGER.info("BUNGIE player tokens refreshed");
-        return new ResponseEntity<>(playerToken, HttpStatus.OK);
+        return new ResponseEntity<>(newTokens, HttpStatus.OK);
     }
 
 }
