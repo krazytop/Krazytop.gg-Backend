@@ -1,16 +1,17 @@
 package com.krazytop.service.lol;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.krazytop.entity.riot.RIOTMetadataEntity;
+import com.krazytop.api_gateway.model.generated.LanguageDTO;
+import com.krazytop.entity.lol.LOLMetadata;
+import com.krazytop.entity.tft.TFTMetadata;
 import com.krazytop.nomenclature.lol.*;
-import com.krazytop.nomenclature.riot.RIOTLanguageEnum;
+import com.krazytop.nomenclature.riot.RIOTQueueNomenclature;
 import com.krazytop.repository.lol.*;
-import com.krazytop.service.riot.RIOTPatchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -18,47 +19,65 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 
-/**
- * Only EUW
- */
+import static com.krazytop.nomenclature.LanguageService.SUPPORTED_LANGUAGES;
+
 @Service
 public class LOLPatchService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LOLPatchService.class);
 
-    private final LOLPatchNomenclatureRepository patchNomenclatureRepository;
-    private final RIOTPatchService riotPatchService;
+    private final LOLPatchRepository patchNomenclatureRepository;
+    private final LOLMetadataService metadataService;
 
     @Autowired
-    public LOLPatchService(LOLPatchNomenclatureRepository patchNomenclatureRepository, @Lazy RIOTPatchService riotPatchService) {
+    public LOLPatchService(LOLPatchRepository patchNomenclatureRepository, LOLMetadataService metadataService) {
         this.patchNomenclatureRepository = patchNomenclatureRepository;
-        this.riotPatchService = riotPatchService;
+        this.metadataService = metadataService;
     }
 
-    public Optional<LOLPatchNomenclature> getPatch(String patchId, String language) {
+    public Optional<LOLPatch> getPatch(String patchId, String language) {
         return patchNomenclatureRepository.findFirstByPatchIdAndLanguage(patchId, language);
     }
 
-    public void updateAllLOLPatches(String patchVersion, RIOTLanguageEnum language, RIOTMetadataEntity metadata) throws IOException, URISyntaxException {
-        String shortVersion = riotPatchService.removeFixVersion(patchVersion);
-        if (getPatch(shortVersion, language.getPath()).isEmpty()) {
-            updatePatchData(patchVersion, language.getPath());
-            metadata.setCurrentLOLSeason(patchNomenclatureRepository.findLatestPatch().getSeason());
-            metadata.getAllLOLPatches().add(shortVersion);
+    public void updateAllPatches() throws IOException, URISyntaxException {
+        List<String> allPatchesVersion = getAllPatchesVersion().stream()
+                .map(this::removeFixVersion)
+                .toList();
+        LOLMetadata metadata = metadataService.getMetadata().orElse(new LOLMetadata());
+        for (String patchVersion : allPatchesVersion) {
+            for (String language : SUPPORTED_LANGUAGES.stream().map(LanguageDTO::getRiotPatchPath).toList()) {
+                if (getPatch(patchVersion, language).isEmpty()) {
+                    updatePatchData(patchVersion, language);
+                }
+            }
+            metadata.getAllPatches().add(patchVersion);
+            metadata.setCurrentSeason(patchNomenclatureRepository.findLatestPatch().getSeason());
+            metadataService.saveMetadata(metadata);
         }
     }
 
+    public List<String> getAllPatchesVersion() throws IOException, URISyntaxException {
+        ObjectMapper mapper = new ObjectMapper();
+        String uri = "https://ddragon.leagueoflegends.com/api/versions.json";
+        JsonNode data = mapper.readTree(new URI(uri).toURL());
+        List<String> allPatchesVersion = mapper.convertValue(data, new TypeReference<>() {});
+        return allPatchesVersion.stream()
+                .filter(version -> !version.contains("lol"))
+                .filter(version -> !version.startsWith("0."))
+                .toList();
+    }
+
     private void updatePatchData(String patchVersion, String language) throws IOException, URISyntaxException {
-        String shortVersion = riotPatchService.removeFixVersion(patchVersion);
+        String shortVersion = removeFixVersion(patchVersion);
         LOGGER.info("Update LOL patch {} for language {}", shortVersion, language);
-        LOLPatchNomenclature patch = new LOLPatchNomenclature(shortVersion, language);
+        LOLPatch patch = new LOLPatch(shortVersion, language);
         patch.setChampions(getPatchChampions(patchVersion, language));
         patch.setSummonerSpells(getPatchSummonerSpells(patchVersion, language));
         patch.setItems(getPatchItems(patchVersion, language));
-        if (riotPatchService.isVersionAfterAnOther(shortVersion, "8.0")) patch.setRunes(getPatchRunes(patchVersion, language));
-        if (riotPatchService.isVersionAfterAnOther(shortVersion, "13.13")) patch.setAugments(getPatchAugments(shortVersion, language));
+        if (isVersionAfterAnOther(shortVersion, "8.0")) patch.setRunes(getPatchRunes(patchVersion, language));
+        if (isVersionAfterAnOther(shortVersion, "13.13")) patch.setAugments(getPatchAugments(shortVersion, language));
         patch.setSeason(Integer.valueOf(shortVersion.split("\\.")[0]));
-        patch.setQueues(riotPatchService.getPatchQueues(riotPatchService.isVersionAfterAnOther(shortVersion, "13.13") ? shortVersion : "13.14", language));
+        patch.setQueues(getPatchQueues(isVersionAfterAnOther(shortVersion, "13.13") ? shortVersion : "13.14", language));
         patchNomenclatureRepository.save(patch);
     }
 
@@ -94,6 +113,32 @@ public class LOLPatchService {
         ObjectMapper mapper = new ObjectMapper();
         String url = String.format("https://ddragon.leagueoflegends.com/cdn/%s/data/%s/runesReforged.json", version, language);
         return mapper.convertValue(mapper.readTree(new URI(url).toURL()), new TypeReference<>() {});
+    }
+
+    public List<RIOTQueueNomenclature> getPatchQueues(String patchVersion, String language) throws IOException, URISyntaxException {
+        if (Objects.equals(patchVersion, "13.2") || Objects.equals(patchVersion, "13.3")) patchVersion = "13.4";
+        if (Objects.equals(patchVersion, "11.7")) patchVersion = "11.8";
+        ObjectMapper mapper = new ObjectMapper();
+        String queueUri = String.format("https://raw.communitydragon.org/%s/plugins/rcp-be-lol-game-data/global/%s/v1/queues.json", patchVersion, language.toLowerCase());
+        if (isVersionAfterAnOther(patchVersion, "14.12")) {
+            return mapper.convertValue(mapper.convertValue(new ObjectMapper().readTree(new URI(queueUri).toURL()), new TypeReference<>() {}), new TypeReference<>() {});
+        } else {
+            Map<String, RIOTQueueNomenclature> nomenclaturesMap = mapper.convertValue(new ObjectMapper().readTree(new URI(queueUri).toURL()), new TypeReference<>() {});
+            nomenclaturesMap.forEach((id, nomenclature) -> nomenclature.setId(id));
+            return nomenclaturesMap.values().stream().toList();
+        }
+    }
+
+    public String removeFixVersion(String version) {
+        return version.substring(0, version.lastIndexOf('.'));
+    }
+
+    public boolean isVersionAfterAnOther(String version, String referentVersion) {
+        String[] v1 = version.split("\\.");
+        String[] v2 = referentVersion.split("\\.");
+
+        int majorDiff = Integer.parseInt(v1[0]) - Integer.parseInt(v2[0]);
+        return majorDiff != 0 ? majorDiff > 0 : Integer.parseInt(v1[1]) > Integer.parseInt(v2[1]);
     }
 
 }

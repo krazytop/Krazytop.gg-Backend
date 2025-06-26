@@ -9,10 +9,10 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-@Document(collection = "PatchNomenclature")
-public class LOLPatchNomenclature {
+@Document(collection = "Patch")
+public class LOLPatch {
 
-    public LOLPatchNomenclature(String patchId, String language) {
+    public LOLPatch(String patchId, String language) {
         this.id = patchId + "_" + language;
         this.patchId = patchId;
         this.language = language;
@@ -27,5 +27,5 @@ public class LOLPatchNomenclature {
     private List<LOLSummonerSpellNomenclature> summonerSpells;
     private List<LOLAugmentNomenclature> augments;
     private List<LOLRuneNomenclature> runes;
-    private List<RIOTQueueNomenclature> queues;
+    private List<RIOTQueueNomenclature> queues;//TODO voir si on peut separer les queues lol et tft
 }

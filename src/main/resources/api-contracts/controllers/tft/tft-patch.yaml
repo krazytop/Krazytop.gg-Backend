@@ -1,0 +1,60 @@
+getPatch:
+  get:
+    summary: Retrieve Teamfight Tactics patch.
+    operationId: getPatch
+    tags:
+      - Teamfight Tactics
+      - Patch
+    parameters:
+      - in: path
+        name: patchId
+        schema:
+          type: string
+        required: true
+        description: The id of the requested patch.
+      - in: path
+        name: language
+        schema:
+          type: string
+        required: true
+        description: The language of the requested patch.
+    responses:
+      '200':
+        description: Patch successfully retrieved.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/TFTPatchDTO'
+      '404':
+        description: Patch not found.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+      '500':
+        description: Internal Server Error.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+updateAllPatches:
+  post:
+    summary: Update all Teamfight Tactics patches.
+    operationId: updateAllPatches
+    tags:
+      - Teamfight Tactics
+      - Patch
+    responses:
+      '200':
+        description: All patches are up to date.
+        content:
+          application/json:
+            schema:
+              type: string
+              example: "All patches are up to date"
+      '500':
+        description: Internal Server Error.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'

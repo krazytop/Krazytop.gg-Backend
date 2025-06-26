@@ -1,14 +1,14 @@
 package com.krazytop.repository.tft;
 
-import com.krazytop.nomenclature.tft.TFTPatchNomenclature;
+import com.krazytop.nomenclature.tft.TFTPatch;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.Optional;
 
-public interface TFTPatchNomenclatureRepository extends MongoRepository<TFTPatchNomenclature, String> {
+public interface TFTPatchRepository extends MongoRepository<TFTPatch, String> {
 
-    Optional<TFTPatchNomenclature> findFirstByPatchIdAndLanguage(String patchId, String language);
+    Optional<TFTPatch> findFirstByPatchIdAndLanguage(String patchId, String language);
 
     @Aggregation(pipeline = {
             "{ $addFields: { patchParts: { $split: ['$patchId', '.'] } } }",
@@ -16,6 +16,6 @@ public interface TFTPatchNomenclatureRepository extends MongoRepository<TFTPatch
             "{ $sort: { major: -1, minor: -1 } }",
             "{ $limit: 1 }"
     })
-    TFTPatchNomenclature findLatestPatch();
+    TFTPatch findLatestPatch();
 
 }

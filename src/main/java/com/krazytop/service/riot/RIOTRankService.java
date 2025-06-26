@@ -29,14 +29,12 @@ public class RIOTRankService {
     private final ApiKeyRepository apiKeyRepository;
     private final TFTRankRepository tftRankRepository;
     private final LOLRankRepository lolRankRepository;
-    private final RIOTMetadataService metadataService;
 
     @Autowired
-    public RIOTRankService(ApiKeyRepository apiKeyRepository, TFTRankRepository tftRankRepository, LOLRankRepository lolRankRepository, RIOTMetadataService metadataService) {
+    public RIOTRankService(ApiKeyRepository apiKeyRepository, TFTRankRepository tftRankRepository, LOLRankRepository lolRankRepository) {
         this.apiKeyRepository = apiKeyRepository;
         this.tftRankRepository = tftRankRepository;
         this.lolRankRepository = lolRankRepository;
-        this.metadataService = metadataService;
     }
 
     public Optional<RIOTRankEntity> getRanks(String puuid, GameEnum game) {

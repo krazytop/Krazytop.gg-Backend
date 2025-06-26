@@ -9,10 +9,10 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-@Document(collection = "PatchNomenclature")
-public class TFTPatchNomenclature {
+@Document(collection = "Patch")
+public class TFTPatch {
 
-    public TFTPatchNomenclature(String patchId, String language) {
+    public TFTPatch(String patchId, String language) {//TODO suppr ?
         this.id = patchId + "_" + language;
         this.patchId = patchId;
         this.language = language;

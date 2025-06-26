@@ -3,15 +3,14 @@ package com.krazytop.service.tft;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.krazytop.entity.riot.RIOTMetadataEntity;
-import com.krazytop.nomenclature.riot.RIOTLanguageEnum;
+import com.krazytop.api_gateway.model.generated.LanguageDTO;
+import com.krazytop.entity.tft.TFTMetadata;
+import com.krazytop.nomenclature.riot.RIOTQueueNomenclature;
 import com.krazytop.nomenclature.tft.*;
 import com.krazytop.repository.tft.*;
-import com.krazytop.service.riot.RIOTPatchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -19,56 +18,76 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 
-/**
- * Only EUW
- */
+import static com.krazytop.nomenclature.LanguageService.SUPPORTED_LANGUAGES;
+
 @Service
 public class TFTPatchService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TFTPatchService.class);
 
-    private final TFTPatchNomenclatureRepository patchNomenclatureRepository;
-    private final RIOTPatchService riotPatchService;
+    private final TFTPatchRepository patchNomenclatureRepository;
+    private final TFTMetadataService metadataService;
 
     @Autowired
-    public TFTPatchService(TFTPatchNomenclatureRepository patchNomenclatureRepository, @Lazy RIOTPatchService riotPatchService) {
+    public TFTPatchService(TFTPatchRepository patchNomenclatureRepository, TFTMetadataService metadataService) {
         this.patchNomenclatureRepository = patchNomenclatureRepository;
-        this.riotPatchService = riotPatchService;
+        this.metadataService = metadataService;
     }
 
-    public Optional<TFTPatchNomenclature> getPatch(String patchId, String language) {
+    public Optional<TFTPatch> getPatch(String patchId, String language) {
         return patchNomenclatureRepository.findFirstByPatchIdAndLanguage(patchId, language);
     }
 
-    public void updateAllTFTPatches(String patchVersion, RIOTLanguageEnum language, RIOTMetadataEntity metadata) throws IOException, URISyntaxException {
-        if (getPatch(patchVersion, language.getPath()).isEmpty()) {
-            updatePatchData(patchVersion, language.getPath());
-            metadata.setCurrentTFTSet(patchNomenclatureRepository.findLatestPatch().getSet());
-            metadata.getAllTFTPatches().add(patchVersion);
+    public void updateAllPatches() throws IOException, URISyntaxException {
+        List<String> allPatchesVersion = getAllPatchesVersion().stream()
+                .map(this::removeFixVersion)
+                .filter(v -> isVersionAfterAnOther(v, "9.13"))
+                .toList();
+        TFTMetadata metadata = metadataService.getMetadata().orElse(new TFTMetadata());
+        for (String patchVersion : allPatchesVersion) {
+            for (String language : SUPPORTED_LANGUAGES.stream().map(LanguageDTO::getRiotPatchPath).toList()) {
+                if (getPatch(patchVersion, language).isEmpty()) {
+                    updatePatchData(patchVersion, language);
+                }
+            }
+            metadata.getAllPatches().add(patchVersion);
+            metadata.setCurrentSet(patchNomenclatureRepository.findLatestPatch().getSet());
+            metadataService.saveMetadata(metadata);
         }
+    }
+
+    public List<String> getAllPatchesVersion() throws IOException, URISyntaxException {
+        ObjectMapper mapper = new ObjectMapper();
+        String uri = "https://ddragon.leagueoflegends.com/api/versions.json";
+        JsonNode data = mapper.readTree(new URI(uri).toURL());
+        List<String> allPatchesVersion = mapper.convertValue(data, new TypeReference<>() {});
+        return allPatchesVersion.stream()
+                .filter(version -> !version.contains("lol"))
+                .filter(version -> !version.startsWith("0."))
+                .toList();
     }
 
     private void updatePatchData(String patchVersion, String language) throws IOException, URISyntaxException {
         String uri = String.format("https://raw.communitydragon.org/%s/cdragon/tft/%s.json", patchVersion, language.toLowerCase());
         LOGGER.info("Update TFT patch {} for language {}", patchVersion, language);
         JsonNode data = new ObjectMapper().readTree(new URI(uri).toURL());
-        TFTPatchNomenclature patch = new TFTPatchNomenclature(patchVersion, language);
+        TFTPatch patch = new TFTPatch(patchVersion, language);
         List<TFTItemNomenclature> itemNomenclatures = new ObjectMapper().convertValue(data.get("items"), new TypeReference<>() {});
-        if (riotPatchService.isVersionAfterAnOther(patchVersion, "10.11")) {
+        if (isVersionAfterAnOther(patchVersion, "10.11")) {
             updateRecentPatchData(itemNomenclatures, patch, data.get("setData"));
         } else {
             updateOldPatchData(itemNomenclatures, patch, data.get("sets"));
         }
-        patch.setQueues(riotPatchService.getPatchQueues(patchVersion, language));
+        patch.setQueues(getPatchQueues(patchVersion, language));
         patchNomenclatureRepository.save(patch);
     }
 
-    private void updateOldPatchData(List<TFTItemNomenclature> itemNomenclatures, TFTPatchNomenclature patch, JsonNode data) {
+    private void updateOldPatchData(List<TFTItemNomenclature> itemNomenclatures, TFTPatch patch, JsonNode data) {
         ObjectMapper mapper = new ObjectMapper();
         Map<Integer, JsonNode> dataMap = mapper.convertValue(data, new TypeReference<>() {});
         Map.Entry<Integer, JsonNode> mostRecentSet = dataMap.entrySet().stream()
                 .max(Map.Entry.comparingByKey())
-                .orElseThrow(() -> new NoSuchElementException("No entries found in the map"));
+                .orElseThrow(() -> new NoSuchElementException("No entries found in the map"));//TODO custom exception
         patch.setSet(mostRecentSet.getKey());
         patch.setAugments(List.of());
         patch.setTraits(mapper.convertValue(mostRecentSet.getValue().get("augments"), new TypeReference<>() {}));
@@ -77,7 +96,7 @@ public class TFTPatchService {
         patch.setItems(itemNomenclatures);
     }
 
-    private void updateRecentPatchData(List<TFTItemNomenclature> itemNomenclatures, TFTPatchNomenclature patch, JsonNode data) {
+    private void updateRecentPatchData(List<TFTItemNomenclature> itemNomenclatures, TFTPatch patch, JsonNode data) {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode setData = findCorrectRecentSetDataNode(mapper.convertValue(data, new TypeReference<>() {}));
         List<TFTItemNomenclature> augments = Optional.ofNullable(mapper.convertValue(setData.get("augments"), new TypeReference<List<String>>() {}))
@@ -97,7 +116,7 @@ public class TFTPatchService {
                         .orElseThrow(() -> new NoSuchElementException("Item not found: " + itemId)))
                 .toList();
         patch.setAugments(augments);
-        if (riotPatchService.isVersionAfterAnOther(patch.getPatchId(), "13.9")) {
+        if (isVersionAfterAnOther(patch.getPatchId(), "13.9")) {
             patch.setItems(items);
         } else {
             patch.setItems(itemNomenclatures);
@@ -128,8 +147,8 @@ public class TFTPatchService {
         throw new NoSuchElementException(String.format("Data node is not found for set %d", higherSet));
     }
 
-    private void modifyImageForOldPatches(TFTPatchNomenclature patch) {
-        if (!riotPatchService.isVersionAfterAnOther(patch.getPatchId(), "13.9")) {
+    private void modifyImageForOldPatches(TFTPatch patch) {
+        if (!isVersionAfterAnOther(patch.getPatchId(), "13.9")) {
             patch.getUnits().forEach(unit -> {
                 if (unit.getImage() == null && unit.getOldImage() != null) {
                     String regex = "ASSETS/UX/TFT/ChampionSplashes/([^/]+)\\.([^.]+)\\.dds";
@@ -138,6 +157,32 @@ public class TFTPatchService {
                 }
             });
         }
+    }
+
+    public List<RIOTQueueNomenclature> getPatchQueues(String patchVersion, String language) throws IOException, URISyntaxException {
+        if (Objects.equals(patchVersion, "13.2") || Objects.equals(patchVersion, "13.3")) patchVersion = "13.4";
+        if (Objects.equals(patchVersion, "11.7")) patchVersion = "11.8";
+        ObjectMapper mapper = new ObjectMapper();
+        String queueUri = String.format("https://raw.communitydragon.org/%s/plugins/rcp-be-lol-game-data/global/%s/v1/queues.json", patchVersion, language.toLowerCase());
+        if (isVersionAfterAnOther(patchVersion, "14.12")) {
+            return mapper.convertValue(mapper.convertValue(new ObjectMapper().readTree(new URI(queueUri).toURL()), new TypeReference<>() {}), new TypeReference<>() {});
+        } else {
+            Map<String, RIOTQueueNomenclature> nomenclaturesMap = mapper.convertValue(new ObjectMapper().readTree(new URI(queueUri).toURL()), new TypeReference<>() {});
+            nomenclaturesMap.forEach((id, nomenclature) -> nomenclature.setId(id));
+            return nomenclaturesMap.values().stream().toList();
+        }
+    }
+
+    public String removeFixVersion(String version) {
+        return version.substring(0, version.lastIndexOf('.'));
+    }
+
+    public boolean isVersionAfterAnOther(String version, String referentVersion) {
+        String[] v1 = version.split("\\.");
+        String[] v2 = referentVersion.split("\\.");
+
+        int majorDiff = Integer.parseInt(v1[0]) - Integer.parseInt(v2[0]);
+        return majorDiff != 0 ? majorDiff > 0 : Integer.parseInt(v1[1]) > Integer.parseInt(v2[1]);
     }
 
 }

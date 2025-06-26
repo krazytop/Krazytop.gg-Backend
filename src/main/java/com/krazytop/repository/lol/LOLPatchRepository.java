@@ -1,14 +1,14 @@
 package com.krazytop.repository.lol;
 
-import com.krazytop.nomenclature.lol.LOLPatchNomenclature;
+import com.krazytop.nomenclature.lol.LOLPatch;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.Optional;
 
-public interface LOLPatchNomenclatureRepository extends MongoRepository<LOLPatchNomenclature, String> {
+public interface LOLPatchRepository extends MongoRepository<LOLPatch, String> {
 
-    Optional<LOLPatchNomenclature> findFirstByPatchIdAndLanguage(String patchId, String language);
+    Optional<LOLPatch> findFirstByPatchIdAndLanguage(String patchId, String language);
 
     @Aggregation(pipeline = {
             "{ $addFields: { patchParts: { $split: ['$patchId', '.'] } } }",
@@ -16,6 +16,6 @@ public interface LOLPatchNomenclatureRepository extends MongoRepository<LOLPatch
             "{ $sort: { major: -1, minor: -1 } }",
             "{ $limit: 1 }"
     })
-    LOLPatchNomenclature findLatestPatch();
+    LOLPatch findLatestPatch();
 
 }

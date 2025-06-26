@@ -1,8 +1,8 @@
 package com.krazytop.controller.riot;
 
 import com.krazytop.http_responses.HTTPResponse;
-import com.krazytop.nomenclature.lol.LOLPatchNomenclature;
-import com.krazytop.nomenclature.tft.TFTPatchNomenclature;
+import com.krazytop.nomenclature.lol.LOLPatch;
+import com.krazytop.nomenclature.tft.TFTPatch;
 import com.krazytop.service.riot.RIOTPatchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,14 +32,14 @@ public class RIOTPatchController {
     @GetMapping("/riot/nomenclatures")
     public ResponseEntity<HTTPResponse> updateAllPatches() throws IOException, URISyntaxException {
         LOGGER.info("Updating all RIOT nomenclatures");
-        patchService.updateAllPatches();
+        //patchService.updateAllPatches();
         return new ResponseEntity<>(new HTTPResponse("All RIOT nomenclatures are up to date", HttpStatus.OK), HttpStatus.OK);
     }
 
     @GetMapping("/lol/patch/{patchId}/{language}")
-    public ResponseEntity<LOLPatchNomenclature> getLOLPatch(@PathVariable String patchId, @PathVariable String language) {
+    public ResponseEntity<LOLPatch> getLOLPatch(@PathVariable String patchId, @PathVariable String language) {
         LOGGER.info("Retrieving LOL patch");
-        Optional<LOLPatchNomenclature> patch = patchService.getLOLPatch(patchId, language);
+        Optional<LOLPatch> patch = Optional.empty();
         if (patch.isPresent()) {
             LOGGER.info("LOL patch retrieved");
             return new ResponseEntity<>(patch.get(), HttpStatus.OK);
@@ -50,9 +50,9 @@ public class RIOTPatchController {
     }
 
     @GetMapping("/tft/patch/{patchId}/{language}")
-    public ResponseEntity<TFTPatchNomenclature> getTFTPatch(@PathVariable String patchId, @PathVariable String language) {
+    public ResponseEntity<TFTPatch> getTFTPatch(@PathVariable String patchId, @PathVariable String language) {
         LOGGER.info("Retrieving TFT patch");
-        Optional<TFTPatchNomenclature> patch = patchService.getTFTPatch(patchId, language);
+        Optional<TFTPatch> patch = Optional.empty();
         if (patch.isPresent()) {
             LOGGER.info("TFT patch retrieved");
             return new ResponseEntity<>(patch.get(), HttpStatus.OK);
