@@ -1,6 +1,6 @@
 package com.krazytop.controller.destiny;
 
-import com.krazytop.api_gateway.api.generated.DestinyApi;
+import com.krazytop.api_gateway.api.generated.DestinyAuthentificationApi;
 import com.krazytop.api_gateway.model.generated.DestinyAuthTokensDTO;
 import com.krazytop.service.destiny.DestinyAuthService;
 import org.slf4j.Logger;
@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-public class DestinyAuthController implements DestinyApi {
+public class DestinyAuthController implements DestinyAuthentificationApi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DestinyAuthController.class);
 

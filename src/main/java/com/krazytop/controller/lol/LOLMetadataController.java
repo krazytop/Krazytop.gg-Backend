@@ -1,6 +1,6 @@
 package com.krazytop.controller.lol;
 
-import com.krazytop.api_gateway.api.generated.LolApi;
+import com.krazytop.api_gateway.api.generated.LeagueOfLegendsMetadataApi;
 import com.krazytop.api_gateway.model.generated.RIOTMetadataDTO;
 import com.krazytop.service.lol.LOLMetadataService;
 import org.slf4j.Logger;
@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class LOLMetadataController implements LolApi {
+public class LOLMetadataController implements LeagueOfLegendsMetadataApi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LOLMetadataController.class);
 
@@ -25,7 +25,7 @@ public class LOLMetadataController implements LolApi {
     @Override
     public ResponseEntity<RIOTMetadataDTO> getMetadata() {
         LOGGER.info("Retrieving LOL metadata");
-        RIOTMetadataDTO metadata = metadataService.getMetadata();
+        RIOTMetadataDTO metadata = metadataService.getMetadataDTO();
         LOGGER.info("LOL metadata retrieved");
         return new ResponseEntity<>(metadata, HttpStatus.OK);
     }

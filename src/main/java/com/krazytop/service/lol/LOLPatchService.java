@@ -40,17 +40,15 @@ public class LOLPatchService {
     }
 
     public void updateAllPatches() throws IOException, URISyntaxException {
-        List<String> allPatchesVersion = getAllPatchesVersion().stream()
-                .map(this::removeFixVersion)
-                .toList();
+        List<String> allPatchesVersion = getAllPatchesVersion();
         LOLMetadata metadata = metadataService.getMetadata().orElse(new LOLMetadata());
         for (String patchVersion : allPatchesVersion) {
             for (String language : SUPPORTED_LANGUAGES.stream().map(LanguageDTO::getRiotPatchPath).toList()) {
-                if (getPatch(patchVersion, language).isEmpty()) {
+                if (getPatch(removeFixVersion(patchVersion), language).isEmpty()) {
                     updatePatchData(patchVersion, language);
                 }
             }
-            metadata.getAllPatches().add(patchVersion);
+            metadata.getAllPatches().add(removeFixVersion(patchVersion));
             metadata.setCurrentSeason(patchNomenclatureRepository.findLatestPatch().getSeason());
             metadataService.saveMetadata(metadata);
         }

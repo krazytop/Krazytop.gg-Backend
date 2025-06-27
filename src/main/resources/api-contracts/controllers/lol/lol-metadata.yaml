@@ -3,8 +3,7 @@ getMetadata:
     summary: Retrieve League of Legends metadata.
     operationId: getMetadata
     tags:
-      - League of Legends
-      - Metadata
+      - League of Legends Metadata
     responses:
       '200':
         description: Metadata successfully retrieved.

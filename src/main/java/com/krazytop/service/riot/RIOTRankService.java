@@ -66,7 +66,8 @@ public class RIOTRankService {
     }
 
     private int getCurrentSeasonOrSet(GameEnum game) {
-        RIOTMetadataEntity metadata = metadataService.getMetadata();
+        //RIOTMetadataEntity metadata = metadataService.getMetadata();
+        RIOTMetadataEntity metadata = null;
         return game == GameEnum.LOL ? metadata.getCurrentLOLSeason() : metadata.getCurrentTFTSet();
     }
 

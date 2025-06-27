@@ -3,8 +3,7 @@ getPatch:
     summary: Retrieve League of Legends patch.
     operationId: getPatch
     tags:
-      - League of Legends
-      - Patch
+      - League of Legends Patch
     parameters:
       - in: path
         name: patchId
@@ -42,8 +41,7 @@ updateAllPatches:
     summary: Update all League of Legends patches.
     operationId: updateAllPatches
     tags:
-      - League of Legends
-      - Patch
+      - League of Legends Patch
     responses:
       '200':
         description: All patches are up to date.

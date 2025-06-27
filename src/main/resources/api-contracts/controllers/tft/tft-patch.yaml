@@ -3,8 +3,7 @@ getPatch:
     summary: Retrieve Teamfight Tactics patch.
     operationId: getPatch
     tags:
-      - Teamfight Tactics
-      - Patch
+      - Teamfight Tactics Patch
     parameters:
       - in: path
         name: patchId
@@ -42,8 +41,7 @@ updateAllPatches:
     summary: Update all Teamfight Tactics patches.
     operationId: updateAllPatches
     tags:
-      - Teamfight Tactics
-      - Patch
+      - Teamfight Tactics Patch
     responses:
       '200':
         description: All patches are up to date.

@@ -58,7 +58,7 @@ public class GlobalExceptionHandler {
             ApiErrorDetailsInner detail = new ApiErrorDetailsInner();
             detail.setField(error.getField());
             detail.setIssue(error.getDefaultMessage());
-            apiError.addDetailsItem(detail);
+            apiError.getDetails().add(detail);
         });
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
@@ -72,7 +72,7 @@ public class GlobalExceptionHandler {
             String fieldName = violation.getPropertyPath() != null ? violation.getPropertyPath().toString() : "unknown";
             detail.setField(fieldName);
             detail.setIssue(violation.getMessage());
-            apiError.addDetailsItem(detail);
+            apiError.getDetails().add(detail);
         });
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }

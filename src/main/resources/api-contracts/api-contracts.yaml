@@ -10,18 +10,16 @@ servers:
     description: Production API Gateway
 
 tags:
-  - name: Destiny
-    description: Operations related to Destiny 2.
-  - name: League of Legends
-    description: Operations related to League of Legends.
-  - name: Teamfight Tactics
-    description: Operations related to Teamfight Tactics.
-  - name: Authentification
-    description: Operations related to user authentication.
-  - name: Metadata
-    description: Operations related to game metadata.
-  - name: Patch
-    description: Operations related to game patch.
+  - name: Destiny Authentification
+    description: Operations related to Destiny 2 authentication.
+  - name: League of Legends Metadata
+    description: Operations related to League of Legends metadata.
+  - name: League of Legends Patch
+    description: Operations related to League of Legends patches.
+  - name: Teamfight Tactics Metadata
+    description: Operations related to Teamfight Tactics metadata.
+  - name: Teamfight Tactics Patch
+    description: Operations related to Teamfight Tactics patches.
 
 paths:
   /destiny/auth/{code}:
@@ -532,7 +530,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/LOLNomenclatureDTO'
       properties:
-        plaintext:
+        plainText:
           type: string
           description: A short description of the item's effects, often without detailed numbers.
           example: "Increases Movement Speed"
@@ -619,19 +617,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/LOLNomenclatureDTO'
       properties:
-        slots:
-          type: array
-          description: Input structure for rune perks, grouped by slots. Each slot contains a 'runes' array.
-          items:
-            type: object
-            properties:
-              runes:
-                type: array
-                description: List of rune perks available in this slot.
-                items:
-                  $ref: '#/components/schemas/LOLRunePerkNomenclatureDTO'
-            required:
-              - runes
         perks:
           type: array
           description: Nested list of rune perks, representing the different rows/choices within the rune path.

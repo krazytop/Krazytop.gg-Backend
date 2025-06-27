@@ -7,5 +7,4 @@ import java.util.Optional;
 
 public interface TFTMetadataRepository extends MongoRepository<TFTMetadata, String> {
 
-    Optional<TFTMetadata> findFirstByOrderByIdAsc();
 }

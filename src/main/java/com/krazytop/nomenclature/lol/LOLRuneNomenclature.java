@@ -23,13 +23,4 @@ public class LOLRuneNomenclature extends LOLNomenclature {
     private void unpackPerks(List<JsonNode> nodes) {
         nodes.forEach(node -> this.perks.add(new ObjectMapper().convertValue(node.get("runes"), new TypeReference<>() {})));
     }
-
-    @EqualsAndHashCode(callSuper = true)
-    @Data
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    static class LOLRunePerkNomenclature extends LOLNomenclature {
-
-        @JsonAlias("longDesc")
-        private String longDescription;
-    }
 }

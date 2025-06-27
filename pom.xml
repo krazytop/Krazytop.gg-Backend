@@ -149,13 +149,36 @@
                         <output>${project.build.directory}/generated-sources/openapi</output>
                         <apiPackage>com.krazytop.api-gateway.api.generated</apiPackage>
                         <modelPackage>com.krazytop.api-gateway.model.generated</modelPackage>
+                        <generateModelTests>false</generateModelTests>
+                        <generateModelDocumentation>false</generateModelDocumentation>
+                        <generateApiTests>false</generateApiTests>
+                        <generateApiDocumentation>false</generateApiDocumentation>
+                        <generateSupportingFiles>false</generateSupportingFiles>
+                        <typeMappings>
+                            <typeMapping>OffsetDateTime=LocalDateTime</typeMapping>
+                        </typeMappings>
+                        <importMappings>
+                            <importMapping>java.time.OffsetDateTime=java.time.LocalDateTime</importMapping>
+                        </importMappings>
                         <configOptions>
                             <sourceFolder>src/main/java</sourceFolder>
                             <dateLibrary>java8</dateLibrary>
                             <useJakartaEe>true</useJakartaEe>
                             <interfaceOnly>true</interfaceOnly>
                             <useSpringfox>false</useSpringfox>
+                            <booleanGetterPrefix>is</booleanGetterPrefix>
+                            <useTags>true</useTags>
+                            <skipDefaultInterface>true</skipDefaultInterface>
                             <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                            <additionalModelTypeAnnotations>
+                                @lombok.AllArgsConstructor
+                                @lombok.NoArgsConstructor
+                                @lombok.Data
+                                @lombok.experimental.Accessors(chain = true)
+                            </additionalModelTypeAnnotations>
+                            <generatedConstructorWithRequiredArgs>false</generatedConstructorWithRequiredArgs>
+                            <useBeanValidation>true</useBeanValidation>
+                            <performBeanValidation>true</performBeanValidation>
                         </configOptions>
                     </configuration>
                 </execution>

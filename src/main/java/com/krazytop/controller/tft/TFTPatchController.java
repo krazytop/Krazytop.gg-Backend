@@ -1,6 +1,7 @@
 package com.krazytop.controller.tft;
 
-import com.krazytop.api_gateway.api.generated.TftApi;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.krazytop.api_gateway.api.generated.TeamfightTacticsPatchApi;
 import com.krazytop.api_gateway.model.generated.TFTPatchDTO;
 import com.krazytop.exception.CustomException;
 import com.krazytop.http_responses.ApiErrorEnum;
@@ -19,19 +20,18 @@ import java.net.URISyntaxException;
 import java.util.Optional;
 
 @RestController
-public class TFTPatchController implements TftApi {
+public class TFTPatchController implements TeamfightTacticsPatchApi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TFTPatchController.class);
 
     private final TFTPatchService patchService;
-    private final TFTPatchMapper patchMapper;
 
     @Autowired
-    public TFTPatchController(TFTPatchService patchService, TFTPatchMapper patchMapper){
+    public TFTPatchController(TFTPatchService patchService){
         this.patchService = patchService;
-        this.patchMapper = patchMapper;
     }
 
+    @Override
     public ResponseEntity<String> updateAllPatches() {
         try {
             LOGGER.info("Updating all TFT patches");
@@ -42,12 +42,13 @@ public class TFTPatchController implements TftApi {
         }
     }
 
+    @Override
     public ResponseEntity<TFTPatchDTO> getPatch(String patchId, String language) {
         LOGGER.info("Retrieving TFT patch");
         Optional<TFTPatch> patch = patchService.getPatch(patchId, language);
         if (patch.isPresent()) {
             LOGGER.info("TFT patch retrieved");
-            return new ResponseEntity<>(patchMapper.toDTO(patch.get()), HttpStatus.OK);
+            return new ResponseEntity<>(new ObjectMapper().convertValue(patch.get(), TFTPatchDTO.class), HttpStatus.OK);
         } else {
             LOGGER.info("TFT patch not found");
             throw new CustomException(ApiErrorEnum.PATCH_NOT_FOUND);
