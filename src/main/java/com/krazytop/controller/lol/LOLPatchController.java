@@ -1,12 +1,9 @@
 package com.krazytop.controller.lol;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.api_gateway.api.generated.LeagueOfLegendsPatchApi;
 import com.krazytop.api_gateway.model.generated.LOLPatchDTO;
 import com.krazytop.exception.CustomException;
 import com.krazytop.http_responses.ApiErrorEnum;
-import com.krazytop.mapper.lol.LOLPatchMapper;
-import com.krazytop.nomenclature.lol.LOLPatch;
 import com.krazytop.service.lol.LOLPatchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Optional;
 
 @RestController
 public class LOLPatchController implements LeagueOfLegendsPatchApi {
@@ -44,14 +40,9 @@ public class LOLPatchController implements LeagueOfLegendsPatchApi {
 
     @Override
     public ResponseEntity<LOLPatchDTO> getPatch(String patchId, String language) {
-        LOGGER.info("Retrieving LOL patch");
-        Optional<LOLPatch> patch = patchService.getPatch(patchId, language);
-        if (patch.isPresent()) {
-            LOGGER.info("LOL patch retrieved");
-            return new ResponseEntity<>(new ObjectMapper().convertValue(patch.get(), LOLPatchDTO.class), HttpStatus.OK);
-        } else {
-            LOGGER.info("LOL patch not found");
-            throw new CustomException(ApiErrorEnum.PATCH_NOT_FOUND);
-        }
+        LOGGER.info("Retrieving LOL patch {} with {} language", patchId,  language);
+        LOLPatchDTO patch = patchService.getPatchDTO(patchId, language);
+        LOGGER.info("LOL patch retrieved");
+        return new ResponseEntity<>(patch, HttpStatus.OK);
     }
 }

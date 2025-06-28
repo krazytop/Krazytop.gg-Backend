@@ -3,9 +3,13 @@ package com.krazytop.service.lol;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.krazytop.api_gateway.model.generated.LOLPatchDTO;
 import com.krazytop.api_gateway.model.generated.LanguageDTO;
 import com.krazytop.entity.lol.LOLMetadata;
 import com.krazytop.entity.tft.TFTMetadata;
+import com.krazytop.exception.CustomException;
+import com.krazytop.http_responses.ApiErrorEnum;
+import com.krazytop.mapper.lol.LOLPatchMapper;
 import com.krazytop.nomenclature.lol.*;
 import com.krazytop.nomenclature.riot.RIOTQueueNomenclature;
 import com.krazytop.repository.lol.*;
@@ -17,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.*;
 
 import static com.krazytop.nomenclature.LanguageService.SUPPORTED_LANGUAGES;
@@ -28,18 +33,25 @@ public class LOLPatchService {
 
     private final LOLPatchRepository patchNomenclatureRepository;
     private final LOLMetadataService metadataService;
+    private final LOLPatchMapper patchMapper;
 
     @Autowired
-    public LOLPatchService(LOLPatchRepository patchNomenclatureRepository, LOLMetadataService metadataService) {
+    public LOLPatchService(LOLPatchRepository patchNomenclatureRepository, LOLMetadataService metadataService, LOLPatchMapper patchMapper) {
         this.patchNomenclatureRepository = patchNomenclatureRepository;
         this.metadataService = metadataService;
+        this.patchMapper = patchMapper;
     }
 
     public Optional<LOLPatch> getPatch(String patchId, String language) {
         return patchNomenclatureRepository.findFirstByPatchIdAndLanguage(patchId, language);
     }
 
+    public LOLPatchDTO getPatchDTO(String patchId, String language) {
+        return patchMapper.toDTO(getPatch(patchId, language).orElseThrow(() -> new CustomException(ApiErrorEnum.PATCH_NOT_FOUND)));
+    }
+
     public void updateAllPatches() throws IOException, URISyntaxException {
+        updateCurrentPatchVersion();
         List<String> allPatchesVersion = getAllPatchesVersion();
         LOLMetadata metadata = metadataService.getMetadata().orElse(new LOLMetadata());
         for (String patchVersion : allPatchesVersion) {
@@ -50,6 +62,17 @@ public class LOLPatchService {
             }
             metadata.getAllPatches().add(removeFixVersion(patchVersion));
             metadata.setCurrentSeason(patchNomenclatureRepository.findLatestPatch().getSeason());
+            metadataService.saveMetadata(metadata);
+        }
+    }
+
+    public void updateCurrentPatchVersion() throws IOException, URISyntaxException {
+        String uri = "https://ddragon.leagueoflegends.com/realms/euw.json";
+        URL url = new URI(uri).toURL();
+        LOLMetadata metadata = metadataService.getMetadata().orElse(new LOLMetadata());
+        String currentPatch = new ObjectMapper().readTree(url).get("v").asText().replaceAll("^(\\d+\\.\\d+).*", "$1");
+        if (!Objects.equals(metadata.getCurrentPatch(), currentPatch)) {
+            metadata.setCurrentPatch(currentPatch);
             metadataService.saveMetadata(metadata);
         }
     }

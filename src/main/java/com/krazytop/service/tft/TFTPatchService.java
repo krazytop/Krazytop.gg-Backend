@@ -4,7 +4,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.api_gateway.model.generated.LanguageDTO;
+import com.krazytop.api_gateway.model.generated.TFTPatchDTO;
 import com.krazytop.entity.tft.TFTMetadata;
+import com.krazytop.exception.CustomException;
+import com.krazytop.http_responses.ApiErrorEnum;
+import com.krazytop.mapper.tft.TFTPatchMapper;
 import com.krazytop.nomenclature.riot.RIOTQueueNomenclature;
 import com.krazytop.nomenclature.tft.*;
 import com.krazytop.repository.tft.*;
@@ -16,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.*;
 
 import static com.krazytop.nomenclature.LanguageService.SUPPORTED_LANGUAGES;
@@ -27,18 +32,25 @@ public class TFTPatchService {
 
     private final TFTPatchRepository patchNomenclatureRepository;
     private final TFTMetadataService metadataService;
+    private final TFTPatchMapper patchMapper;
 
     @Autowired
-    public TFTPatchService(TFTPatchRepository patchNomenclatureRepository, TFTMetadataService metadataService) {
+    public TFTPatchService(TFTPatchRepository patchNomenclatureRepository, TFTMetadataService metadataService, TFTPatchMapper patchMapper) {
         this.patchNomenclatureRepository = patchNomenclatureRepository;
         this.metadataService = metadataService;
+        this.patchMapper = patchMapper;
     }
 
     public Optional<TFTPatch> getPatch(String patchId, String language) {
         return patchNomenclatureRepository.findFirstByPatchIdAndLanguage(patchId, language);
     }
 
+    public TFTPatchDTO getPatchDTO(String patchId, String language) {
+        return patchMapper.toDTO(getPatch(patchId, language).orElseThrow(() -> new CustomException(ApiErrorEnum.PATCH_NOT_FOUND)));
+    }
+
     public void updateAllPatches() throws IOException, URISyntaxException {
+        updateCurrentPatchVersion();
         List<String> allPatchesVersion = getAllPatchesVersion().stream()
                 .map(this::removeFixVersion)
                 .filter(v -> isVersionAfterAnOther(v, "9.13"))
@@ -52,6 +64,17 @@ public class TFTPatchService {
             }
             metadata.getAllPatches().add(patchVersion);
             metadata.setCurrentSet(patchNomenclatureRepository.findLatestPatch().getSet());
+            metadataService.saveMetadata(metadata);
+        }
+    }
+
+    public void updateCurrentPatchVersion() throws IOException, URISyntaxException {
+        String uri = "https://ddragon.leagueoflegends.com/realms/euw.json";
+        URL url = new URI(uri).toURL();
+        TFTMetadata metadata = metadataService.getMetadata().orElse(new TFTMetadata());
+        String currentPatch = new ObjectMapper().readTree(url).get("v").asText().replaceAll("^(\\d+\\.\\d+).*", "$1");
+        if (!Objects.equals(metadata.getCurrentPatch(), currentPatch)) {
+            metadata.setCurrentPatch(currentPatch);
             metadataService.saveMetadata(metadata);
         }
     }

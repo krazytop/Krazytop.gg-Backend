@@ -9,7 +9,7 @@ import java.util.List;
 public class LanguageService {
 //TODO destiny path patch
     public static List<LanguageDTO> SUPPORTED_LANGUAGES = List.of(
-            new LanguageDTO("Français", "fr_FR"),
-            new LanguageDTO("English", "en_GB")
+            new LanguageDTO("Français", "fr_FR", "fr_FR"),
+            new LanguageDTO("English", "en_GB", "en_GB")
     );
 }

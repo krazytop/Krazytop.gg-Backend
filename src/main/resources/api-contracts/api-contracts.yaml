@@ -22,6 +22,8 @@ tags:
     description: Operations related to Teamfight Tactics patches.
 
 paths:
+  /language:
+    $ref: './controllers/language.yaml#/getAllSupportedLanguages'
   /destiny/auth/{code}:
     $ref: './controllers/destiny/destiny-auth.yaml#/getPlayerTokens'
   /destiny/auth:
@@ -79,6 +81,7 @@ components:
       required:
         - name
         - riotPatchPath
+        - destinyPatchPath
       properties:
         name:
           type: string
@@ -88,10 +91,10 @@ components:
           type: string
           description: The RIOT patch path.
           example: "fr_FR"
-    SupportedLanguagesDTO:
-      type: array
-      items:
-        $ref: '#/components/schemas/LanguageDTO'
+        destinyPatchPath:
+          type: string
+          description: The Destiny patch path.
+          example: "fr_FR"
     DestinyAuthTokensDTO:
       type: object
       description: |
@@ -500,9 +503,9 @@ components:
       allOf:
         - $ref: '#/components/schemas/LOLNomenclatureDTO'
       properties:
-        key:
+        id:
           type: string
-          description: The unique API key/identifier for the champion. This is used to populate the 'id' field upon deserialization.
+          description: The unique identifier for the champion.
           example: "Aatrox"
         title:
           type: string
