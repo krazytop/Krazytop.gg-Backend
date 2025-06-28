@@ -11,6 +11,4 @@ public interface LOLMetadataMapper {//TODO creer un RIOTMetadata et le passer au
 
     @Mapping(source = "currentSeason", target = "currentSeasonOrSet")
     RIOTMetadataDTO toDTO(LOLMetadata metadata);
-    @Mapping(source = "currentSeasonOrSet", target = "currentSeason")
-    LOLMetadata toEntity(RIOTMetadataDTO metadataDTO);
 }

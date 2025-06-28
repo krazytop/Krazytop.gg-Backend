@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.config.CustomHTTPException;
-import com.krazytop.entity.riot.RIOTMetadataEntity;
 import com.krazytop.entity.riot.rank.RIOTRankEntity;
 import com.krazytop.entity.riot.rank.RIOTRankInformationsEntity;
 import com.krazytop.http_responses.RIOTHTTPErrorResponsesEnum;
@@ -13,6 +12,8 @@ import com.krazytop.repository.api_key.ApiKeyRepository;
 import com.krazytop.repository.lol.LOLRankRepository;
 import com.krazytop.repository.riot.RIOTRankRepository;
 import com.krazytop.repository.tft.TFTRankRepository;
+import com.krazytop.service.lol.LOLMetadataService;
+import com.krazytop.service.tft.TFTMetadataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,12 +30,16 @@ public class RIOTRankService {
     private final ApiKeyRepository apiKeyRepository;
     private final TFTRankRepository tftRankRepository;
     private final LOLRankRepository lolRankRepository;
+    private final LOLMetadataService lolMetadataService;
+    private final TFTMetadataService tftMetadataService;
 
     @Autowired
-    public RIOTRankService(ApiKeyRepository apiKeyRepository, TFTRankRepository tftRankRepository, LOLRankRepository lolRankRepository) {
+    public RIOTRankService(ApiKeyRepository apiKeyRepository, TFTRankRepository tftRankRepository, LOLRankRepository lolRankRepository, LOLMetadataService lolMetadataService, TFTMetadataService tftMetadataService) {
         this.apiKeyRepository = apiKeyRepository;
         this.tftRankRepository = tftRankRepository;
         this.lolRankRepository = lolRankRepository;
+        this.lolMetadataService = lolMetadataService;
+        this.tftMetadataService = tftMetadataService;
     }
 
     public Optional<RIOTRankEntity> getRanks(String puuid, GameEnum game) {
@@ -66,9 +71,8 @@ public class RIOTRankService {
     }
 
     private int getCurrentSeasonOrSet(GameEnum game) {
-        //RIOTMetadataEntity metadata = metadataService.getMetadata();
-        RIOTMetadataEntity metadata = null;
-        return game == GameEnum.LOL ? metadata.getCurrentLOLSeason() : metadata.getCurrentTFTSet();
+        return game == GameEnum.LOL ? lolMetadataService.getMetadataDTO().getCurrentSeasonOrSet()
+                : tftMetadataService.getMetadataDTO().getCurrentSeasonOrSet();
     }
 
     private String getUrl(String region, GameEnum game) {

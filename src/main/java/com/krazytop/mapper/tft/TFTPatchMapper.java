@@ -10,5 +10,4 @@ import org.mapstruct.MappingConstants;
 public interface TFTPatchMapper {
 
     TFTPatchDTO toDTO(TFTPatch patch);
-    TFTPatch toEntity(TFTPatchDTO metadataDTO);
 }

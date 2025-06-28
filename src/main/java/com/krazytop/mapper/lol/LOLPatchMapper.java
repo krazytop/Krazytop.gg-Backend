@@ -14,7 +14,6 @@ import java.util.List;
 public interface LOLPatchMapper {
 
     LOLPatchDTO toDTO(LOLPatch patch);
-    //LOLPatch toEntity(LOLPatchDTO metadataDTO);
     List<LOLRunePerkNomenclatureDTO> toDTOList(List<LOLRunePerkNomenclature> perkList);
     List<List<LOLRunePerkNomenclatureDTO>> toDTOListOfLists(List<List<LOLRunePerkNomenclature>> perkList);
 }

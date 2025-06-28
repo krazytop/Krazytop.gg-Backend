@@ -11,6 +11,4 @@ public interface TFTMetadataMapper {//TODO creer un RIOTMetadata et le passer au
 
     @Mapping(source = "currentSet", target = "currentSeasonOrSet")
     RIOTMetadataDTO toDTO(TFTMetadata metadata);
-    @Mapping(source = "currentSeasonOrSet", target = "currentSet")
-    TFTMetadata toEntity(RIOTMetadataDTO metadataDTO);
 }

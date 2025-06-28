@@ -55,8 +55,8 @@ public class RIOTBoardService {
         Optional<RIOTBoardEntity> board = getBoard(boardId, game);
         if (board.isPresent()) {
             RIOTSummonerEntity summoner = summonerService.getSummoner(region, tag, name, GameEnum.LOL);
-            if (!board.get().getPuuids().contains(summoner.getId())) {
-                board.get().getPuuids().add(summoner.getId());
+            if (!board.get().getPuuids().contains(summoner.getPuuid())) {
+                board.get().getPuuids().add(summoner.getPuuid());
                 getRepository(game).save(board.get());
             } else {
                 throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.SUMMONER_ALREADY_ADDED_TO_BOARD);
@@ -88,8 +88,8 @@ public class RIOTBoardService {
             board.getPuuids().forEach(puuid -> {
                 RIOTSummonerEntity summoner = summonerService.getSummoner("region", puuid, game);
                 if (summoner.getUpdateDate() != null) {
-                    summonerService.updateSummoner(summoner.getRegion(), summoner.getId(), game);
-                    rankService.updateRanks(summoner.getRegion(), summoner.getId(), game);
+                    summonerService.updateSummoner(summoner.getRegion(), summoner.getPuuid(), game);
+                    rankService.updateRanks(summoner.getRegion(), summoner.getPuuid(), game);
                     if (game.equals(GameEnum.LOL)) {
                         lolMatchService.updateMatches(summoner.getRegion(), summoner.getPuuid());
                         lolMasteryService.updateMasteries(summoner.getRegion(), summoner.getPuuid());
