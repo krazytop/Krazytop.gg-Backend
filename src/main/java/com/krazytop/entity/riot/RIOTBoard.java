@@ -9,13 +9,13 @@ import java.util.*;
 
 @Data
 @Document(collection = "Board")
-public class RIOTBoardEntity {
+public class RIOTBoard {
     private String id;
     private List<String> puuids = new ArrayList<>();
     private Date updateDate;
     private String name;
 
-    public RIOTBoardEntity() {
+    public RIOTBoard() {
         this.setId(String.valueOf(UUID.randomUUID()));
         this.setName("My Board");
         this.setUpdateDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));

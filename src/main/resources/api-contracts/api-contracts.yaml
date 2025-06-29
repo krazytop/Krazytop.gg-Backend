@@ -20,6 +20,14 @@ tags:
     description: Operations related to Teamfight Tactics metadata.
   - name: Teamfight Tactics Patch
     description: Operations related to Teamfight Tactics patches.
+  - name: League of Legends Rank
+    description: Operations related to League of Legends ranks.
+  - name: Teamfight Tactics Rank
+    description: Operations related to Teamfight Tactics ranks.
+  - name: League of Legends Summoner
+    description: Operations related to League of Legends summoners.
+  - name: Teamfight Tactics Summoner
+    description: Operations related to Teamfight Tactics summoners.
 
 paths:
   /language:
@@ -40,6 +48,32 @@ paths:
     $ref: './controllers/lol/lol-patch.yaml#/getPatch'
   /tft/patch/{patchId}/{language}:
     $ref: './controllers/tft/tft-patch.yaml#/getPatch'
+  /lol/rank/{puuid}:
+    $ref: './controllers/lol/lol-rank.yaml#/getRanks'
+  /tft/rank/{puuid}:
+    $ref: './controllers/tft/tft-rank.yaml#/getRanks'
+  /lol/rank:
+    $ref: './controllers/lol/lol-rank.yaml#/updateRanks'
+  /tft/rank:
+    $ref: './controllers/tft/tft-rank.yaml#/updateRanks'
+  /lol/summoner/{puuid}:
+    $ref: './controllers/lol/lol-summoner.yaml#/getAndUpdateSummonerByPuuid'
+  /tft/summoner/{puuid}:
+    $ref: './controllers/tft/tft-summoner.yaml#/getAndUpdateSummonerByPuuid'
+  /lol/summoner/{tag}/{name}:
+    $ref: './controllers/lol/lol-summoner.yaml#/getSummonerByTagAndName'
+  /tft/summoner/{tag}/{name}:
+    $ref: './controllers/tft/tft-summoner.yaml#/getSummonerByTagAndName'
+  /lol/board/{boardId}:
+    $ref: './controllers/lol/lol-board.yaml#/getAndUpdateAndDeleteBoard'
+  /lol/board/{boardId}/{name}:
+    $ref: './controllers/lol/lol-board.yaml#/updateBoardName'
+  /lol/board/{boardId}/remove/{name}:
+    $ref: './controllers/lol/lol-board.yaml#/removeSummonerOfBoard'
+  /lol/board/{boardId}/add/{name}:
+    $ref: './controllers/lol/lol-board.yaml#/addSummonerToBoard'
+  /lol/board:
+    $ref: './controllers/lol/lol-board.yaml#/createBoard'
 
 components:
   schemas:
@@ -257,8 +291,8 @@ components:
             type: string
           example: [ "Porcelain", "Invoker", "Sage" ]
         ability:
-          $ref: '#/components/schemas/TFTAbilityEntityDTO'
-    TFTAbilityEntityDTO:
+          $ref: '#/components/schemas/TFTAbilityDTO'
+    TFTAbilityDTO:
       type: object
       description: Represents the details of a TFT unit's ability.
       properties:
@@ -278,13 +312,13 @@ components:
           type: array
           description: List of dynamic variables used in the ability's description or scaling.
           items:
-            $ref: '#/components/schemas/TFTVariableEntityDTO'
+            $ref: '#/components/schemas/TFTVariableDTO'
           example:
             - name: "Damage"
               value: [ 100.0, 150.0, 200.0 ]
             - name: "ManaCost"
               value: [ 40.0, 80.0, 120.0 ]
-    TFTVariableEntityDTO:
+    TFTVariableDTO:
       type: object
       description: Represents a variable used in a TFT ability's scaling or description.
       properties:
@@ -323,7 +357,7 @@ components:
           type: array
           description: List of the trait's effect tiers based on the number of units.
           items:
-            $ref: '#/components/schemas/TFTEffectEntityDTO'
+            $ref: '#/components/schemas/TFTEffectDTO'
           example:
             - maxUnits: 2
               minUnits: 2
@@ -337,7 +371,7 @@ components:
               variables:
                 ASPercent: 0.2
                 DamageReduction: 0.1
-    TFTEffectEntityDTO:
+    TFTEffectDTO:
       type: object
       description: Represents a specific tier or effect level of a TFT trait.
       properties:
@@ -638,3 +672,158 @@ components:
               image: "https://example.com/presstheattack.png"
               description: "Hitting a champion 3 times deals bonus damage and makes them vulnerable."
               longDescription: "Hitting an enemy champion 3 consecutive times deals 40-180 bonus Adaptive Damage and makes them vulnerable, increasing the damage they take by 8% from all sources for 6s."
+    RIOTRankDTO:
+      type: object
+      properties:
+        puuid:
+          type: string
+          description: Unique identifier for the player.
+          example: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
+        seasonOrSetRanks:
+          type: array
+          items:
+            $ref: '#/components/schemas/RIOTSeasonOrSetRanksDTO'
+      required:
+        - puuid
+    RIOTSeasonOrSetRanksDTO:
+      type: object
+      properties:
+        nb:
+          type: integer
+          format: int32
+          description: The season or set number.
+          example: 2024
+        queueRanks:
+          type: array
+          items:
+            $ref: '#/components/schemas/RIOTQueueRanksDTO'
+      required:
+        - nb
+    RIOTQueueRanksDTO:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the queue.
+          example: "RANKED_SOLO_5x5"
+        rankInformations:
+          type: array
+          items:
+            $ref: '#/components/schemas/RIOTRankInformationsDTO'
+      required:
+        - name
+    RIOTRankInformationsDTO:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+          description: The date and time of the rank information.
+          example: "2023-10-27T10:00:00Z"
+        tier:
+          type: string
+          description: The rank tier.
+          example: "DIAMOND"
+        rank:
+          type: string
+          description: The division within the tier.
+          example: "IV"
+        leaguePoints:
+          type: integer
+          format: int32
+          description: The current league points.
+          example: 75
+        wins:
+          type: integer
+          format: int32
+          description: The number of wins in the current season/set for this queue.
+          example: 150
+        losses:
+          type: integer
+          format: int32
+          description: The number of losses in the current season/set for this queue.
+          example: 120
+      required:
+        - date
+        - tier
+        - rank
+        - leaguePoints
+        - wins
+        - losses
+    RIOTSummonerDTO:
+      type: object
+      properties:
+        puuid:
+          type: string
+          description: Unique identifier for the player.
+          example: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
+        name:
+          type: string
+          description: The summoner's in-game name.
+          example: "SummonerName"
+        level:
+          type: integer
+          format: int32
+          description: The summoner's current level.
+          example: 123
+        icon:
+          type: integer
+          format: int32
+          description: The ID of the summoner icon.
+          example: 29
+        tag:
+          type: string
+          description: The summoner's in-game tag.
+          example: "#EUW"
+        region:
+          type: string
+          description: The region where the summoner plays.
+          example: "euw1"
+        updateDate:
+          type: string
+          format: date-time
+          description: The last date and time this summoner's data was updated.
+          example: "2025-06-29T22:13:09Z"
+        spentTime:
+          type: integer
+          format: int64
+          description: Cumulative time spent by the summoner in game.
+          example: 1234567890
+        playedSeasonsOrSets:
+          type: array
+          items:
+            type: integer
+            format: int32
+          description: A set of unique identifiers for seasons or sets the summoner has participated in.
+          example: [ 1, 2, 3, 5 ]
+      required:
+        - puuid
+        - name
+        - level
+        - icon
+        - region
+        - updateDate
+    RIOTBoardDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the board.
+          example: "board_12345"
+        puuids:
+          type: array
+          items:
+            type: string
+          description: A list of PUUIDs associated with this board.
+          example:
+            - "puuid1"
+            - "puuid2"
+        updateDate:
+          type: string
+          format: date-time
+          description: The last date and time this board's data was updated.
+          example: "2025-06-29T23:26:26Z"
+        name:
+          type: string
+          description: The name of the board.
+          example: "My Custom Board"

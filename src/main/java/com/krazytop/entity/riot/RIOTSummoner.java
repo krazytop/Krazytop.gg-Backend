@@ -15,7 +15,7 @@ import java.util.Set;
 @Document(collection = "Summoner")
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class RIOTSummonerEntity {
+public class RIOTSummoner {
 
     @Id
     private String puuid;

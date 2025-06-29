@@ -5,14 +5,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.config.CustomHTTPException;
 import com.krazytop.entity.lol.*;
-import com.krazytop.entity.riot.RIOTSummonerEntity;
 import com.krazytop.http_responses.RIOTHTTPErrorResponsesEnum;
 import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.nomenclature.lol.LOLQueueEnum;
 import com.krazytop.nomenclature.lol.LOLRoleEnum;
 import com.krazytop.repository.api_key.ApiKeyRepository;
 import com.krazytop.repository.lol.LOLMatchRepository;
-import com.krazytop.service.riot.RIOTSummonerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,10 +33,10 @@ public class LOLMatchService {
     private int pageSize;
     private final LOLMatchRepository matchRepository;
     private final ApiKeyRepository apiKeyRepository;
-    private final RIOTSummonerService summonerService;
+    private final LOLSummonerService summonerService;
 
     @Autowired
-    public LOLMatchService(LOLMatchRepository matchRepository, ApiKeyRepository apiKeyRepository, RIOTSummonerService summonerService) {
+    public LOLMatchService(LOLMatchRepository matchRepository, ApiKeyRepository apiKeyRepository, LOLSummonerService summonerService) {
         this.matchRepository = matchRepository;
         this.apiKeyRepository = apiKeyRepository;
         this.summonerService = summonerService;
@@ -52,7 +50,7 @@ public class LOLMatchService {
         return this.getMatchesCount(puuid, LOLQueueEnum.fromName(queue), LOLRoleEnum.fromName(role));
     }
 
-    public void updateMatches(String region, String puuid) {
+    public void updateMatches(String puuid) {
         try {
             boolean moreMatchToRecovered = true;
             int firstIndex = 0;
@@ -96,7 +94,7 @@ public class LOLMatchService {
         match.getOwners().add(puuid);
         LOGGER.info("Saving LOL match : {}", match.getId());
         matchRepository.save(match);
-        summonerService.updateSpentTimeAndPlayedSeasonsOrSets(puuid, match.getDuration(), Integer.valueOf(match.getVersion().replaceAll("\\..*", "")), GameEnum.LOL);
+        summonerService.updateSpentTimeAndPlayedSeasonsOrSets(puuid, match.getDuration(), Integer.valueOf(match.getVersion().replaceAll("\\..*", "")));
     }
 
     private List<LOLMatchEntity> getMatches(String puuid, int pageNb, LOLQueueEnum queue, LOLRoleEnum role) {

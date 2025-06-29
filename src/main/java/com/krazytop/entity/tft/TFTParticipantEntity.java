@@ -3,7 +3,7 @@ package com.krazytop.entity.tft;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.krazytop.entity.riot.RIOTSummonerEntity;
+import com.krazytop.entity.riot.RIOTSummoner;
 import lombok.Data;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TFTParticipantEntity {
 
-    private RIOTSummonerEntity summoner = new RIOTSummonerEntity();
+    private RIOTSummoner summoner = new RIOTSummoner();
     private Integer lastRound;
     private Integer level;
     @JsonAlias("gold_left")

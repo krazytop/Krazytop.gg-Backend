@@ -22,8 +22,14 @@ public enum ApiErrorEnum {
     PATCH_UPDATE_ERROR("PATCH_UPDATE_ERROR", "An unexpected error occurred while updating patches", HttpStatus.INTERNAL_SERVER_ERROR),
     // Destiny
     BUNGIE_AUTH_ERROR("BUNGIE_AUTH_ERROR", "An unexpected error occurred while authenticating to Bungie. Please try again later or log out before trying again.", HttpStatus.INTERNAL_SERVER_ERROR),
-    // League of Legends
-    // Teamfight Tactics
+    // RIOT
+    RANK_NEED_IMPORT_FIRST("RANK_NEED_IMPORT_FIRST", "You need to import summoner first.", HttpStatus.BAD_REQUEST),
+    SUMMONER_UPDATE_ERROR("SUMMONER_UPDATE_ERROR", "An unexpected error occurred while updating summoner", HttpStatus.INTERNAL_SERVER_ERROR),
+    SUMMONER_NOT_FOUND("SUMMONER_NOT_FOUND", "Summoner was not found.", HttpStatus.NOT_FOUND),
+    ACCOUNT_NOT_FOUND("ACCOUNT_NOT_FOUND", "Account was not found.", HttpStatus.NOT_FOUND),
+    BOARD_NOT_FOUND("BOARD_NOT_FOUND", "Board was not found.", HttpStatus.NOT_FOUND),
+    SUMMONER_ALREADY_ADDED_TO_BOARD("SUMMONER_ALREADY_ADDED_TO_BOARD", "Summoner is already added to this board.", HttpStatus.BAD_REQUEST),
+    SUMMONER_ABSENT_OF_BOARD("SUMMONER_ABSENT_OF_BOARD", "Summoner is not on this board.", HttpStatus.BAD_REQUEST),
     // Clash Royal
     ;
     private final String code;

@@ -4,15 +4,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.config.CustomHTTPException;
-import com.krazytop.entity.riot.RIOTSummonerEntity;
 import com.krazytop.entity.tft.TFTMatchEntity;
-import com.krazytop.entity.tft.TFTParticipantEntity;
 import com.krazytop.http_responses.RIOTHTTPErrorResponsesEnum;
 import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.nomenclature.tft.*;
 import com.krazytop.repository.api_key.ApiKeyRepository;
 import com.krazytop.repository.tft.TFTMatchRepository;
-import com.krazytop.service.riot.RIOTSummonerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +31,10 @@ public class TFTMatchService {
     private int pageSize;
     private final TFTMatchRepository matchRepository;
     private final ApiKeyRepository apiKeyRepository;
-    private final RIOTSummonerService summonerService;
+    private final TFTSummonerService summonerService;
 
     @Autowired
-    public TFTMatchService(TFTMatchRepository matchRepository, ApiKeyRepository apiKeyRepository, RIOTSummonerService summonerService) {
+    public TFTMatchService(TFTMatchRepository matchRepository, ApiKeyRepository apiKeyRepository, TFTSummonerService summonerService) {
         this.matchRepository = matchRepository;
         this.apiKeyRepository = apiKeyRepository;
         this.summonerService = summonerService;
@@ -88,7 +85,7 @@ public class TFTMatchService {
         match.getOwners().add(puuid);
         LOGGER.info("Saving TFT match : {}", match.getId());
         matchRepository.save(match);
-        summonerService.updateSpentTimeAndPlayedSeasonsOrSets(puuid, match.getDuration(), match.getSet(), GameEnum.TFT);
+        summonerService.updateSpentTimeAndPlayedSeasonsOrSets(puuid, match.getDuration(), match.getSet());
     }
 
     public List<TFTMatchEntity> getMatches(String puuid, int pageNb, TFTQueueEnum queue, int set) {

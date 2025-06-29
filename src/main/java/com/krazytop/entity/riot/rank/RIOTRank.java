@@ -8,13 +8,13 @@ import java.util.*;
 
 @Data
 @Document(collection = "Rank")
-public class RIOTRankEntity {
+public class RIOTRank {
 
     @Id
     private String puuid;
     private List<RIOTSeasonOrSetRanksEntity> seasonOrSetRanks = new ArrayList<>();
 
-    public RIOTRankEntity(String puuid) {
+    public RIOTRank(String puuid) {
         this.puuid = puuid;
     }
 

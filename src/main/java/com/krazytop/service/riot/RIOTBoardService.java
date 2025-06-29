@@ -1,127 +1,104 @@
 package com.krazytop.service.riot;
 
-import com.krazytop.config.CustomHTTPException;
-import com.krazytop.entity.riot.RIOTBoardEntity;
-import com.krazytop.entity.riot.RIOTSummonerEntity;
-import com.krazytop.http_responses.RIOTHTTPErrorResponsesEnum;
-import com.krazytop.nomenclature.GameEnum;
+import com.krazytop.api_gateway.model.generated.RIOTBoardDTO;
+import com.krazytop.api_gateway.model.generated.RIOTSummonerDTO;
+import com.krazytop.entity.riot.RIOTBoard;
+import com.krazytop.entity.riot.RIOTSummoner;
+import com.krazytop.exception.CustomException;
+import com.krazytop.http_responses.ApiErrorEnum;
+import com.krazytop.mapper.lol.LOLBoardMapper;
 import com.krazytop.repository.lol.LOLBoardRepository;
-import com.krazytop.repository.riot.RIOTBoardRepository;
-import com.krazytop.repository.tft.TFTBoardRepository;
 import com.krazytop.service.lol.LOLMasteryService;
 import com.krazytop.service.lol.LOLMatchService;
-import com.krazytop.service.tft.TFTMatchService;
+import com.krazytop.service.lol.LOLRankService;
+import com.krazytop.service.lol.LOLSummonerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.Optional;
 
 @Service
 public class RIOTBoardService {
 
-    private final LOLBoardRepository lolBoardRepository;
-    private final TFTBoardRepository tftBoardRepository;
-    private final RIOTSummonerService summonerService;
-    private final TFTMatchService tftMatchService;
-    private final LOLMatchService lolMatchService;
-    private final LOLMasteryService lolMasteryService;
-    private final RIOTRankService rankService;
+    private final LOLBoardRepository boardRepository;
+    private final LOLSummonerService summonerService;
+    private final LOLMatchService matchService;
+    private final LOLMasteryService masteryService;
+    private final LOLRankService rankService;
+    private final LOLBoardMapper boardMapper;
 
     @Autowired
-    public RIOTBoardService(LOLBoardRepository lolBoardRepository, TFTBoardRepository tftBoardRepository, RIOTSummonerService summonerService, TFTMatchService tftMatchService, LOLMatchService lolMatchService, LOLMasteryService lolMasteryService, RIOTRankService rankService) {
-        this.lolBoardRepository = lolBoardRepository;
-        this.tftBoardRepository = tftBoardRepository;
+    public RIOTBoardService(LOLBoardRepository boardRepository, LOLSummonerService summonerService, LOLMatchService matchService, LOLMasteryService masteryService, LOLRankService rankService, LOLBoardMapper boardMapper) {
+        this.boardRepository = boardRepository;
         this.summonerService = summonerService;
-        this.tftMatchService = tftMatchService;
-        this.lolMatchService = lolMatchService;
-        this.lolMasteryService = lolMasteryService;
+        this.matchService = matchService;
+        this.masteryService = masteryService;
         this.rankService = rankService;
+        this.boardMapper = boardMapper;
     }
 
-    public Optional<RIOTBoardEntity> getBoard(String boardId, GameEnum game) {
-        return getRepository(game).findById(boardId);
+    public RIOTBoardDTO getBoardDTO(String boardId) {
+        return boardMapper.toDTO(getBoard(boardId));
     }
 
-    public String createBoard(GameEnum game) {
-        RIOTBoardEntity board = new RIOTBoardEntity();
-        getRepository(game).save(board);
+    public RIOTBoard getBoard(String boardId) {
+        return boardRepository.findById(boardId).orElseThrow(() -> new CustomException(ApiErrorEnum.BOARD_NOT_FOUND));
+    }
+
+    public String createBoard() {
+        RIOTBoard board = new RIOTBoard();
+        boardRepository.save(board);
         return board.getId();
     }
 
-    public RIOTSummonerEntity addSummonerToBoard(String boardId, String region, String tag, String name, GameEnum game) {
-        Optional<RIOTBoardEntity> board = getBoard(boardId, game);
-        if (board.isPresent()) {
-            RIOTSummonerEntity summoner = summonerService.getSummoner(region, tag, name, GameEnum.LOL);
-            if (!board.get().getPuuids().contains(summoner.getPuuid())) {
-                board.get().getPuuids().add(summoner.getPuuid());
-                getRepository(game).save(board.get());
-            } else {
-                throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.SUMMONER_ALREADY_ADDED_TO_BOARD);
+    public RIOTSummonerDTO addSummonerToBoard(String boardId, String tag, String name) {
+        RIOTBoard board = getBoard(boardId);
+        RIOTSummonerDTO summoner = summonerService.getSummonerDTO(tag, name);
+        if (!board.getPuuids().contains(summoner.getPuuid())) {
+            board.getPuuids().add(summoner.getPuuid());
+            boardRepository.save(board);
+        } else {
+            throw new CustomException(ApiErrorEnum.SUMMONER_ALREADY_ADDED_TO_BOARD);
+        }
+        return summoner;
+    }
+
+    public void removeSummonerOfBoard(String boardId, String puuid) {
+        RIOTBoard board = getBoard(boardId);
+        if (board.getPuuids().contains(puuid)) {
+            board.getPuuids().remove(puuid);
+            boardRepository.save(board);
+        } else {
+            throw new CustomException(ApiErrorEnum.SUMMONER_ABSENT_OF_BOARD);
+        }
+    }
+
+    public void updateBoard(String boardId) {
+        RIOTBoard board = getBoard(boardId);
+        board.getPuuids().forEach(puuid -> {
+            RIOTSummoner summoner = summonerService.getSummoner(puuid);
+            if (summoner.getUpdateDate() != null) {
+                summonerService.updateSummoner(summoner.getPuuid());
+                rankService.updateRanks(summoner.getPuuid());
+                matchService.updateMatches(summoner.getPuuid());
+                masteryService.updateMasteries(summoner.getPuuid());
             }
-            return summoner;
-        } else {
-            throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.BOARD_NOT_FOUND);
-        }
+        });
+        board.setUpdateDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
+        boardRepository.save(board);
     }
 
-    public void removeSummonerOfBoard(String boardId, String puuid, GameEnum game) {
-        Optional<RIOTBoardEntity> board = getBoard(boardId, game);
-        if (board.isPresent()) {
-            if (board.get().getPuuids().contains(puuid)) {
-                board.get().getPuuids().remove(puuid);
-                getRepository(game).save(board.get());
-            } else {
-                throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.SUMMONER_ABSENT_OF_BOARD);
-            }
-        } else {
-            throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.BOARD_NOT_FOUND);
-        }
+    public void updateBoardName(String boardId, String name) {
+        RIOTBoard board = getBoard(boardId);
+        board.setName(name);
+        boardRepository.save(board);
     }
 
-    public void updateBoardSummoners(String boardId, GameEnum game) {
-        Optional<RIOTBoardEntity> boardOpt = getBoard(boardId, game);
-        if (boardOpt.isPresent()) {
-            RIOTBoardEntity board = boardOpt.get();
-            board.getPuuids().forEach(puuid -> {
-                RIOTSummonerEntity summoner = summonerService.getSummoner("region", puuid, game);
-                if (summoner.getUpdateDate() != null) {
-                    summonerService.updateSummoner(summoner.getRegion(), summoner.getPuuid(), game);
-                    rankService.updateRanks(summoner.getRegion(), summoner.getPuuid(), game);
-                    if (game.equals(GameEnum.LOL)) {
-                        lolMatchService.updateMatches(summoner.getRegion(), summoner.getPuuid());
-                        lolMasteryService.updateMasteries(summoner.getRegion(), summoner.getPuuid());
-                    } else {
-                        tftMatchService.updateMatches(summoner.getRegion(), summoner.getPuuid());
-                    }
-                }
-            });
-            board.setUpdateDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
-            getRepository(game).save(board);
-        } else {
-            throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.BOARD_NOT_FOUND);
-        }
-    }
-
-    public void updateBoardName(String boardId, String name, GameEnum game) {
-        Optional<RIOTBoardEntity> boardOpt = getBoard(boardId, game);
-        if (boardOpt.isPresent()) {
-            RIOTBoardEntity board = boardOpt.get();
-            board.setName(name);
-            getRepository(game).save(board);
-        } else {
-            throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.BOARD_NOT_FOUND);
-        }
-    }
-
-    public void deleteBoard(String boardId, GameEnum game) {
-        getRepository(game).deleteById(boardId);
-    }
-
-    private RIOTBoardRepository getRepository(GameEnum game) {
-        return game == GameEnum.LOL ? lolBoardRepository : tftBoardRepository;
+    public void deleteBoard(String boardId) {
+        getBoard(boardId);
+        boardRepository.deleteById(boardId);
     }
 
 }

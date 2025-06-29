@@ -34,7 +34,7 @@ public class LOLMasteryService {
         return masteryRepository.findByPuuid(puuid);
     }
 
-    public void updateMasteries(String region, String puuid) {
+    public void updateMasteries(String puuid) {
         try {
             String stringUrl = String.format("https://euw1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/%s?api_key=%s", puuid, apiKeyRepository.findFirstByGame(GameEnum.LOL).getKey());
             ObjectMapper mapper = new ObjectMapper();

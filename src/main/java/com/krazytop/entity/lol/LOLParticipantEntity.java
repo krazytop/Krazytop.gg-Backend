@@ -3,7 +3,7 @@ package com.krazytop.entity.lol;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.krazytop.entity.riot.RIOTSummonerEntity;
+import com.krazytop.entity.riot.RIOTSummoner;
 import lombok.Data;
 import org.springframework.data.annotation.Transient;
 
@@ -49,7 +49,7 @@ public class LOLParticipantEntity {
     private String item5;
     @JsonAlias("item6")
     private String ward;
-    private RIOTSummonerEntity summoner = new RIOTSummonerEntity();
+    private RIOTSummoner summoner = new RIOTSummoner();
     @JsonAlias("summoner1Id")
     private String summonerSpell1;
     @JsonAlias("summoner2Id")

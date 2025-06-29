@@ -7,7 +7,6 @@ import com.krazytop.nomenclature.lol.LOLRunePerkNomenclature;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)

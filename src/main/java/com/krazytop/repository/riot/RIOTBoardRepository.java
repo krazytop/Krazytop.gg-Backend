@@ -1,10 +1,7 @@
 package com.krazytop.repository.riot;
 
-import com.krazytop.entity.riot.RIOTBoardEntity;
-import com.krazytop.entity.riot.rank.RIOTRankEntity;
+import com.krazytop.entity.riot.RIOTBoard;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.util.Optional;
-
-public interface RIOTBoardRepository extends MongoRepository<RIOTBoardEntity, String> {
+public interface RIOTBoardRepository extends MongoRepository<RIOTBoard, String> {
 }
