@@ -68,11 +68,6 @@ public class LOLParticipantEntity {
     @Transient
     private String teamId;
 
-    @JsonProperty("summonerId")
-    private void unpackId(String id) {
-        this.getSummoner().setId(id);
-    }
-
     @JsonProperty("puuid")
     private void unpackPuuid(String puuid) {
         this.getSummoner().setPuuid(puuid);

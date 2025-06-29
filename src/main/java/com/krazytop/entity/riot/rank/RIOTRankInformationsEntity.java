@@ -20,14 +20,4 @@ public class RIOTRankInformationsEntity {
     private Integer leaguePoints;
     private Integer wins;
     private Integer losses;
-
-    public RIOTRankInformationsEntity(long date, String tier, String rank, int leaguePoints, int nbGames, int wins) {
-        this.date = new Date(date);
-        this.tier = tier;
-        this.rank = rank;
-        this.leaguePoints = leaguePoints;
-        this.wins = wins;
-        this.losses = nbGames - wins;
-    }
-
 }

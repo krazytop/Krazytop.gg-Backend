@@ -52,10 +52,16 @@ public class RIOTRankService {
             String stringUrl = String.format(getUrl(region, game), puuid, apiKeyRepository.findFirstByGame(game).getKey());
             ObjectMapper mapper = new ObjectMapper();
             List<JsonNode> nodes = mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()), new TypeReference<>() {});
-            for (JsonNode node : nodes) {
-                RIOTRankInformationsEntity rank = mapper.convertValue(node, RIOTRankInformationsEntity.class);
-                rank.setDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
-                joinRanks(puuid, List.of(rank), currentSeasonOrSet, node.get("queueType").asText(), game);//TODO je ne sais plus quoi
+            if (!nodes.isEmpty()) {
+                for (JsonNode node : nodes) {
+                    RIOTRankInformationsEntity rank = mapper.convertValue(node, RIOTRankInformationsEntity.class);
+                    rank.setDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
+                    joinRanks(puuid, List.of(rank), currentSeasonOrSet, node.get("queueType").asText(), game);//TODO je ne sais plus quoi
+                }
+            } else {
+                if (getRepository(game).findByPuuid(puuid).isEmpty()) {
+                    getRepository(game).save(new RIOTRankEntity(puuid));
+                }
             }
         } catch (URISyntaxException | IOException e) {
             throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.RANKS_CANT_BE_UPDATED);
