@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.function.IntConsumer;
 
 @Data
-public class LOLObjectivesEntity {
+public class LOLObjectives {
 
     private Integer baronKills;
     private Integer championKills;

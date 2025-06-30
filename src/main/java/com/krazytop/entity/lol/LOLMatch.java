@@ -13,17 +13,17 @@ import java.util.*;
 @Data
 @Document(collection = "Match")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LOLMatchEntity {
+public class LOLMatch {
 
     private String id;
     private String version;
     private Date datetime;
     @JsonAlias("gameDuration")
     private Long duration;
-    private List<LOLTeamEntity> teams;
+    private List<LOLTeam> teams;
     @Transient
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private List<LOLParticipantEntity> participants;
+    private List<LOLParticipant> participants;
     private Boolean remake;
     @JsonAlias("queueId")
     private String queue;
@@ -37,15 +37,15 @@ public class LOLMatchEntity {
     public void dispatchParticipantsInTeamsArena() {
         this.teams = new ArrayList<>();
         this.participants.forEach(participant -> {
-            Optional<LOLTeamEntity> optParticipantTeam = this.teams.stream()
+            Optional<LOLTeam> optParticipantTeam = this.teams.stream()
                     .filter(team -> Objects.equals(team.getId(), participant.getSubTeamId()))
                     .findFirst();
-            LOLTeamEntity participantTeam;
+            LOLTeam participantTeam;
             if (optParticipantTeam.isPresent()) {
                 participantTeam = optParticipantTeam.get();
                 participantTeam.getParticipants().add(participant);
             } else {
-                participantTeam = new LOLTeamEntity();
+                participantTeam = new LOLTeam();
                 participantTeam.setId(participant.getSubTeamId());
                 participantTeam.setParticipants(new ArrayList<>(List.of(participant)));
                 participantTeam.setPlacement(participant.getPlacement());

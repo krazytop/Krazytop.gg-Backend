@@ -11,7 +11,7 @@ import java.util.Objects;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LOLParticipantEntity {
+public class LOLParticipant {
 
     private Integer champLevel;
     private Integer kills;

@@ -1,0 +1,108 @@
+getMatches:
+  get:
+    summary: Retrieve all summoner matches of the requested page.
+    operationId: getMatches
+    tags:
+      - League of Legends Match
+    parameters:
+      - in: path
+        name: puuid
+        schema:
+          type: string
+        required: true
+        description: The puuid of the summoner.
+      - in: path
+        name: pageNb
+        schema:
+          type: integer
+          format: int32
+        required: true
+        description: The number of the page.
+      - in: path
+        name: queue
+        schema:
+          type: string
+        required: true
+        description: The requested queue.
+      - in: path
+        name: role
+        schema:
+          type: string
+        required: true
+        description: The requested role.
+    responses:
+      '200':
+        description: Matches successfully retrieved.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../../api-contracts.yaml#/components/schemas/LOLMatchDTO'
+      '500':
+        description: Internal Server Error.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+getMatchesCount:
+  get:
+    summary: Retrieve summoner matches count.
+    operationId: getMatchesCount
+    tags:
+      - League of Legends Match
+    parameters:
+      - in: path
+        name: puuid
+        schema:
+          type: string
+        required: true
+        description: The puuid of the summoner.
+      - in: path
+        name: queue
+        schema:
+          type: string
+        required: true
+        description: The requested queue.
+      - in: path
+        name: role
+        schema:
+          type: string
+        required: true
+        description: The requested role.
+    responses:
+      '200':
+        description: Matches count successfully retrieved.
+        content:
+          application/json:
+            schema:
+              type: integer
+              format: int32
+      '500':
+        description: Internal Server Error.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+updateMatches:
+  post:
+    summary: Update all summoner matches
+    operationId: updateMatches
+    tags:
+      - League of Legends Match
+    parameters:
+      - in: path
+        name: puuid
+        schema:
+          type: string
+        required: true
+        description: The puuid of the summoner.
+    responses:
+      '200':
+        description: Matches successfully updated.
+      '500':
+        description: Internal Server Error.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'

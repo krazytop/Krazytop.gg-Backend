@@ -3,9 +3,11 @@ package com.krazytop.service.lol;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.krazytop.api_gateway.model.generated.LOLMatchDTO;
 import com.krazytop.config.CustomHTTPException;
 import com.krazytop.entity.lol.*;
 import com.krazytop.http_responses.RIOTHTTPErrorResponsesEnum;
+import com.krazytop.mapper.lol.LOLMatchMapper;
 import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.nomenclature.lol.LOLQueueEnum;
 import com.krazytop.nomenclature.lol.LOLRoleEnum;
@@ -23,6 +25,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class LOLMatchService {
@@ -34,19 +37,21 @@ public class LOLMatchService {
     private final LOLMatchRepository matchRepository;
     private final ApiKeyRepository apiKeyRepository;
     private final LOLSummonerService summonerService;
+    private final LOLMatchMapper matchMapper;
 
     @Autowired
-    public LOLMatchService(LOLMatchRepository matchRepository, ApiKeyRepository apiKeyRepository, LOLSummonerService summonerService) {
+    public LOLMatchService(LOLMatchRepository matchRepository, ApiKeyRepository apiKeyRepository, LOLSummonerService summonerService, LOLMatchMapper matchMapper) {
         this.matchRepository = matchRepository;
         this.apiKeyRepository = apiKeyRepository;
         this.summonerService = summonerService;
+        this.matchMapper = matchMapper;
     }
 
-    public List<LOLMatchEntity> getMatches(String puuid, int pageNb, String queue, String role) {
-        return this.getMatches(puuid, pageNb, LOLQueueEnum.fromName(queue), LOLRoleEnum.fromName(role));
+    public List<LOLMatchDTO> getMatches(String puuid, int pageNb, String queue, String role) {
+        return this.getMatches(puuid, pageNb, LOLQueueEnum.fromName(queue), LOLRoleEnum.fromName(role)).stream().map(matchMapper::toDTO).toList();
     }
 
-    public Long getMatchesCount(String puuid, String queue, String role) {
+    public Integer getMatchesCount(String puuid, String queue, String role) {
         return this.getMatchesCount(puuid, LOLQueueEnum.fromName(queue), LOLRoleEnum.fromName(role));
     }
 
@@ -55,17 +60,17 @@ public class LOLMatchService {
             boolean moreMatchToRecovered = true;
             int firstIndex = 0;
             String apiKey = apiKeyRepository.findFirstByGame(GameEnum.LOL).getKey();
-            while (moreMatchToRecovered) {
-                String url = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, firstIndex, 100, apiKey);//TODO routing values for regions
+            while (moreMatchToRecovered) {// TODO faire un appel pour chaque region (europe, americas, asia, sea)
+                String url = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, firstIndex, 100, apiKey);
                 ObjectMapper mapper = new ObjectMapper();
                 List<String> matchIds = mapper.convertValue(mapper.readTree(new URI(url).toURL()), new TypeReference<>() {
                 });
                 for (String matchId : matchIds) {
-                    Optional<LOLMatchEntity> existingMatch = this.matchRepository.findFirstById(matchId);
+                    Optional<LOLMatch> existingMatch = this.matchRepository.findFirstById(matchId);
                     if (existingMatch.isEmpty()) {
                         String stringUrl = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/%s?api_key=%s", matchId, apiKey);
                         JsonNode node = mapper.readTree(new URI(stringUrl).toURL());
-                        LOLMatchEntity match = mapper.convertValue(node.get("info"), LOLMatchEntity.class);
+                        LOLMatch match = mapper.convertValue(node.get("info"), LOLMatch.class);
                         match.setId(node.get("metadata").get("matchId").asText());
                         if (LOLQueueEnum.ARENA.getIds().contains(match.getQueue())) {
                             match.dispatchParticipantsInTeamsArena();
@@ -90,14 +95,14 @@ public class LOLMatchService {
         }
     }
 
-    private void saveMatch(LOLMatchEntity match, String puuid) {
+    private void saveMatch(LOLMatch match, String puuid) {
         match.getOwners().add(puuid);
         LOGGER.info("Saving LOL match : {}", match.getId());
         matchRepository.save(match);
         summonerService.updateSpentTimeAndPlayedSeasonsOrSets(puuid, match.getDuration(), Integer.valueOf(match.getVersion().replaceAll("\\..*", "")));
     }
 
-    private List<LOLMatchEntity> getMatches(String puuid, int pageNb, LOLQueueEnum queue, LOLRoleEnum role) {
+    private List<LOLMatch> getMatches(String puuid, int pageNb, LOLQueueEnum queue, LOLRoleEnum role) {
         PageRequest pageRequest = PageRequest.of(pageNb, pageSize);
         if (queue == LOLQueueEnum.ALL_QUEUES) {
             if (role == LOLRoleEnum.ALL_ROLES) {
@@ -114,7 +119,7 @@ public class LOLMatchService {
         }
     }
 
-    private Long getMatchesCount(String puuid, LOLQueueEnum queue, LOLRoleEnum role) {
+    private Integer getMatchesCount(String puuid, LOLQueueEnum queue, LOLRoleEnum role) {
         if (queue == LOLQueueEnum.ALL_QUEUES) {
             if (role == LOLRoleEnum.ALL_ROLES) {
                 return this.matchRepository.countAll(puuid);

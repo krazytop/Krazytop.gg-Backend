@@ -30,6 +30,8 @@ tags:
     description: Operations related to Teamfight Tactics summoners.
   - name: League of Legends Mastery
     description: Operations related to League of Legends masteries.
+  - name: League of Legends Match
+    description: Operations related to League of Legends matches.
 
 paths:
   /language:
@@ -78,6 +80,12 @@ paths:
     $ref: './controllers/lol/lol-board.yaml#/createBoard'
   /lol/mastery/{puuid}:
     $ref: './controllers/lol/lol-mastery.yaml#/getAndUpdateMasteries'
+  /lol/match/{puuid}/{pageNb}/{queue}/{role}:
+    $ref: './controllers/lol/lol-match.yaml#/getMatches'
+  /lol/match/{puuid}/{queue}/{role}:
+    $ref: './controllers/lol/lol-match.yaml#/getMatchesCount'
+  /lol/match/{puuid}:
+    $ref: './controllers/lol/lol-match.yaml#/updateMatches'
 
 components:
   schemas:
@@ -872,3 +880,287 @@ components:
         - points
         - champion
         - lastPlayTime
+    LOLParticipantDTO:
+      type: object
+      properties:
+        champLevel:
+          type: integer
+          format: int32
+          description: The participant's champion level.
+          example: 345
+        kills:
+          type: integer
+          format: int32
+          description: Number of kills by the participant.
+          example: 12
+        assists:
+          type: integer
+          format: int32
+          description: Number of assists by the participant.
+          example: 4
+        deaths:
+          type: integer
+          format: int32
+          description: Number of deaths by the participant.
+          example: 2
+        role:
+          type: string
+          description: The participant's role in the game.
+          example: "jungle"
+        visionScore:
+          type: integer
+          format: int32
+          description: The participant's vision score.
+          example: 40
+        minions:
+          type: integer
+          format: int32
+          description: Total minions killed by the participant.
+          example: 203
+        neutralMinions:
+          type: integer
+          format: int32
+          description: Total neutral minions (jungle monsters) killed by the participant.
+          example: 110
+        doubleKills:
+          type: integer
+          format: int32
+          description: Number of double kills.
+          example: 2
+        tripleKills:
+          type: integer
+          format: int32
+          description: Number of triple kills.
+          example: 1
+        quadraKills:
+          type: integer
+          format: int32
+          description: Number of quadra kills.
+          example: 1
+        pentaKills:
+          type: integer
+          format: int32
+          description: Number of penta kills.
+          example: 1
+        physicalDamageDealtToChampions:
+          type: integer
+          format: int32
+          description: Physical damage dealt to champions.
+          example: 45020
+        magicDamageDealtToChampions:
+          type: integer
+          format: int32
+          description: Magic damage dealt to champions.
+          example: 12789
+        trueDamageDealtToChampions:
+          type: integer
+          format: int32
+          description: True damage dealt to champions.
+          example: 490
+        physicalDamageTaken:
+          type: integer
+          format: int32
+          description: Physical damage taken.
+          example: 19493
+        magicDamageTaken:
+          type: integer
+          format: int32
+          description: Magic damage taken.
+          example: 34928
+        trueDamageTaken:
+          type: integer
+          format: int32
+          description: True damage taken.
+          example: 1342
+        golds:
+          type: integer
+          format: int32
+          description: Total gold earned.
+          example: 20194
+        gameEndedInEarlySurrender:
+          type: boolean
+          description: Indicates if the game ended in an early surrender for this participant's team.
+          example: false
+        runes:
+          $ref: '#/components/schemas/RIOTSummonerDTO'
+        champion:
+          type: string
+          description: The ID or name of the champion played.
+          example: "122"
+        item0:
+          type: string
+          description: ID or name of item slot 0.
+          example: "101"
+        item1:
+          type: string
+          description: ID or name of item slot 1.
+          example: "2870"
+        item2:
+          type: string
+          description: ID or name of item slot 2.
+          example: "1300"
+        item3:
+          type: string
+          description: ID or name of item slot 3.
+          example: "4900"
+        item4:
+          type: string
+          description: ID or name of item slot 4.
+          example: "3170"
+        item5:
+          type: string
+          description: ID or name of item slot 5.
+          example: "5600"
+        ward:
+          type: string
+          description: ID or name of the ward item.
+          example: "120"
+        summoner:
+          $ref: '#/components/schemas/RIOTSummonerDTO'
+        summonerSpell1:
+          type: string
+          description: ID or name of the first summoner spell.
+          example: "4"
+        summonerSpell2:
+          type: string
+          description: ID or name of the second summoner spell.
+          example: "12"
+        placement:
+          type: integer
+          format: int32
+          description: Participant's placement.
+          example: 2
+        augment1:
+          type: string
+          description: ID or name of the first augment.
+          example: "24"
+        augment2:
+          type: string
+          description: ID or name of the second augment.
+          example: "53"
+        augment3:
+          type: string
+          description: ID or name of the third augment.
+          example: "28"
+        augment4:
+          type: string
+          description: ID or name of the fourth augment.
+          example: "144"
+        augment5:
+          type: string
+          description: ID or name of the fifth augment.
+          example: "160"
+        augment6:
+          type: string
+          description: ID or name of the sixth augment.
+          example: "120"
+    LOLObjectivesDTO:
+      type: object
+      properties:
+        baronKills:
+          type: integer
+          format: int32
+          description: Number of Baron Nashor kills.
+          example: 1
+        championKills:
+          type: integer
+          format: int32
+          description: Number of champion kills.
+          example: 34
+        dragonKills:
+          type: integer
+          format: int32
+          description: Number of Dragon kills.
+          example: 4
+        hordeKills:
+          type: integer
+          format: int32
+          description: Number of Void Grub kills.
+          example: 5
+        inhibitorKills:
+          type: integer
+          format: int32
+          description: Number of Inhibitor kills.
+          example: 3
+        riftHeraldKills:
+          type: integer
+          format: int32
+          description: Number of Rift Herald kills.
+          example: 1
+        towerKills:
+          type: integer
+          format: int32
+          description: Number of Tower kills.
+          example: 7
+        atakhanKills:
+          type: integer
+          format: int32
+          description: Number of Atakhan kills.
+          example: 1
+    LOLTeamDTO:
+      type: object
+      properties:
+        objectives:
+          $ref: '#/components/schemas/LOLObjectivesDTO'
+        hasWin:
+          type: boolean
+          description: Indicates if the team won the game.
+          example: true
+        id:
+          type: string
+          description: The ID of the team.
+          example: "1"
+        bans:
+          type: array
+          items:
+            type: string
+          description: List of champion IDs or names banned by this team.
+          example:
+            - "Yasuo"
+            - "Zed"
+            - "LeeSin"
+            - "Aatrox"
+        placement:
+          type: integer
+          format: int32
+          description: The team's final placement in the game (e.g., in game modes like Clash or TFT).
+          example: 1
+    LOLMatchDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the match.
+          example: "EUW1_694207890"
+        version:
+          type: string
+          description: The game version (e.g., patch version) the match was played on.
+          example: "14.12.569.8398"
+        datetime:
+          type: string
+          format: date-time
+          description: Date and time when the match started.
+          example: "2025-06-30T16:00:00Z"
+        duration:
+          type: integer
+          format: int64
+          description: Duration of the game in seconds.
+          example: 2450
+        teams:
+          type: array
+          items:
+            $ref: '#/components/schemas/LOLTeamDTO'
+          description: List of teams participating in the match.
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/LOLParticipantDTO'
+          description: List of individual participants in the match.
+        remake:
+          type: boolean
+          description: Indicates if the game was a remake.
+          example: false
+        queue:
+          type: string
+          description: The ID or name of the game queue (e.g., "SUMMONERS_RIFT_5x5_RANKED_SOLO_DUO").
+          example: "420"

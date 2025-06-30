@@ -10,14 +10,14 @@ import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LOLTeamEntity {
+public class LOLTeam {
 
-    private LOLObjectivesEntity objectives;
+    private LOLObjectives objectives;
     @JsonAlias("win")
     private Boolean hasWin;
     @JsonAlias("teamId")
     private String id;
-    private List<LOLParticipantEntity> participants;
+    private List<LOLParticipant> participants;
     private List<String> bans;
     private Integer placement;
 
