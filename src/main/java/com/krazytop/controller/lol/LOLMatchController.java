@@ -40,7 +40,7 @@ public class LOLMatchController {
     @PostMapping("/lol/matches/{region}/{puuid}")
     public ResponseEntity<Void> updateMatches(@PathVariable String region, @PathVariable String puuid) {
         LOGGER.info("Updating LOL matches");
-        matchService.updateMatches(region, puuid);
+        matchService.updateMatches(puuid);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

@@ -38,7 +38,7 @@ public class LOLParticipantEntity {
     private Integer golds;
     private Boolean gameEndedInEarlySurrender;
     @JsonAlias("perks")
-    private LOLRunesEntity runes;
+    private LOLRunes runes;
     @JsonAlias("championId")
     private String champion;
     private String item0;

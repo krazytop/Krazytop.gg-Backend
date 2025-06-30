@@ -47,13 +47,13 @@ public class LOLRankService {
     }
 
     public RIOTRankDTO getRanksDTO(String puuid) {
-        return rankMapper.toDTO(getRanks(puuid).orElseThrow(() -> new CustomException(ApiErrorEnum.RANK_NEED_IMPORT_FIRST)));
+        return rankMapper.toDTO(getRanks(puuid).orElseThrow(() -> new CustomException(ApiErrorEnum.SUMMONER_NEED_IMPORT_FIRST)));
     }
 
     public void updateRanks(String puuid) {
         try {
             int currentSeasonOrSet = metadataService.getMetadataDTO().getCurrentSeasonOrSet();
-            String region = summonerService.getLocalSummoner(puuid).orElseThrow(() -> new CustomException(ApiErrorEnum.RANK_NEED_IMPORT_FIRST)).getRegion();
+            String region = summonerService.getLocalSummoner(puuid).orElseThrow(() -> new CustomException(ApiErrorEnum.SUMMONER_NEED_IMPORT_FIRST)).getRegion();
             String url = String.format("https://%s.api.riotgames.com/lol/league/v4/entries/by-puuid/%s?api_key=%s", region, puuid, apiKeyRepository.findFirstByGame(GameEnum.LOL).getKey());
             ObjectMapper mapper = new ObjectMapper();
             List<JsonNode> nodes = mapper.convertValue(mapper.readTree(new URI(url).toURL()), new TypeReference<>() {});
@@ -65,7 +65,7 @@ public class LOLRankService {
             }
             rankRepository.save(rank);
         } catch (URISyntaxException | IOException ex) {
-            throw new CustomException(ApiErrorEnum.SUMMONER_NOT_FOUND, ex);
+            throw new CustomException(ApiErrorEnum.RANK_UPDATE_ERROR, ex);
         }
     }
 }

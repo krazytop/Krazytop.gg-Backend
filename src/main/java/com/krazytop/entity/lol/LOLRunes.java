@@ -11,16 +11,16 @@ import java.util.Map;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LOLRunesEntity {
+public class LOLRunes {
 
     @JsonAlias("statPerks")
     private Map<String, Integer> stats;
     @JsonAlias("styles")
-    private List<LOLRuneCategoryEntity> runeCategories;
+    private List<LOLRuneCategory> runeCategories;
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
-    static class LOLRuneCategoryEntity {
+    static class LOLRuneCategory {
 
         private String style;
         private List<String> perks;

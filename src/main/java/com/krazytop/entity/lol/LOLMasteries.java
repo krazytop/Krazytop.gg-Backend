@@ -15,18 +15,18 @@ import java.util.List;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Document(collection = "Mastery")
-public class LOLMasteriesEntity {
+public class LOLMasteries {
 
     @Id private String puuid;
-    private List<LOLMasteryEntity> champions = new ArrayList<>();
+    private List<LOLMastery> champions = new ArrayList<>();
 
-    public LOLMasteriesEntity(String puuid){
+    public LOLMasteries(String puuid){
         this.puuid = puuid;
     }
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class LOLMasteryEntity {
+    public static class LOLMastery {
 
         @JsonAlias("championLevel")
         private int level;

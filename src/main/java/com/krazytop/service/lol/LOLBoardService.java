@@ -1,4 +1,4 @@
-package com.krazytop.service.riot;
+package com.krazytop.service.lol;
 
 import com.krazytop.api_gateway.model.generated.RIOTBoardDTO;
 import com.krazytop.api_gateway.model.generated.RIOTSummonerDTO;
@@ -8,10 +8,6 @@ import com.krazytop.exception.CustomException;
 import com.krazytop.http_responses.ApiErrorEnum;
 import com.krazytop.mapper.lol.LOLBoardMapper;
 import com.krazytop.repository.lol.LOLBoardRepository;
-import com.krazytop.service.lol.LOLMasteryService;
-import com.krazytop.service.lol.LOLMatchService;
-import com.krazytop.service.lol.LOLRankService;
-import com.krazytop.service.lol.LOLSummonerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +16,7 @@ import java.time.ZoneId;
 import java.util.Date;
 
 @Service
-public class RIOTBoardService {
+public class LOLBoardService {
 
     private final LOLBoardRepository boardRepository;
     private final LOLSummonerService summonerService;
@@ -30,7 +26,7 @@ public class RIOTBoardService {
     private final LOLBoardMapper boardMapper;
 
     @Autowired
-    public RIOTBoardService(LOLBoardRepository boardRepository, LOLSummonerService summonerService, LOLMatchService matchService, LOLMasteryService masteryService, LOLRankService rankService, LOLBoardMapper boardMapper) {
+    public LOLBoardService(LOLBoardRepository boardRepository, LOLSummonerService summonerService, LOLMatchService matchService, LOLMasteryService masteryService, LOLRankService rankService, LOLBoardMapper boardMapper) {
         this.boardRepository = boardRepository;
         this.summonerService = summonerService;
         this.matchService = matchService;

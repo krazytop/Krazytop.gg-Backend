@@ -3,7 +3,7 @@ package com.krazytop.controller.lol;
 import com.krazytop.api_gateway.api.generated.LeagueOfLegendsBoardApi;
 import com.krazytop.api_gateway.model.generated.RIOTBoardDTO;
 import com.krazytop.api_gateway.model.generated.RIOTSummonerDTO;
-import com.krazytop.service.riot.RIOTBoardService;
+import com.krazytop.service.lol.LOLBoardService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +16,10 @@ public class LOLBoardController implements LeagueOfLegendsBoardApi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LOLBoardController.class);
 
-    private final RIOTBoardService boardService;
+    private final LOLBoardService boardService;
 
     @Autowired
-    public LOLBoardController(RIOTBoardService boardService) {
+    public LOLBoardController(LOLBoardService boardService) {
         this.boardService = boardService;
     }
 

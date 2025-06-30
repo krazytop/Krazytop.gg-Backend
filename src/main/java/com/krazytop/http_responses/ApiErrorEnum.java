@@ -23,9 +23,11 @@ public enum ApiErrorEnum {
     // Destiny
     BUNGIE_AUTH_ERROR("BUNGIE_AUTH_ERROR", "An unexpected error occurred while authenticating to Bungie. Please try again later or log out before trying again.", HttpStatus.INTERNAL_SERVER_ERROR),
     // RIOT
-    RANK_NEED_IMPORT_FIRST("RANK_NEED_IMPORT_FIRST", "You need to import summoner first.", HttpStatus.BAD_REQUEST),
+    SUMMONER_NEED_IMPORT_FIRST("SUMMONER_NEED_IMPORT_FIRST", "You need to import summoner first.", HttpStatus.BAD_REQUEST),
     SUMMONER_UPDATE_ERROR("SUMMONER_UPDATE_ERROR", "An unexpected error occurred while updating summoner", HttpStatus.INTERNAL_SERVER_ERROR),
-    SUMMONER_NOT_FOUND("SUMMONER_NOT_FOUND", "Summoner was not found.", HttpStatus.NOT_FOUND),
+    RANK_UPDATE_ERROR("RANK_UPDATE_ERROR", "An unexpected error occurred while updating ranks", HttpStatus.INTERNAL_SERVER_ERROR),
+    MASTERY_UPDATE_ERROR("MASTERY_UPDATE_ERROR", "An unexpected error occurred while updating masteries", HttpStatus.INTERNAL_SERVER_ERROR),
+    SUMMONER_NOT_FOUND("SUMMONER_NOT_FOUND", "Summoner was not found.", HttpStatus.NOT_FOUND),//TODO dans les rank, ... on check avant donc pas possible, il faut créer une erreur rankuopdateerror
     ACCOUNT_NOT_FOUND("ACCOUNT_NOT_FOUND", "Account was not found.", HttpStatus.NOT_FOUND),
     BOARD_NOT_FOUND("BOARD_NOT_FOUND", "Board was not found.", HttpStatus.NOT_FOUND),
     SUMMONER_ALREADY_ADDED_TO_BOARD("SUMMONER_ALREADY_ADDED_TO_BOARD", "Summoner is already added to this board.", HttpStatus.BAD_REQUEST),
