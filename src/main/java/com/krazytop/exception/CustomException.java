@@ -1,7 +1,5 @@
 package com.krazytop.exception;
 
-import com.krazytop.http_responses.ApiErrorEnum;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter

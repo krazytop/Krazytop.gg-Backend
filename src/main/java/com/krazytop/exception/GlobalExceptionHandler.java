@@ -1,10 +1,7 @@
-package com.krazytop.controller;
+package com.krazytop.exception;
 
 import com.krazytop.api_gateway.model.generated.ApiError;
 import com.krazytop.api_gateway.model.generated.ApiErrorDetailsInner;
-import com.krazytop.config.CustomHTTPException;
-import com.krazytop.exception.CustomException;
-import com.krazytop.http_responses.RIOTHTTPErrorResponsesEnum;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,19 +14,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import static com.krazytop.exception.CustomApiError.buildApiError;
-import static com.krazytop.http_responses.ApiErrorEnum.*;
+import static com.krazytop.exception.ApiErrorEnum.*;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
-
-    @ExceptionHandler(CustomHTTPException.class)//TODO supprimer
-    public ResponseEntity<RIOTHTTPErrorResponsesEnum> handleCustomHTTPException(CustomHTTPException e) {
-        RIOTHTTPErrorResponsesEnum response = e.getResponse();
-        LOGGER.error(response.getMessage());
-        return new ResponseEntity<>(response, response.getHttpResponseCode());
-    }
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<ApiError> handleNoController() {

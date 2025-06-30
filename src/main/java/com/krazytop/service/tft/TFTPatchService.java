@@ -7,7 +7,7 @@ import com.krazytop.api_gateway.model.generated.LanguageDTO;
 import com.krazytop.api_gateway.model.generated.TFTPatchDTO;
 import com.krazytop.entity.tft.TFTMetadata;
 import com.krazytop.exception.CustomException;
-import com.krazytop.http_responses.ApiErrorEnum;
+import com.krazytop.exception.ApiErrorEnum;
 import com.krazytop.mapper.tft.TFTPatchMapper;
 import com.krazytop.nomenclature.riot.RIOTQueueNomenclature;
 import com.krazytop.nomenclature.tft.*;

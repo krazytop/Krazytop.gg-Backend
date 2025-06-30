@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.Base64;
 
-import static com.krazytop.http_responses.ApiErrorEnum.BUNGIE_AUTH_ERROR;
+import static com.krazytop.exception.ApiErrorEnum.BUNGIE_AUTH_ERROR;
 
 @Service
 public class DestinyAuthService {

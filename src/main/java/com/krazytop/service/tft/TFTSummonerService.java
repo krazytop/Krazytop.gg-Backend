@@ -3,10 +3,10 @@ package com.krazytop.service.tft;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.api_gateway.model.generated.RIOTSummonerDTO;
 import com.krazytop.entity.api_key.ApiKeyEntity;
-import com.krazytop.entity.riot.RIOTAccountEntity;
+import com.krazytop.entity.riot.RIOTAccount;
 import com.krazytop.entity.riot.RIOTSummoner;
 import com.krazytop.exception.CustomException;
-import com.krazytop.http_responses.ApiErrorEnum;
+import com.krazytop.exception.ApiErrorEnum;
 import com.krazytop.mapper.tft.TFTSummonerMapper;
 import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.repository.api_key.ApiKeyRepository;
@@ -74,7 +74,7 @@ public class TFTSummonerService {
             ApiKeyEntity apiKey = this.apiKeyRepository.findFirstByGame(GameEnum.TFT);
             String summonerApiUrl = String.format("https://%s.api.riotgames.com/tft/summoner/v1/summoners/by-puuid/%s?api_key=%s", region, puuid, apiKey.getKey());
             RIOTSummoner summoner = mapper.convertValue(mapper.readTree(new URI(summonerApiUrl).toURL()), RIOTSummoner.class);
-            RIOTAccountEntity account = getAccount(summoner.getPuuid());
+            RIOTAccount account = getAccount(summoner.getPuuid());
             summoner.setName(account.getName());
             summoner.setTag(account.getTag());
             summoner.setRegion(region);
@@ -89,7 +89,7 @@ public class TFTSummonerService {
             name = name.replace(" ", "%20");
             ObjectMapper mapper = new ObjectMapper();
             ApiKeyEntity apiKey = this.apiKeyRepository.findFirstByGame(GameEnum.TFT);
-            RIOTAccountEntity account = getAccount(tag, name);
+            RIOTAccount account = getAccount(tag, name);
             String region = getRegion(account.getPuuid());
             String summonerApiUrl = String.format("https://%s.api.riotgames.com/tft/summoner/v1/summoners/by-puuid/%s?api_key=%s", region, account.getPuuid(), apiKey.getKey());
             RIOTSummoner summoner = mapper.convertValue(mapper.readTree(new URI(summonerApiUrl).toURL()), RIOTSummoner.class);
@@ -102,23 +102,23 @@ public class TFTSummonerService {
         }
     }
 
-    private RIOTAccountEntity getAccount(String puuid) {
+    private RIOTAccount getAccount(String puuid) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             ApiKeyEntity apiKey = this.apiKeyRepository.findFirstByGame(GameEnum.TFT);
             String accountApiUrl = String.format("https://europe.api.riotgames.com/riot/account/v1/accounts/by-puuid/%s?api_key=%s", puuid, apiKey.getKey());
-            return mapper.convertValue(mapper.readTree(new URI(accountApiUrl).toURL()), RIOTAccountEntity.class);
+            return mapper.convertValue(mapper.readTree(new URI(accountApiUrl).toURL()), RIOTAccount.class);
         } catch (URISyntaxException | IOException ex) {
             throw new CustomException(ApiErrorEnum.ACCOUNT_NOT_FOUND, ex);
         }
     }
 
-    private RIOTAccountEntity getAccount(String tag, String name) throws URISyntaxException, IOException {
+    private RIOTAccount getAccount(String tag, String name) throws URISyntaxException, IOException {
         try {
             ObjectMapper mapper = new ObjectMapper();
             ApiKeyEntity apiKey = this.apiKeyRepository.findFirstByGame(GameEnum.TFT);
             String accountApiUrl = String.format("https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/%s/%s?api_key=%s", name, tag, apiKey.getKey());
-            return mapper.convertValue(mapper.readTree(new URI(accountApiUrl).toURL()), RIOTAccountEntity.class);
+            return mapper.convertValue(mapper.readTree(new URI(accountApiUrl).toURL()), RIOTAccount.class);
         } catch (URISyntaxException | IOException ex) {
             throw new CustomException(ApiErrorEnum.ACCOUNT_NOT_FOUND, ex);
         }

@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TFTTraitEntity {
+public class TFTTrait {
 
     @JsonAlias("name")
     private String id;

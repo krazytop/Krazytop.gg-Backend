@@ -3,7 +3,7 @@ package com.krazytop.controller.lol;
 import com.krazytop.api_gateway.api.generated.LeagueOfLegendsPatchApi;
 import com.krazytop.api_gateway.model.generated.LOLPatchDTO;
 import com.krazytop.exception.CustomException;
-import com.krazytop.http_responses.ApiErrorEnum;
+import com.krazytop.exception.ApiErrorEnum;
 import com.krazytop.service.lol.LOLPatchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

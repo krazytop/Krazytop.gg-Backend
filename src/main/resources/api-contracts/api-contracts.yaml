@@ -32,6 +32,8 @@ tags:
     description: Operations related to League of Legends masteries.
   - name: League of Legends Match
     description: Operations related to League of Legends matches.
+  - name: Teamfight Tactics Match
+    description: Operations related to Teamfight Tactics matches.
 
 paths:
   /language:
@@ -86,6 +88,12 @@ paths:
     $ref: './controllers/lol/lol-match.yaml#/getMatchesCount'
   /lol/match/{puuid}:
     $ref: './controllers/lol/lol-match.yaml#/updateMatches'
+  /tft/match/{puuid}/{pageNb}/{queue}/{set}:
+    $ref: './controllers/tft/tft-match.yaml#/getMatches'
+  /tft/match/{puuid}/{queue}/{set}:
+    $ref: './controllers/tft/tft-match.yaml#/getMatchesCount'
+  /tft/match/{puuid}:
+    $ref: './controllers/tft/tft-match.yaml#/updateMatches'
 
 components:
   schemas:
@@ -277,7 +285,7 @@ components:
             $ref: '#/components/schemas/RIOTQueueNomenclatureDTO'
     TFTUnitNomenclatureDTO:
       type: object
-      description: Represents a Teamfight Tactics (TFT) unit with its nomenclature and details.
+      description: Represents a Teamfight Tactics unit with its nomenclature and details.
       properties:
         id:
           type: string
@@ -347,7 +355,7 @@ components:
           example: [ 100.0, 150.0, 200.0 ]
     TFTTraitNomenclatureDTO:
       type: object
-      description: Represents a Teamfight Tactics (TFT) trait with its nomenclature and details.
+      description: Represents a Teamfight Tactics trait with its nomenclature and details.
       properties:
         id:
           type: string
@@ -413,7 +421,7 @@ components:
             DamageReduction: 0.05
     TFTItemNomenclatureDTO:
       type: object
-      description: Represents a Teamfight Tactics (TFT) item or augment with its nomenclature and details.
+      description: Represents a Teamfight Tactics item or augment with its nomenclature and details.
       properties:
         id:
           type: string
@@ -601,7 +609,7 @@ components:
           example: [ "Boots", "Nonconsumable" ]
         stats:
           type: object
-          description: A map of item stats to their numerical values (e.g., "FlatMovementSpeedMod", "FlatMagicDamageMod").
+          description: A map of item stats to their numerical values.
           additionalProperties:
             type: number
             format: double
@@ -637,7 +645,7 @@ components:
           example: 300.0
     LOLAugmentNomenclatureDTO:
       type: object
-      description: Represents a League of Legends Augment (e.g., from Arena mode or Hextech Augments) with its nomenclature and data values.
+      description: Represents a League of Legends Augment with its nomenclature and data values.
       allOf:
         - $ref: '#/components/schemas/LOLNomenclatureDTO'
       properties:
@@ -1123,7 +1131,7 @@ components:
         placement:
           type: integer
           format: int32
-          description: The team's final placement in the game (e.g., in game modes like Clash or TFT).
+          description: The team's final placement in the game.
           example: 1
     LOLMatchDTO:
       type: object
@@ -1134,7 +1142,7 @@ components:
           example: "EUW1_694207890"
         version:
           type: string
-          description: The game version (e.g., patch version) the match was played on.
+          description: The game version the match was played on.
           example: "14.12.569.8398"
         datetime:
           type: string
@@ -1162,5 +1170,156 @@ components:
           example: false
         queue:
           type: string
-          description: The ID or name of the game queue (e.g., "SUMMONERS_RIFT_5x5_RANKED_SOLO_DUO").
+          description: The ID or name of the game queue.
           example: "420"
+    TFTUnitDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the unit.
+          example: "TFT9_Akali"
+        rarity:
+          type: integer
+          format: int32
+          description: The rarity level of the unit.
+          example: 4
+        tier:
+          type: integer
+          format: int32
+          description: The star level of the unit.
+          example: 2
+        items:
+          type: array
+          items:
+            type: string
+          description: List of items equipped on the unit.
+          example:
+            - "TFT_Item_Deathblade"
+            - "TFT_Item_TitansResolve"
+            - "TFT_Item_HandOfJustice"
+    TFTTraitDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier or name of the trait.
+          example: "TFT9_Slayer"
+        tier:
+          type: integer
+          format: int32
+          description: The current active tier of the trait.
+          example: 3
+        maxTier:
+          type: integer
+          format: int32
+          description: The maximum possible tier for this trait.
+          example: 4
+        unitsNb:
+          type: integer
+          format: int32
+          description: The number of units contributing to this trait.
+          example: 6
+        style:
+          type: integer
+          format: int32
+          description: Visual style or level of the trait's activation.
+          example: 3
+    TFTMatchDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the Teamfight Tactics match.
+          example: "EUW1_1234567890"
+        version:
+          type: string
+          description: The game version the match was played on.
+          example: "14.12.569.8398"
+        datetime:
+          type: string
+          format: date-time
+          description: Date and time when the match started.
+          example: "2025-06-30T22:02:20Z"
+        duration:
+          type: integer
+          format: int64
+          description: Duration of the game in seconds.
+          example: 2200
+        set:
+          type: integer
+          format: int32
+          description: The TFT set number the match was played on.
+          example: 12
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/TFTParticipantDTO'
+          description: List of individual participants in the match.
+        queue:
+          type: string
+          description: The ID or name of the game queue.
+          example: "1100"
+    TFTParticipantDTO:
+      type: object
+      properties:
+        summoner:
+          $ref: '#/components/schemas/RIOTSummonerDTO'
+        lastRound:
+          type: integer
+          format: int32
+          description: The last round the participant was in.
+          example: 36
+        level:
+          type: integer
+          format: int32
+          description: The participant's player level.
+          example: 9
+        goldLeft:
+          type: integer
+          format: int32
+          description: Amount of gold the participant had left at the end of the game.
+          example: 25
+        placement:
+          type: integer
+          format: int32
+          description: The participant's final placement in the game.
+          example: 1
+        playersEliminated:
+          type: integer
+          format: int32
+          description: Number of players this participant eliminated.
+          example: 3
+        timeEliminated:
+          type: integer
+          format: int32
+          description: The time in seconds when the participant was eliminated from the game.
+          example: 1800
+        damageToPlayers:
+          type: integer
+          format: int32
+          description: Total damage dealt to other players by this participant.
+          example: 15000
+        units:
+          type: array
+          items:
+            $ref: '#/components/schemas/TFTUnitDTO'
+          description: List of units on the participant's board.
+        traits:
+          type: array
+          items:
+            $ref: '#/components/schemas/TFTTraitDTO'
+          description: List of traits active for the participant.
+        augments:
+          type: array
+          items:
+            type: string
+          description: List of augments chosen by the participant.
+          example:
+            - "TFT9_Augment_BuiltDifferent1"
+            - "TFT9_Augment_CyberneticBulk2"
+            - "TFT9_Augment_GoldenTicket"
+        hasWin:
+          type: boolean
+          description: Indicates if the participant won the game.
+          example: true

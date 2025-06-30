@@ -10,7 +10,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class RIOTRankInformationsEntity {
+public class RIOTRankInformations {
 
     private Date date;
     @JsonAlias({"tier", "ratedTier"})

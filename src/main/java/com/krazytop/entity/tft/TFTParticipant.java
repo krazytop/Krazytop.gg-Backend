@@ -10,7 +10,7 @@ import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TFTParticipantEntity {
+public class TFTParticipant {
 
     private RIOTSummoner summoner = new RIOTSummoner();
     private Integer lastRound;
@@ -24,8 +24,8 @@ public class TFTParticipantEntity {
     private Integer timeEliminated;
     @JsonAlias({"total_damage_to_players", "totalDamageToPlayers"})
     private Integer damageToPlayers;
-    private List<TFTUnitEntity> units;
-    private List<TFTTraitEntity> traits;
+    private List<TFTUnit> units;
+    private List<TFTTrait> traits;
     private List<String> augments;
     @JsonAlias("win")
     private Boolean hasWin;

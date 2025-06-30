@@ -3,7 +3,7 @@ package com.krazytop.controller.tft;
 import com.krazytop.api_gateway.api.generated.TeamfightTacticsPatchApi;
 import com.krazytop.api_gateway.model.generated.TFTPatchDTO;
 import com.krazytop.exception.CustomException;
-import com.krazytop.http_responses.ApiErrorEnum;
+import com.krazytop.exception.ApiErrorEnum;
 import com.krazytop.service.tft.TFTPatchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

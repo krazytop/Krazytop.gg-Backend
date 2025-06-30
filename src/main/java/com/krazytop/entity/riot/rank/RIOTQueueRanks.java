@@ -6,16 +6,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class RIOTQueueRanksEntity {
+public class RIOTQueueRanks {
 
     private String name;
-    private List<RIOTRankInformationsEntity> rankInformations = new ArrayList<>();
+    private List<RIOTRankInformations> rankInformations = new ArrayList<>();
 
-    public RIOTQueueRanksEntity (String name) {
+    public RIOTQueueRanks(String name) {
         this.name = name;
     }
 
-    public void joinRanks(List<RIOTRankInformationsEntity> newRanks) {
+    public void joinRanks(List<RIOTRankInformations> newRanks) {
         newRanks.forEach(newRank -> {
             if (rankInformations.stream().noneMatch(rank -> rank.getLosses() + rank.getWins() == newRank.getLosses() + newRank.getWins())) {
                 rankInformations.add(newRank);

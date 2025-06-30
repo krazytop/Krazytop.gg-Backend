@@ -1,7 +1,6 @@
 package com.krazytop.exception;
 
 import com.krazytop.api_gateway.model.generated.ApiError;
-import com.krazytop.http_responses.ApiErrorEnum;
 
 public class CustomApiError extends ApiError {
 

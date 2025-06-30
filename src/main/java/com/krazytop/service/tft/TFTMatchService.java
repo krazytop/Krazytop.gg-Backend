@@ -3,9 +3,11 @@ package com.krazytop.service.tft;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.krazytop.config.CustomHTTPException;
-import com.krazytop.entity.tft.TFTMatchEntity;
-import com.krazytop.http_responses.RIOTHTTPErrorResponsesEnum;
+import com.krazytop.api_gateway.model.generated.TFTMatchDTO;
+import com.krazytop.entity.tft.TFTMatch;
+import com.krazytop.exception.CustomException;
+import com.krazytop.exception.ApiErrorEnum;
+import com.krazytop.mapper.tft.TFTMatchMapper;
 import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.nomenclature.tft.*;
 import com.krazytop.repository.api_key.ApiKeyRepository;
@@ -32,37 +34,39 @@ public class TFTMatchService {
     private final TFTMatchRepository matchRepository;
     private final ApiKeyRepository apiKeyRepository;
     private final TFTSummonerService summonerService;
+    private final TFTMatchMapper  matchMapper;
 
     @Autowired
-    public TFTMatchService(TFTMatchRepository matchRepository, ApiKeyRepository apiKeyRepository, TFTSummonerService summonerService) {
+    public TFTMatchService(TFTMatchRepository matchRepository, ApiKeyRepository apiKeyRepository, TFTSummonerService summonerService, TFTMatchMapper matchMapper) {
         this.matchRepository = matchRepository;
         this.apiKeyRepository = apiKeyRepository;
         this.summonerService = summonerService;
+        this.matchMapper = matchMapper;
     }
 
-    public List<TFTMatchEntity> getMatches(String puuid, int pageNb, String queue, int set) {
-        return getMatches(puuid, pageNb, TFTQueueEnum.fromName(queue), set);
+    public List<TFTMatchDTO> getMatches(String puuid, Integer pageNb, String queue, Integer set) {
+        return getMatches(puuid, pageNb, TFTQueueEnum.fromName(queue), set).stream().map(matchMapper::toDTO).toList();
     }
 
-    public Long getMatchesCount(String puuid, String queue, int set) {
+    public Integer getMatchesCount(String puuid, String queue, Integer set) {
         return getMatchesCount(puuid, TFTQueueEnum.fromName(queue), set);
     }
 
-    public void updateMatches(String region, String puuid) {
+    public void updateMatches(String puuid) {
         try {
             boolean moreMatchToRecovered = true;
             int firstIndex = 0;
             String apiKey = apiKeyRepository.findFirstByGame(GameEnum.TFT).getKey();
-            while (moreMatchToRecovered) {
+            while (moreMatchToRecovered) {// TODO faire un appel pour chaque region (europe, americas, asia, sea)
                 String url = String.format("https://europe.api.riotgames.com/tft/match/v1/matches/by-puuid/%s/ids?start=%d&count=%d&api_key=%s", puuid, firstIndex, 100, apiKey);
                 ObjectMapper mapper = new ObjectMapper();
                 List<String> matchIds = mapper.convertValue(mapper.readTree(new URI(url).toURL()), new TypeReference<>() {});
                 for (String matchId : matchIds) {
-                    Optional<TFTMatchEntity> existingMatch = this.matchRepository.findFirstById(matchId);
+                    Optional<TFTMatch> existingMatch = this.matchRepository.findFirstById(matchId);
                     if (existingMatch.isEmpty()) {
                         String stringUrl = String.format("https://europe.api.riotgames.com/tft/match/v1/matches/%s?api_key=%s", matchId, apiKey);
                         JsonNode node = mapper.readTree(new URI(stringUrl).toURL());
-                        TFTMatchEntity match = mapper.convertValue(node.get("info"), TFTMatchEntity.class);
+                        TFTMatch match = mapper.convertValue(node.get("info"), TFTMatch.class);
                         match.setId(node.get("metadata").get("match_id").asText());
                         saveMatch(match, puuid);
                         Thread.sleep(2000);
@@ -76,19 +80,19 @@ public class TFTMatchService {
                 Thread.sleep(2000);
                 firstIndex += 100;
             }
-        } catch (IOException | URISyntaxException | InterruptedException e) {
-            throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.MATCHES_CANT_BE_UPDATED);
+        } catch (IOException | URISyntaxException | InterruptedException ex) {
+            throw new CustomException(ApiErrorEnum.MATCH_UPDATE_ERROR, ex);
         }
     }
 
-    private void saveMatch(TFTMatchEntity match, String puuid) {
+    private void saveMatch(TFTMatch match, String puuid) {
         match.getOwners().add(puuid);
         LOGGER.info("Saving TFT match : {}", match.getId());
         matchRepository.save(match);
         summonerService.updateSpentTimeAndPlayedSeasonsOrSets(puuid, match.getDuration(), match.getSet());
     }
 
-    public List<TFTMatchEntity> getMatches(String puuid, int pageNb, TFTQueueEnum queue, int set) {
+    public List<TFTMatch> getMatches(String puuid, Integer pageNb, TFTQueueEnum queue, Integer set) {
         PageRequest pageRequest = PageRequest.of(pageNb, pageSize);
         if (queue == TFTQueueEnum.ALL_QUEUES) {
             if (set == -1) {
@@ -105,7 +109,7 @@ public class TFTMatchService {
         }
     }
 
-    public Long getMatchesCount(String puuid, TFTQueueEnum queue, int set) {
+    public Integer getMatchesCount(String puuid, TFTQueueEnum queue, Integer set) {
         if (queue == TFTQueueEnum.ALL_QUEUES) {
             if (set == -1) {
                 System.out.println(matchRepository.countAll(puuid));

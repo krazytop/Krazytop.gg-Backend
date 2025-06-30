@@ -12,18 +12,18 @@ public class RIOTRank {
 
     @Id
     private String puuid;
-    private List<RIOTSeasonOrSetRanksEntity> seasonOrSetRanks = new ArrayList<>();
+    private List<RIOTSeasonOrSetRanks> seasonOrSetRanks = new ArrayList<>();
 
     public RIOTRank(String puuid) {
         this.puuid = puuid;
     }
 
-    public void joinRanks(List<RIOTRankInformationsEntity> newRanksInformations, int seasonOrSetNb, String queueName) {
-        RIOTSeasonOrSetRanksEntity seasonOrSetRank = seasonOrSetRanks.stream()
+    public void joinRanks(List<RIOTRankInformations> newRanksInformations, int seasonOrSetNb, String queueName) {
+        RIOTSeasonOrSetRanks seasonOrSetRank = seasonOrSetRanks.stream()
                 .filter(s -> Objects.equals(s.getNb(), seasonOrSetNb))
                 .findFirst()
                 .orElseGet(() -> {
-                    RIOTSeasonOrSetRanksEntity newSeasonOrSetRank = new RIOTSeasonOrSetRanksEntity(seasonOrSetNb);
+                    RIOTSeasonOrSetRanks newSeasonOrSetRank = new RIOTSeasonOrSetRanks(seasonOrSetNb);
                     seasonOrSetRanks.add(newSeasonOrSetRank);
                     return newSeasonOrSetRank;
                 });

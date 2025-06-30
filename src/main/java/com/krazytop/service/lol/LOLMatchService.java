@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.api_gateway.model.generated.LOLMatchDTO;
-import com.krazytop.config.CustomHTTPException;
 import com.krazytop.entity.lol.*;
-import com.krazytop.http_responses.RIOTHTTPErrorResponsesEnum;
+import com.krazytop.exception.CustomException;
+import com.krazytop.exception.ApiErrorEnum;
 import com.krazytop.mapper.lol.LOLMatchMapper;
 import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.nomenclature.lol.LOLQueueEnum;
@@ -25,7 +25,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class LOLMatchService {
@@ -47,12 +46,12 @@ public class LOLMatchService {
         this.matchMapper = matchMapper;
     }
 
-    public List<LOLMatchDTO> getMatches(String puuid, int pageNb, String queue, String role) {
-        return this.getMatches(puuid, pageNb, LOLQueueEnum.fromName(queue), LOLRoleEnum.fromName(role)).stream().map(matchMapper::toDTO).toList();
+    public List<LOLMatchDTO> getMatches(String puuid, Integer pageNb, String queue, String role) {
+        return getMatches(puuid, pageNb, LOLQueueEnum.fromName(queue), LOLRoleEnum.fromName(role)).stream().map(matchMapper::toDTO).toList();
     }
 
     public Integer getMatchesCount(String puuid, String queue, String role) {
-        return this.getMatchesCount(puuid, LOLQueueEnum.fromName(queue), LOLRoleEnum.fromName(role));
+        return getMatchesCount(puuid, LOLQueueEnum.fromName(queue), LOLRoleEnum.fromName(role));
     }
 
     public void updateMatches(String puuid) {
@@ -90,8 +89,8 @@ public class LOLMatchService {
                 Thread.sleep(2000);
                 firstIndex += 100;
             }
-        } catch (IOException | URISyntaxException | InterruptedException e) {
-            throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.MATCHES_CANT_BE_UPDATED);
+        } catch (IOException | URISyntaxException | InterruptedException ex) {
+            throw new CustomException(ApiErrorEnum.MATCH_UPDATE_ERROR, ex);
         }
     }
 

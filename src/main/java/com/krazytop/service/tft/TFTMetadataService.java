@@ -3,7 +3,7 @@ package com.krazytop.service.tft;
 import com.krazytop.api_gateway.model.generated.RIOTMetadataDTO;
 import com.krazytop.entity.tft.TFTMetadata;
 import com.krazytop.exception.CustomException;
-import com.krazytop.http_responses.ApiErrorEnum;
+import com.krazytop.exception.ApiErrorEnum;
 import com.krazytop.mapper.tft.TFTMetadataMapper;
 import com.krazytop.repository.tft.TFTMetadataRepository;
 import org.springframework.beans.factory.annotation.Autowired;

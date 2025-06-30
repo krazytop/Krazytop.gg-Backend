@@ -12,7 +12,7 @@ import java.util.List;
 @Document(collection = "Match")
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"matchId", "shard"})
-public class TFTMatchEntity {
+public class TFTMatch {
 
     @JsonAlias("matchId")
     private String id;
@@ -22,7 +22,7 @@ public class TFTMatchEntity {
     private Long duration;
     @JsonAlias("tft_set_number")
     private Integer set;
-    private List<TFTParticipantEntity> participants;
+    private List<TFTParticipant> participants;
     @JsonAlias({"queueId", "queue_id"})
     private String queue;
     @JsonIgnore

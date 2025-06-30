@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document(collection = "Account")
-public class RIOTAccountEntity {
+public class RIOTAccount {
 
     @JsonAlias("tagLine")
     private String tag;

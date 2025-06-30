@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krazytop.api_gateway.model.generated.RIOTRankDTO;
 import com.krazytop.entity.riot.rank.RIOTRank;
-import com.krazytop.entity.riot.rank.RIOTRankInformationsEntity;
+import com.krazytop.entity.riot.rank.RIOTRankInformations;
 import com.krazytop.exception.CustomException;
-import com.krazytop.http_responses.ApiErrorEnum;
+import com.krazytop.exception.ApiErrorEnum;
 import com.krazytop.mapper.tft.TFTRankMapper;
 import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.repository.api_key.ApiKeyRepository;
@@ -59,7 +59,7 @@ public class TFTRankService {
             List<JsonNode> nodes = mapper.convertValue(mapper.readTree(new URI(url).toURL()), new TypeReference<>() {});
             RIOTRank rank = getRanks(puuid).orElse(new RIOTRank(puuid));
             for (JsonNode node : nodes) {
-                RIOTRankInformationsEntity rankInformations = mapper.convertValue(node, RIOTRankInformationsEntity.class);
+                RIOTRankInformations rankInformations = mapper.convertValue(node, RIOTRankInformations.class);
                 rankInformations.setDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
                 rank.joinRanks(List.of(rankInformations), currentSeasonOrSet, node.get("queueType").asText());//TODO je ne sais plus quoi, mettre la fonction dans la class rank
             }

@@ -3,7 +3,7 @@ package com.krazytop.service.lol;
 import com.krazytop.api_gateway.model.generated.RIOTMetadataDTO;
 import com.krazytop.entity.lol.LOLMetadata;
 import com.krazytop.exception.CustomException;
-import com.krazytop.http_responses.ApiErrorEnum;
+import com.krazytop.exception.ApiErrorEnum;
 import com.krazytop.mapper.lol.LOLMetadataMapper;
 import com.krazytop.repository.lol.LOLMetadataRepository;
 import org.springframework.beans.factory.annotation.Autowired;

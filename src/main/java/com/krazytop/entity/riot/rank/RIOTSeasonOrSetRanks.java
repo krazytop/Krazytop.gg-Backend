@@ -5,21 +5,21 @@ import lombok.Data;
 import java.util.*;
 
 @Data
-public class RIOTSeasonOrSetRanksEntity {
+public class RIOTSeasonOrSetRanks {
 
     private Integer nb;
-    private List<RIOTQueueRanksEntity> queueRanks = new ArrayList<>();
+    private List<RIOTQueueRanks> queueRanks = new ArrayList<>();
 
-    public RIOTSeasonOrSetRanksEntity(int nb) {
+    public RIOTSeasonOrSetRanks(int nb) {
         this.nb = nb;
     }
 
-    public void joinRanks(List<RIOTRankInformationsEntity> newRanksInformations, String queueName) {
-        RIOTQueueRanksEntity queueRank = queueRanks.stream()
+    public void joinRanks(List<RIOTRankInformations> newRanksInformations, String queueName) {
+        RIOTQueueRanks queueRank = queueRanks.stream()
                 .filter(q -> Objects.equals(q.getName(), queueName))
                 .findFirst()
                 .orElseGet(() -> {
-                    RIOTQueueRanksEntity newQueueRank = new RIOTQueueRanksEntity(queueName);
+                    RIOTQueueRanks newQueueRank = new RIOTQueueRanks(queueName);
                     queueRanks.add(newQueueRank);
                     return newQueueRank;
                 });

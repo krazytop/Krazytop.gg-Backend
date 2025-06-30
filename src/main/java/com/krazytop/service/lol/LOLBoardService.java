@@ -5,7 +5,7 @@ import com.krazytop.api_gateway.model.generated.RIOTSummonerDTO;
 import com.krazytop.entity.riot.RIOTBoard;
 import com.krazytop.entity.riot.RIOTSummoner;
 import com.krazytop.exception.CustomException;
-import com.krazytop.http_responses.ApiErrorEnum;
+import com.krazytop.exception.ApiErrorEnum;
 import com.krazytop.mapper.lol.LOLBoardMapper;
 import com.krazytop.repository.lol.LOLBoardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
