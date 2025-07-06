@@ -29,7 +29,7 @@ public class RIOTSummoner {
     private String tag;
     private String region;
     private Date updateDate;
-    private Long spentTime = 0L;
-    private Set<Integer> playedSeasonsOrSets = new HashSet<>();
+    private Long spentTime;
+    private Set<Integer> playedSeasonsOrSets;
 
 }

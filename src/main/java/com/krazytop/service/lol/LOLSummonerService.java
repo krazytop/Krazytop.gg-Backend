@@ -20,6 +20,7 @@ import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Optional;
 
 @Service
@@ -128,7 +129,8 @@ public class LOLSummonerService {
         Optional<RIOTSummoner> summonerOpt = getLocalSummoner(puuid);
         if (summonerOpt.isPresent()) {
             RIOTSummoner summoner = summonerOpt.get();
-            summoner.setSpentTime(summoner.getSpentTime() + matchDuration);
+            summoner.setSpentTime((summoner.getSpentTime() == null ? 0L : summoner.getSpentTime()) + matchDuration);
+            if (summoner.getPlayedSeasonsOrSets() == null) summoner.setPlayedSeasonsOrSets(new HashSet<>());
             summoner.getPlayedSeasonsOrSets().add(season);
             summonerRepository.save(summoner);
         }

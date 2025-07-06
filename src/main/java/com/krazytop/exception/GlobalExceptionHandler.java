@@ -11,6 +11,8 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import static com.krazytop.exception.CustomApiError.buildApiError;
@@ -30,6 +32,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleNoController(HttpRequestMethodNotSupportedException ex) {
         LOGGER.warn(ex.getMessage());
         return new ResponseEntity<>(buildApiError(METHOD_NOT_ALLOWED), HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    protected ResponseEntity<ApiError> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex, HandlerMethod handlerMethod) {
+        LOGGER.error("Type mismatch: {}", ex.getMessage(), ex);
+        return new ResponseEntity<>(buildApiError(TYPE_MISMATCHED), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(CustomException.class)

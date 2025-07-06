@@ -10,6 +10,7 @@ public enum ApiErrorEnum {
 
     // Config
     CONSTRAINT_VIOLATION("CONSTRAINT_VIOLATION", "One or more constraints were violated.", HttpStatus.BAD_REQUEST),
+    TYPE_MISMATCHED("TYPE_MISMATCHED", "Type mismatched for one or more fields.", HttpStatus.BAD_REQUEST),
     VALIDATION_FAILED("VALIDATION_FAILED", "Validation failed for one or more fields.", HttpStatus.BAD_REQUEST),
     METHOD_NOT_ALLOWED("METHOD_NOT_ALLOWED", "Method is not supported", HttpStatus.METHOD_NOT_ALLOWED),
     UNEXPECTED_RUNTIME_ERROR("UNEXPECTED_RUNTIME_ERROR", "An unexpected error occurred. Please try again later.", HttpStatus.INTERNAL_SERVER_ERROR),

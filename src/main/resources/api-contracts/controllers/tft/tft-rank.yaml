@@ -1,4 +1,4 @@
-getRanks:
+getAndUpdateRanks:
   get:
     summary: Retrieve all summoner ranks.
     operationId: getRanks
@@ -30,7 +30,6 @@ getRanks:
           application/json:
             schema:
               $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
-updateRanks:
   post:
     summary: Update all summoner ranks.
     operationId: updateRanks

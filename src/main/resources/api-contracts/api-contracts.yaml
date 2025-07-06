@@ -55,13 +55,9 @@ paths:
   /tft/patch/{patchId}/{language}:
     $ref: './controllers/tft/tft-patch.yaml#/getPatch'
   /lol/rank/{puuid}:
-    $ref: './controllers/lol/lol-rank.yaml#/getRanks'
+    $ref: './controllers/lol/lol-rank.yaml#/getAndUpdateRanks'
   /tft/rank/{puuid}:
-    $ref: './controllers/tft/tft-rank.yaml#/getRanks'
-  /lol/rank:
-    $ref: './controllers/lol/lol-rank.yaml#/updateRanks'
-  /tft/rank:
-    $ref: './controllers/tft/tft-rank.yaml#/updateRanks'
+    $ref: './controllers/tft/tft-rank.yaml#/getAndUpdateRanks'
   /lol/summoner/{puuid}:
     $ref: './controllers/lol/lol-summoner.yaml#/getAndUpdateSummonerByPuuid'
   /tft/summoner/{puuid}:
@@ -84,13 +80,13 @@ paths:
     $ref: './controllers/lol/lol-mastery.yaml#/getAndUpdateMasteries'
   /lol/match/{puuid}/{pageNb}/{queue}/{role}:
     $ref: './controllers/lol/lol-match.yaml#/getMatches'
-  /lol/match/{puuid}/{queue}/{role}:
+  /lol/match/count/{puuid}/{queue}/{role}:
     $ref: './controllers/lol/lol-match.yaml#/getMatchesCount'
   /lol/match/{puuid}:
     $ref: './controllers/lol/lol-match.yaml#/updateMatches'
   /tft/match/{puuid}/{pageNb}/{queue}/{set}:
     $ref: './controllers/tft/tft-match.yaml#/getMatches'
-  /tft/match/{puuid}/{queue}/{set}:
+  /tft/match/count/{puuid}/{queue}/{set}:
     $ref: './controllers/tft/tft-match.yaml#/getMatchesCount'
   /tft/match/{puuid}:
     $ref: './controllers/tft/tft-match.yaml#/updateMatches'
@@ -990,7 +986,7 @@ components:
           description: Indicates if the game ended in an early surrender for this participant's team.
           example: false
         runes:
-          $ref: '#/components/schemas/RIOTSummonerDTO'
+          $ref: '#/components/schemas/LOLRunesDTO'
         champion:
           type: string
           description: The ID or name of the champion played.
@@ -1118,6 +1114,11 @@ components:
           type: string
           description: The ID of the team.
           example: "1"
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/LOLParticipantDTO'
+          description: List of individual participants in the match.
         bans:
           type: array
           items:
@@ -1159,11 +1160,6 @@ components:
           items:
             $ref: '#/components/schemas/LOLTeamDTO'
           description: List of teams participating in the match.
-        participants:
-          type: array
-          items:
-            $ref: '#/components/schemas/LOLParticipantDTO'
-          description: List of individual participants in the match.
         remake:
           type: boolean
           description: Indicates if the game was a remake.
@@ -1323,3 +1319,37 @@ components:
           type: boolean
           description: Indicates if the participant won the game.
           example: true
+    LOLRunesDTO:
+      type: object
+      description: Represents all selected runes.
+      properties:
+        style:
+          type: object
+          description: Represents the style id of the style category.
+          example: "Précision"
+          additionalProperties:
+            type: integer
+        runeCategories:
+          type: array
+          description: Represents all selected runes categories.
+          items:
+            $ref: '#/components/schemas/LOLRuneCategoryDTO'
+      required:
+        - stats
+        - runeCategories
+    LOLRuneCategoryDTO:
+      type: object
+      description: Represents a selected rune category.
+      properties:
+        style:
+          type: string
+          description: Represents the style id of the style category.
+          example: "Précision"
+        perks:
+          type: array
+          description: A list of all selected perks.
+          items:
+            type: string
+      required:
+        - style
+        - perks

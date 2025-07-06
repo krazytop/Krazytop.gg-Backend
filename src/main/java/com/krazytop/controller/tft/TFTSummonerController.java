@@ -45,6 +45,7 @@ public class TFTSummonerController {
     public ResponseEntity<RIOTSummonerDTO> updateLOLSummoner(@PathVariable String puuid) {
         LOGGER.info("Updating TFT summoner");
         RIOTSummonerDTO summoner = summonerService.updateSummoner(puuid);
+        LOGGER.info("TFT summoner updated");
         return new ResponseEntity<>(summoner, HttpStatus.OK);
     }
 }

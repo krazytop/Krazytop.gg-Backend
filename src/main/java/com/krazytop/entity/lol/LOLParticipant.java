@@ -47,7 +47,6 @@ public class LOLParticipant {
     private String item3;
     private String item4;
     private String item5;
-    @JsonAlias("item6")
     private String ward;
     private RIOTSummoner summoner = new RIOTSummoner();
     @JsonAlias("summoner1Id")
@@ -121,6 +120,41 @@ public class LOLParticipant {
     @JsonProperty("playerAugment6")
     private void unpackAugment6(String node) {
         if (!Objects.equals(node, "0")) this.augment6 = node;
+    }
+
+    @JsonProperty("item0")
+    private void unpackitem0(String node) {
+        if (!Objects.equals(node, "0")) this.item0 = node;
+    }
+
+    @JsonProperty("item1")
+    private void unpackitem1(String node) {
+        if (!Objects.equals(node, "0")) this.item1 = node;
+    }
+
+    @JsonProperty("item2")
+    private void unpackitem2(String node) {
+        if (!Objects.equals(node, "0")) this.item2 = node;
+    }
+
+    @JsonProperty("item3")
+    private void unpackitem3(String node) {
+        if (!Objects.equals(node, "0")) this.item3 = node;
+    }
+
+    @JsonProperty("item4")
+    private void unpackitem4(String node) {
+        if (!Objects.equals(node, "0")) this.item4 = node;
+    }
+
+    @JsonProperty("item5")
+    private void unpackitem5(String node) {
+        if (!Objects.equals(node, "0")) this.item5 = node;
+    }
+
+    @JsonProperty("item6")
+    private void unpackWard(String node) {
+        if (!Objects.equals(node, "0")) this.ward = node;
     }
 
     @JsonProperty("individualPosition")

@@ -42,6 +42,7 @@ public class LOLSummonerController implements LeagueOfLegendsSummonerApi {
     public ResponseEntity<RIOTSummonerDTO> updateSummoner(String puuid) {
         LOGGER.info("Updating LOL summoner");
         RIOTSummonerDTO summoner = summonerService.updateSummoner(puuid);
+        LOGGER.info("LOL summoner updated");
         return new ResponseEntity<>(summoner, HttpStatus.OK);
     }
 }

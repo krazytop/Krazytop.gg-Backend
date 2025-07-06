@@ -20,7 +20,7 @@ public class LOLRunes {
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
-    static class LOLRuneCategory {
+    public static class LOLRuneCategory {
 
         private String style;
         private List<String> perks;
@@ -31,6 +31,5 @@ public class LOLRunes {
         }
 
     }
-
 
 }
