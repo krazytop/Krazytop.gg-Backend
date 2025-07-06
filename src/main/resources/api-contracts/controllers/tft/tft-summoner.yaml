@@ -1,0 +1,101 @@
+getAndUpdateSummonerByPuuid:
+  get:
+    summary: Retrieve a summoner by its puuid.
+    operationId: getSummonerByPuuid
+    tags:
+      - Teamfight Tactics Summoner
+    parameters:
+      - in: path
+        name: puuid
+        schema:
+          type: string
+        required: true
+        description: The puuid of the summoner.
+    responses:
+      '200':
+        description: Summoner successfully retrieved.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/RIOTSummonerDTO'
+      '404':
+        description: Summoner not found.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+      '500':
+        description: Internal Server Error.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+  post:
+    summary: Update a summoner.
+    operationId: updateSummoner
+    tags:
+      - Teamfight Tactics Summoner
+    parameters:
+      - in: path
+        name: puuid
+        schema:
+          type: string
+        required: true
+        description: The puuid of the summoner.
+    responses:
+      '200':
+        description: Summoner successfully updated.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/RIOTSummonerDTO'
+      '404':
+        description: Summoner not found.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+      '500':
+        description: Internal Server Error.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+getSummonerByTagAndName:
+  get:
+    summary: Retrieve a summoner by its tag and its name.
+    operationId: getSummonerByTagAndName
+    tags:
+      - Teamfight Tactics Summoner
+    parameters:
+      - in: path
+        name: tag
+        schema:
+          type: string
+        required: true
+        description: The tag of the summoner.
+      - in: path
+        name: name
+        schema:
+          type: string
+        required: true
+        description: The name of the summoner.
+    responses:
+      '200':
+        description: Summoner successfully retrieved.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/RIOTSummonerDTO'
+      '404':
+        description: Summoner not found.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+      '500':
+        description: Internal Server Error.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'

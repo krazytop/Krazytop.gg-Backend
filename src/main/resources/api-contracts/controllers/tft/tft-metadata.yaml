@@ -1,0 +1,19 @@
+getMetadata:
+  get:
+    summary: Retrieve Teamfight Tactics metadata.
+    operationId: getMetadata
+    tags:
+      - Teamfight Tactics Metadata
+    responses:
+      '200':
+        description: Metadata successfully retrieved.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/RIOTMetadataDTO'
+      '500':
+        description: Internal Server Error.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'

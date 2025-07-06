@@ -1,5 +1,7 @@
 package com.krazytop.controller.destiny;
 
+import com.krazytop.api_gateway.api.generated.DestinyAuthentificationApi;
+import com.krazytop.api_gateway.model.generated.DestinyAuthTokensDTO;
 import com.krazytop.service.destiny.DestinyAuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,10 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-
 @RestController
-public class DestinyAuthController {
+public class DestinyAuthController implements DestinyAuthentificationApi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DestinyAuthController.class);
 
@@ -22,20 +22,20 @@ public class DestinyAuthController {
         this.destinyAuthService = destinyAuthService;
     }
 
-    @GetMapping("/destiny/get/{code}")
-    public ResponseEntity<String> getPlayerToken(@PathVariable String code) throws IOException {
+    @Override
+    public ResponseEntity<DestinyAuthTokensDTO> getPlayerTokens(String code) {
         LOGGER.info("Retrieving BUNGIE player tokens with code");
-        String playerToken = destinyAuthService.getPlayerToken(code);
+        DestinyAuthTokensDTO playerTokens = destinyAuthService.getPlayerTokens(code);
         LOGGER.info("BUNGIE player tokens retrieved");
-        return new ResponseEntity<>(playerToken, HttpStatus.OK);
+        return new ResponseEntity<>(playerTokens, HttpStatus.OK);
     }
 
-    @PostMapping("/destiny/update")
-    public ResponseEntity<String> updatePlayerToken(@RequestBody String refreshToken) throws IOException {
+    @Override
+    public ResponseEntity<DestinyAuthTokensDTO> updatePlayerTokens(DestinyAuthTokensDTO tokens) {
         LOGGER.info("Updating BUNGIE player tokens with refresh token");
-        String playerToken = destinyAuthService.updatePlayerToken(refreshToken);
+        DestinyAuthTokensDTO newTokens = destinyAuthService.updatePlayerTokens(tokens.getRefreshToken());
         LOGGER.info("BUNGIE player tokens refreshed");
-        return new ResponseEntity<>(playerToken, HttpStatus.OK);
+        return new ResponseEntity<>(newTokens, HttpStatus.OK);
     }
 
 }

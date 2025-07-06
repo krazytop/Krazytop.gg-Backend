@@ -1,0 +1,218 @@
+getAndUpdateAndDeleteBoard:
+  get:
+    summary: Retrieve a board by its id.
+    operationId: getBoard
+    tags:
+      - League of Legends Board
+    parameters:
+      - in: path
+        name: boardId
+        schema:
+          type: string
+        required: true
+        description: The id of the board.
+    responses:
+      '200':
+        description: Board successfully retrieved.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/RIOTBoardDTO'
+      '404':
+        description: Board not found.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+      '500':
+        description: Internal Server Error.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+  post:
+    summary: Update a board.
+    operationId: updateBoard
+    tags:
+      - League of Legends Board
+    parameters:
+      - in: path
+        name: boardId
+        schema:
+          type: string
+        required: true
+        description: The id of the board.
+    responses:
+      '200':
+        description: Board successfully updated.
+      '404':
+        description: Board not found.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+      '500':
+        description: Internal Server Error.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+  delete:
+    summary: Delete a board.
+    operationId: deleteBoard
+    tags:
+      - League of Legends Board
+    parameters:
+      - in: path
+        name: boardId
+        schema:
+          type: string
+        required: true
+        description: The id of the board.
+    responses:
+      '200':
+        description: Board successfully deleted.
+      '404':
+        description: Board not found.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+      '500':
+        description: Internal Server Error.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+createBoard:
+  post:
+    summary: Create a board.
+    operationId: createBoard
+    tags:
+      - League of Legends Board
+    responses:
+      '200':
+        description: Board successfully created.
+        content:
+          application/json:
+            schema:
+              type: string
+              exemple: "newBoardId"
+      '500':
+        description: Internal Server Error.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+updateBoardName:
+  post:
+    summary: Update a board name.
+    operationId: updateBoardName
+    tags:
+      - League of Legends Board
+    parameters:
+      - in: path
+        name: boardId
+        schema:
+          type: string
+        required: true
+        description: The id of the board.
+      - in: path
+        name: name
+        schema:
+          type: string
+        required: true
+        description: The new name of the board.
+    responses:
+      '200':
+        description: Board successfully updated with the new name.
+      '404':
+        description: Board not found.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+      '500':
+        description: Internal Server Error.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+removeSummonerOfBoard:
+  post:
+    summary: Remove a summoner of a board.
+    operationId: removeSummonerOfBoard
+    tags:
+      - League of Legends Board
+    parameters:
+      - in: path
+        name: boardId
+        schema:
+          type: string
+        required: true
+        description: The id of the board.
+      - in: path
+        name: puuid
+        schema:
+          type: string
+        required: true
+        description: The puuid of the summoner.
+    responses:
+      '200':
+        description: Summoner successfully removed of the board.
+      '404':
+        description: Board not found.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+      '500':
+        description: Internal Server Error.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+addSummonerToBoard:
+  post:
+    summary: Add a summoner of a board.
+    operationId: addSummonerToBoard
+    tags:
+      - League of Legends Board
+    parameters:
+      - in: path
+        name: boardId
+        schema:
+          type: string
+        required: true
+        description: The id of the board.
+      - in: path
+        name: tag
+        schema:
+          type: string
+        required: true
+        description: The tag of the summoner.
+      - in: path
+        name: name
+        schema:
+          type: string
+        required: true
+        description: The name of the summoner.
+    responses:
+      '200':
+        description: Summoner successfully added of the board.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/RIOTSummonerDTO'
+      '404':
+        description: Board not found.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+      '500':
+        description: Internal Server Error.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'

@@ -1,0 +1,59 @@
+getAndUpdateRanks:
+  get:
+    summary: Retrieve all summoner ranks.
+    operationId: getRanks
+    tags:
+      - Teamfight Tactics Rank
+    parameters:
+      - in: path
+        name: puuid
+        schema:
+          type: string
+        required: true
+        description: The puuid of the summoner.
+    responses:
+      '200':
+        description: Ranks successfully retrieved.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/RIOTRankDTO'
+      '400':
+        description: Summoner need to be import first.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+      '500':
+        description: Internal Server Error.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+  post:
+    summary: Update all summoner ranks.
+    operationId: updateRanks
+    tags:
+      - Teamfight Tactics Rank
+    parameters:
+      - in: path
+        name: puuid
+        schema:
+          type: string
+        required: true
+        description: The puuid of the summoner.
+    responses:
+      '200':
+        description: Ranks successfully updated.
+      '400':
+        description: Summoner not found.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+      '500':
+        description: Internal Server Error.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'

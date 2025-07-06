@@ -1,21 +1,17 @@
 package com.krazytop.controller.lol;
 
-import com.krazytop.config.CustomHTTPException;
-import com.krazytop.entity.lol.LOLMasteriesEntity;
-import com.krazytop.http_responses.RIOTHTTPErrorResponsesEnum;
+import com.krazytop.api_gateway.api.generated.LeagueOfLegendsMasteryApi;
+import com.krazytop.api_gateway.model.generated.LOLMasteriesDTO;
 import com.krazytop.service.lol.LOLMasteryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class LOLMasteryController {
+public class LOLMasteryController implements LeagueOfLegendsMasteryApi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LOLMasteryController.class);
 
@@ -26,17 +22,19 @@ public class LOLMasteryController {
         this.masteryService = masteryService;
     }
 
-    @GetMapping("/lol/masteries/{puuid}")
-    public ResponseEntity<LOLMasteriesEntity> getMasteries(@PathVariable String puuid) {
+    @Override
+    public ResponseEntity<LOLMasteriesDTO> getMasteries(String puuid) {
         LOGGER.info("Retrieving LOL masteries");
-        return new ResponseEntity<>(masteryService.getMasteries(puuid)
-                .orElseThrow(() -> new CustomHTTPException(RIOTHTTPErrorResponsesEnum.MASTERIES_NOT_FOUND)), HttpStatus.OK);
+        LOLMasteriesDTO masteriesDTO = masteryService.getMasteriesDTO(puuid);
+        LOGGER.info("LOL masteries retrieved");
+        return new ResponseEntity<>(masteriesDTO, HttpStatus.OK);
     }
 
-    @PostMapping("/lol/masteries/{region}/{puuid}")
-    public ResponseEntity<String> updateMasteries(@PathVariable String region, @PathVariable String puuid) {
+    @Override
+    public ResponseEntity<Void> updateMasteries(String puuid) {
         LOGGER.info("Updating LOL masteries");
-        masteryService.updateMasteries(region, puuid);
+        masteryService.updateMasteries(puuid);
+        LOGGER.info("LOL masteries updated");
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

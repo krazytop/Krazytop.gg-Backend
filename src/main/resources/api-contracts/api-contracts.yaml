@@ -1,0 +1,1355 @@
+openapi: 3.0.0
+info:
+  title: Global API Gateway
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Local Development API Gateway
+  - url: https://api.krazytop.com
+    description: Production API Gateway
+
+tags:
+  - name: Destiny Authentification
+    description: Operations related to Destiny 2 authentication.
+  - name: League of Legends Metadata
+    description: Operations related to League of Legends metadata.
+  - name: League of Legends Patch
+    description: Operations related to League of Legends patches.
+  - name: Teamfight Tactics Metadata
+    description: Operations related to Teamfight Tactics metadata.
+  - name: Teamfight Tactics Patch
+    description: Operations related to Teamfight Tactics patches.
+  - name: League of Legends Rank
+    description: Operations related to League of Legends ranks.
+  - name: Teamfight Tactics Rank
+    description: Operations related to Teamfight Tactics ranks.
+  - name: League of Legends Summoner
+    description: Operations related to League of Legends summoners.
+  - name: Teamfight Tactics Summoner
+    description: Operations related to Teamfight Tactics summoners.
+  - name: League of Legends Mastery
+    description: Operations related to League of Legends masteries.
+  - name: League of Legends Match
+    description: Operations related to League of Legends matches.
+  - name: Teamfight Tactics Match
+    description: Operations related to Teamfight Tactics matches.
+
+paths:
+  /language:
+    $ref: './controllers/language.yaml#/getAllSupportedLanguages'
+  /destiny/auth/{code}:
+    $ref: './controllers/destiny/destiny-auth.yaml#/getPlayerTokens'
+  /destiny/auth:
+    $ref: './controllers/destiny/destiny-auth.yaml#/updatePlayerTokens'
+  /lol/metadata:
+    $ref: './controllers/lol/lol-metadata.yaml#/getMetadata'
+  /tft/metadata:
+    $ref: './controllers/tft/tft-metadata.yaml#/getMetadata'
+  /lol/patch:
+    $ref: './controllers/lol/lol-patch.yaml#/updateAllPatches'
+  /tft/patch:
+    $ref: './controllers/tft/tft-patch.yaml#/updateAllPatches'
+  /lol/patch/{patchId}/{language}:
+    $ref: './controllers/lol/lol-patch.yaml#/getPatch'
+  /tft/patch/{patchId}/{language}:
+    $ref: './controllers/tft/tft-patch.yaml#/getPatch'
+  /lol/rank/{puuid}:
+    $ref: './controllers/lol/lol-rank.yaml#/getAndUpdateRanks'
+  /tft/rank/{puuid}:
+    $ref: './controllers/tft/tft-rank.yaml#/getAndUpdateRanks'
+  /lol/summoner/{puuid}:
+    $ref: './controllers/lol/lol-summoner.yaml#/getAndUpdateSummonerByPuuid'
+  /tft/summoner/{puuid}:
+    $ref: './controllers/tft/tft-summoner.yaml#/getAndUpdateSummonerByPuuid'
+  /lol/summoner/{tag}/{name}:
+    $ref: './controllers/lol/lol-summoner.yaml#/getSummonerByTagAndName'
+  /tft/summoner/{tag}/{name}:
+    $ref: './controllers/tft/tft-summoner.yaml#/getSummonerByTagAndName'
+  /lol/board/{boardId}:
+    $ref: './controllers/lol/lol-board.yaml#/getAndUpdateAndDeleteBoard'
+  /lol/board/{boardId}/{name}:
+    $ref: './controllers/lol/lol-board.yaml#/updateBoardName'
+  /lol/board/{boardId}/remove/{name}:
+    $ref: './controllers/lol/lol-board.yaml#/removeSummonerOfBoard'
+  /lol/board/{boardId}/add/{name}:
+    $ref: './controllers/lol/lol-board.yaml#/addSummonerToBoard'
+  /lol/board:
+    $ref: './controllers/lol/lol-board.yaml#/createBoard'
+  /lol/mastery/{puuid}:
+    $ref: './controllers/lol/lol-mastery.yaml#/getAndUpdateMasteries'
+  /lol/match/{puuid}/{pageNb}/{queue}/{role}:
+    $ref: './controllers/lol/lol-match.yaml#/getMatches'
+  /lol/match/count/{puuid}/{queue}/{role}:
+    $ref: './controllers/lol/lol-match.yaml#/getMatchesCount'
+  /lol/match/{puuid}:
+    $ref: './controllers/lol/lol-match.yaml#/updateMatches'
+  /tft/match/{puuid}/{pageNb}/{queue}/{set}:
+    $ref: './controllers/tft/tft-match.yaml#/getMatches'
+  /tft/match/count/{puuid}/{queue}/{set}:
+    $ref: './controllers/tft/tft-match.yaml#/getMatchesCount'
+  /tft/match/{puuid}:
+    $ref: './controllers/tft/tft-match.yaml#/updateMatches'
+
+components:
+  schemas:
+    ApiError:
+      type: object
+      description: |
+        Represents a standardized error response returned by the API when a request
+        cannot be processed successfully. It provides a machine-readable code,
+        a human-readable message, and optional detailed information for specific issues.
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: A unique, application-specific error code.
+          example: "INVALID_INPUT"
+        message:
+          type: string
+          description: A human-readable error message that provides a brief explanation of the error.
+          example: "The provided 'date' parameter has an invalid format."
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: The name of the field that caused the error.
+                example: "date"
+              issue:
+                type: string
+                description: A specific issue with the field.
+                example: "must respect the format"
+          description: A list of specific validation errors.
+    LanguageDTO:
+      type: object
+      description: Entity representing a language and its associated game patch paths.
+      required:
+        - name
+        - riotPatchPath
+        - destinyPatchPath
+      properties:
+        name:
+          type: string
+          description: The name of the language.
+          example: "Français"
+        riotPatchPath:
+          type: string
+          description: The RIOT patch path.
+          example: "fr_FR"
+        destinyPatchPath:
+          type: string
+          description: The Destiny patch path.
+          example: "fr_FR"
+    DestinyAuthTokensDTO:
+      type: object
+      description: |
+        Represents Bungie authentification tokens containing access and refresh tokens,
+        along with expiration information and the membership ID.
+      required:
+        - access_token
+        - token_type
+        - expires_in
+        - refresh_token
+        - refresh_expires_in
+        - membership_id
+      properties:
+        access_token:
+          type: string
+          description: The access token used to authenticate future API requests.
+          example: "CKy1BxKGAgAgHxlqkdJcDjAJ3Dkh4ILp3ddvxxqnBpj+YJDm++dhWNDgAAAAqJgWwVRarfCcmdKvQUi6A9tHfETM3NjLhQuWou6+YdLaUFq8Jp3cibIj+xUNqc8k3i3RsU0E6hJmYrblrZ6Z6DcUmFW9SgpIaIxuB4BU15VJUmnmDNxXRntelyctsC++fY0HLdICV+9aEK7VmQHCO0j3TYrRMf2aof7lS59ct821K48DEVg8KdLEOMvOPoX6ohW/TV7wbJLXpSnhrzS2TnanzMIyycJJHqTu1zcGaJ5iOnEL6oIRKN0bJRl23tJdgXH+dJlIOKoB+1QcGAxZdqkjGdI8TGYAf9pBVl0aJsM="
+        token_type:
+          type: string
+          description: The type of token, typically "Bearer".
+          example: "Bearer"
+        expires_in:
+          type: integer
+          format: int32
+          description: The validity duration of the access token in seconds.
+          example: 3600
+        refresh_token:
+          type: string
+          description: The refresh token used to obtain a new access token.
+          example: "CKy1BxKGAgAgf5vy8riRnThQj+l79abfpE/2rIL/CAMy4DSJXdZ3fH7gAAAAEGCNeHJQIOOGTwDDzQfOVybHsiVJhJoLgCfsUdH6PslsiNNfN+Ba2aG2b8ibOqYOvFKm0BqAUx6PQhusbgjOIeCs+rPViOJ5HQfId/aFaJ1GpSMrV9tw7xAGVPFZzVZ/xjv3mF4f+thMq9MQD6VuxqCa8BBXvplWlDX/CluYEinqZlXpDABgAanj2O5nkuu1AubLy3f0Jdt8mjr8ikPmA2DAE44mnhtSLcJF49rAa7/z0VYDRK94nMjjLrI8t+cOeCJNUpSrexbx4CQXUo5TaOmtQquIpl/APwYqh44Bnh4="
+        refresh_expires_in:
+          type: integer
+          format: int32
+          description: The validity duration of the refresh token in seconds.
+          example: 7776000
+        membership_id:
+          type: string
+          description: The unique Bungie membership ID associated with these tokens.
+          example: "14865130"
+    RIOTMetadataDTO:
+      type: object
+      description: Entity representing current game season, patch, and historical patch information for RIOT games.
+      required:
+        - currentSeasonOrSet
+        - currentPatch
+        - allPatches
+      properties:
+        currentSeasonOrSet:
+          type: integer
+          format: int32
+          description: The current League of Legends season number or Teamfight Tactics set number.
+          example: 15
+        currentPatch:
+          type: string
+          description: The current RIOT game patch version.
+          example: "15.12"
+        allPatches:
+          type: array
+          description: A list of all available RIOT games patch versions.
+          items:
+            type: string
+          example:
+            - "14.24"
+            - "14.23"
+            - "14.22"
+    LOLAvailableRanks:
+      description: Enum representing all available ranks in League of Legends.
+      type: string
+      enum:
+        - "RANKED_SOLO_5x5"
+        - "RANKED_TEAM_5x5"
+    TFTAvailableRanks:
+      description: Enum representing all available ranks in Teamfight Tactics.
+      type: string
+      enum:
+        - "RANKED_TFT"
+        - "RANKED_TFT_TURBO"
+        - "RANKED_TFT_DOUBLE_UP"
+    TFTPatchDTO:
+      type: object
+      description: Represents the nomenclature and data for a specific Teamfight Tactics patch.
+      required:
+        - id
+        - patchId
+        - language
+        - set
+        - units
+        - traits
+        - items
+        - augments
+        - queues
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the patch nomenclature, a concatenation of patchId and language.
+          example: "14.12_en_US"
+        patchId:
+          type: string
+          description: The ID of the TFT patch.
+          example: "14.12"
+        language:
+          type: string
+          description: The language of the nomenclature.
+          example: "en_US"
+        set:
+          type: integer
+          format: int32
+          description: The TFT set number associated with this patch.
+          example: 11
+        units:
+          type: array
+          description: List of Teamfight Tactics units and their nomenclature for this patch.
+          items:
+            $ref: '#/components/schemas/TFTUnitNomenclatureDTO'
+        traits:
+          type: array
+          description: List of Teamfight Tactics traits and their nomenclature for this patch.
+          items:
+            $ref: '#/components/schemas/TFTTraitNomenclatureDTO'
+        items:
+          type: array
+          description: List of Teamfight Tactics items and their nomenclature for this patch.
+          items:
+            $ref: '#/components/schemas/TFTItemNomenclatureDTO'
+        augments:
+          type: array
+          description: List of Teamfight Tactics augments and their nomenclature for this patch.
+          items:
+            $ref: '#/components/schemas/TFTItemNomenclatureDTO'
+        queues:
+          type: array
+          description: List of Riot game queues and their nomenclature for this patch.
+          items:
+            $ref: '#/components/schemas/RIOTQueueNomenclatureDTO'
+    TFTUnitNomenclatureDTO:
+      type: object
+      description: Represents a Teamfight Tactics unit with its nomenclature and details.
+      properties:
+        id:
+          type: string
+          description: The unique API name/identifier for the TFT unit.
+          example: "TFT11_Ahri"
+        name:
+          type: string
+          description: The display name of the TFT unit.
+          example: "Ahri"
+        image:
+          type: string
+          description: URL or path to the icon representing the unit's tile image.
+          example: "https://raw.communitydragon.org/latest/game/assets/characters/tft11_ahri/tft11_ahri_tile.png"
+        cost:
+          type: integer
+          format: int32
+          description: The in-game gold cost of the unit.
+          example: 2
+        traits:
+          type: array
+          description: List of trait IDs associated with the unit.
+          items:
+            type: string
+          example: [ "Porcelain", "Invoker", "Sage" ]
+        ability:
+          $ref: '#/components/schemas/TFTAbilityDTO'
+    TFTAbilityDTO:
+      type: object
+      description: Represents the details of a TFT unit's ability.
+      properties:
+        name:
+          type: string
+          description: The name of the ability.
+          example: "Essence Theft"
+        image:
+          type: string
+          description: URL or path to the icon representing the ability.
+          example: "https://raw.communitydragon.org/latest/game/assets/characters/tft11_ahri/tft11_ahri_ability_icon.png"
+        description:
+          type: string
+          description: A detailed description of the ability's effects.
+          example: "Ahri launches a orb that deals magic damage to enemies."
+        variables:
+          type: array
+          description: List of dynamic variables used in the ability's description or scaling.
+          items:
+            $ref: '#/components/schemas/TFTVariableDTO'
+          example:
+            - name: "Damage"
+              value: [ 100.0, 150.0, 200.0 ]
+            - name: "ManaCost"
+              value: [ 40.0, 80.0, 120.0 ]
+    TFTVariableDTO:
+      type: object
+      description: Represents a variable used in a TFT ability's scaling or description.
+      properties:
+        name:
+          type: string
+          description: The name of the variable.
+          example: "Damage"
+        value:
+          type: array
+          description: A list of numerical values for the variable, often corresponding to ability ranks.
+          items:
+            type: number
+            format: double
+          example: [ 100.0, 150.0, 200.0 ]
+    TFTTraitNomenclatureDTO:
+      type: object
+      description: Represents a Teamfight Tactics trait with its nomenclature and details.
+      properties:
+        id:
+          type: string
+          description: The unique API name/identifier for the TFT trait.
+          example: "Set11_Porcelain"
+        description:
+          type: string
+          description: A detailed description of the trait's effects.
+          example: "Porcelain champions gain Attack Speed and reduce incoming damage."
+        name:
+          type: string
+          description: The display name of the TFT trait.
+          example: "Porcelain"
+        image:
+          type: string
+          description: URL or path to the icon representing the trait.
+          example: "https://raw.communitydragon.org/latest/game/assets/traits/tft11_trait_porcelain.png"
+        effects:
+          type: array
+          description: List of the trait's effect tiers based on the number of units.
+          items:
+            $ref: '#/components/schemas/TFTEffectDTO'
+          example:
+            - maxUnits: 2
+              minUnits: 2
+              style: 1
+              variables:
+                ASPercent: 0.1
+                DamageReduction: 0.05
+            - maxUnits: 4
+              minUnits: 4
+              style: 2
+              variables:
+                ASPercent: 0.2
+                DamageReduction: 0.1
+    TFTEffectDTO:
+      type: object
+      description: Represents a specific tier or effect level of a TFT trait.
+      properties:
+        maxUnits:
+          type: integer
+          format: int32
+          description: The maximum number of units required to activate this effect tier.
+          example: 2
+        minUnits:
+          type: integer
+          format: int32
+          description: The minimum number of units required to activate this effect tier.
+          example: 2
+        style:
+          type: integer
+          format: int32
+          description: Indicates the visual style or tier level of the effect.
+          example: 1
+        variables:
+          type: object
+          description: A map of variable names to their corresponding numerical values for this effect tier.
+          additionalProperties:
+            type: number
+            format: double
+          example:
+            ASPercent: 0.1
+            DamageReduction: 0.05
+    TFTItemNomenclatureDTO:
+      type: object
+      description: Represents a Teamfight Tactics item or augment with its nomenclature and details.
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the TFT item. This field is read-only and provided by the server.
+          example: "TFT_Item_BFSword"
+        name:
+          type: string
+          description: The display name of the TFT item.
+          example: "B.F. Sword"
+        image:
+          type: string
+          description: URL or path to the icon image of the item.
+          example: "https://raw.communitydragon.org/latest/game/assets/items/tft_item_bfsword.png"
+        description:
+          type: string
+          description: A detailed description of the item's effects or properties.
+          example: "+10 Attack Damage. Combine with other items to create stronger ones."
+        variables:
+          type: object
+          description: A map of variable names to their corresponding numerical values, representing various effects.
+          additionalProperties:
+            type: number
+            format: double
+          example:
+            AD: 10.0
+            AP: 0.0
+        composition:
+          type: array
+          description: A list of item IDs that are required to build this item.
+          items:
+            type: string
+          example: [ "TFT_Item_RecurveBow", "TFT_Item_GiantsBelt" ]
+    RIOTQueueNomenclatureDTO:
+      type: object
+      description: Represents a Riot Games queue with its nomenclature.
+      required:
+        - patchId
+        - language
+        - season
+        - champions
+        - items
+        - summonerSpells
+        - augments
+        - runes
+        - queues
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the queue.
+          example: "RANKED_SOLO_5x5"
+        name:
+          type: string
+          description: The display name of the queue.
+          example: "Ranked Solo/Duo"
+        description:
+          type: string
+          description: A brief description of the queue.
+          example: "A competitive queue where players are matched individually or in pairs."
+    LOLPatchDTO:
+      type: object
+      description: Represents a specific League of Legends game patch with its associated data.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the LoL patch, typically a concatenation of patchId and language.
+          example: "14.12_en_US"
+        patchId:
+          type: string
+          description: The ID of the LoL patch.
+          example: "14.12"
+        language:
+          type: string
+          description: The language of the nomenclature for this patch.
+          example: "en_US"
+        season:
+          type: integer
+          format: int32
+          description: The League of Legends season number associated with this patch.
+          example: 15
+        champions:
+          type: array
+          description: List of League of Legends champions and their nomenclature for this patch.
+          items:
+            $ref: '#/components/schemas/LOLChampionNomenclatureDTO'
+        items:
+          type: array
+          description: List of League of Legends items and their nomenclature for this patch.
+          items:
+            $ref: '#/components/schemas/LOLItemNomenclatureDTO'
+        summonerSpells:
+          type: array
+          description: List of League of Legends summoner spells and their nomenclature for this patch.
+          items:
+            $ref: '#/components/schemas/LOLSummonerSpellNomenclatureDTO'
+        augments:
+          type: array
+          description: List of League of Legends augments and their nomenclature for this patch.
+          items:
+            $ref: '#/components/schemas/LOLAugmentNomenclatureDTO'
+        runes:
+          type: array
+          description: List of League of Legends runes and their nomenclature for this patch.
+          items:
+            $ref: '#/components/schemas/LOLRuneNomenclatureDTO'
+        queues:
+          type: array
+          description: List of Riot game queues and their nomenclature relevant to this patch.
+          items:
+            $ref: '#/components/schemas/RIOTQueueNomenclatureDTO'
+    LOLNomenclatureDTO:
+      type: object
+      description: Base nomenclature for League of Legends entities.
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the entity.
+          example: "Aatrox"
+        name:
+          type: string
+          description: The display name of the entity.
+          example: "Aatrox"
+        image:
+          type: string
+          description: URL or path to the image of the entity.
+          example: "https://example.com/aatrox.png"
+        description:
+          type: string
+          description: A brief description of the entity.
+          example: "The Darkin Blade"
+    LOLChampionNomenclatureDTO:
+      type: object
+      description: Represents a League of Legends champion with its nomenclature and details.
+      allOf:
+        - $ref: '#/components/schemas/LOLNomenclatureDTO'
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the champion.
+          example: "Aatrox"
+        title:
+          type: string
+          description: The champion's title.
+          example: "the Darkin Blade"
+        stats:
+          type: object
+          description: A map of champion stats to their numerical values.
+          additionalProperties:
+            type: integer
+            format: int32
+          example:
+            hp: 650
+            ad: 60
+            armor: 38
+        tags:
+          type: array
+          description: A list of tags or roles associated with the champion.
+          items:
+            type: string
+          example: [ "Fighter", "Tank" ]
+    LOLItemNomenclatureDTO:
+      type: object
+      description: Represents a League of Legends item with its nomenclature and detailed properties.
+      allOf:
+        - $ref: '#/components/schemas/LOLNomenclatureDTO'
+      properties:
+        plainText:
+          type: string
+          description: A short description of the item's effects, often without detailed numbers.
+          example: "Increases Movement Speed"
+        baseGold:
+          type: integer
+          format: int32
+          description: The base gold cost of the item.
+          example: 300
+        totalGold:
+          type: integer
+          format: int32
+          description: The total gold cost of the item.
+          example: 300
+        tags:
+          type: array
+          description: A list of tags or categories associated with the item.
+          items:
+            type: string
+          example: [ "Boots", "Nonconsumable" ]
+        stats:
+          type: object
+          description: A map of item stats to their numerical values.
+          additionalProperties:
+            type: number
+            format: double
+          example:
+            FlatMovementSpeedMod: 25.0
+            FlatHPPoolMod: 0.0
+        toItems:
+          type: array
+          description: A list of item IDs that this item can build into.
+          items:
+            type: string
+          example: [ "3006", "3009" ]
+        fromItems:
+          type: array
+          description: A list of item IDs that this item is built from.
+          items:
+            type: string
+          example: [ "3006", "3009" ]
+    LOLSummonerSpellNomenclatureDTO:
+      type: object
+      description: Represents a League of Legends summoner spell with its nomenclature and detailed properties.
+      allOf:
+        - $ref: '#/components/schemas/LOLNomenclatureDTO'
+      properties:
+        tooltip:
+          type: string
+          description: The detailed tooltip text of the summoner spell, often including scaling values.
+          example: "Teleports your champion to target nearby location. {{ cooldownBurn }} seconds cooldown."
+        cooldownBurn:
+          type: number
+          format: float
+          description: The cooldown duration of the summoner spell in seconds.
+          example: 300.0
+    LOLAugmentNomenclatureDTO:
+      type: object
+      description: Represents a League of Legends Augment with its nomenclature and data values.
+      allOf:
+        - $ref: '#/components/schemas/LOLNomenclatureDTO'
+      properties:
+        dataValues:
+          type: object
+          description: A map of key-value pairs representing various numerical data points associated with the augment.
+          additionalProperties:
+            type: integer
+            format: int32
+          example:
+            BonusDamagePercent: 10
+            HealthThreshold: 500
+    LOLRunePerkNomenclatureDTO:
+      type: object
+      description: Represents a specific League of Legends rune perk.
+      allOf:
+        - $ref: '#/components/schemas/LOLNomenclatureDTO'
+      properties:
+        longDescription:
+          type: string
+          description: The detailed description of the rune perk.
+          example: "Gain 1-10 (based on level) adaptive force for 10 seconds after damaging a champion. Stacks up to 5 times. Max stacks: 5-50 (based on level) adaptive force."
+    LOLRuneNomenclatureDTO:
+      type: object
+      description: Represents a League of Legends rune path with its associated perks.
+      allOf:
+        - $ref: '#/components/schemas/LOLNomenclatureDTO'
+      properties:
+        perks:
+          type: array
+          description: Nested list of rune perks, representing the different rows/choices within the rune path.
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/LOLRunePerkNomenclatureDTO'
+          example:
+            - id: "Conqueror"#TODO enlever les string ?
+              name: "Conqueror"
+              image: "https://example.com/conqueror.png"
+              description: "Gain Adaptive Force on hit."
+              longDescription: "Attacks and spell hits grant 1.2-4.2 Adaptive Force for 5s (max 10 stacks). At max stacks, heal for 8% of damage dealt to champions."
+            - id: "PressTheAttack"
+              name: "Press the Attack"
+              image: "https://example.com/presstheattack.png"
+              description: "Hitting a champion 3 times deals bonus damage and makes them vulnerable."
+              longDescription: "Hitting an enemy champion 3 consecutive times deals 40-180 bonus Adaptive Damage and makes them vulnerable, increasing the damage they take by 8% from all sources for 6s."
+    RIOTRankDTO:
+      type: object
+      properties:
+        puuid:
+          type: string
+          description: Unique identifier for the player.
+          example: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
+        seasonOrSetRanks:
+          type: array
+          items:
+            $ref: '#/components/schemas/RIOTSeasonOrSetRanksDTO'
+      required:
+        - puuid
+    RIOTSeasonOrSetRanksDTO:
+      type: object
+      properties:
+        nb:
+          type: integer
+          format: int32
+          description: The season or set number.
+          example: 2024
+        queueRanks:
+          type: array
+          items:
+            $ref: '#/components/schemas/RIOTQueueRanksDTO'
+      required:
+        - nb
+    RIOTQueueRanksDTO:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the queue.
+          example: "RANKED_SOLO_5x5"
+        rankInformations:
+          type: array
+          items:
+            $ref: '#/components/schemas/RIOTRankInformationsDTO'
+      required:
+        - name
+    RIOTRankInformationsDTO:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+          description: The date and time of the rank information.
+          example: "2023-10-27T10:00:00Z"
+        tier:
+          type: string
+          description: The rank tier.
+          example: "DIAMOND"
+        rank:
+          type: string
+          description: The division within the tier.
+          example: "IV"
+        leaguePoints:
+          type: integer
+          format: int32
+          description: The current league points.
+          example: 75
+        wins:
+          type: integer
+          format: int32
+          description: The number of wins in the current season/set for this queue.
+          example: 150
+        losses:
+          type: integer
+          format: int32
+          description: The number of losses in the current season/set for this queue.
+          example: 120
+      required:
+        - date
+        - tier
+        - rank
+        - leaguePoints
+        - wins
+        - losses
+    RIOTSummonerDTO:
+      type: object
+      properties:
+        puuid:
+          type: string
+          description: Unique identifier for the player.
+          example: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
+        name:
+          type: string
+          description: The summoner's in-game name.
+          example: "SummonerName"
+        level:
+          type: integer
+          format: int32
+          description: The summoner's current level.
+          example: 123
+        icon:
+          type: integer
+          format: int32
+          description: The ID of the summoner icon.
+          example: 29
+        tag:
+          type: string
+          description: The summoner's in-game tag.
+          example: "#EUW"
+        region:
+          type: string
+          description: The region where the summoner plays.
+          example: "euw1"
+        updateDate:
+          type: string
+          format: date-time
+          description: The last date and time this summoner's data was updated.
+          example: "2025-06-29T22:13:09Z"
+        spentTime:
+          type: integer
+          format: int64
+          description: Cumulative time spent by the summoner in game.
+          example: 1234567890
+        playedSeasonsOrSets:
+          type: array
+          items:
+            type: integer
+            format: int32
+          description: A set of unique identifiers for seasons or sets the summoner has participated in.
+          example: [ 1, 2, 3, 5 ]
+      required:
+        - puuid
+        - name
+        - level
+        - icon
+        - region
+        - updateDate
+    RIOTBoardDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the board.
+          example: "board_12345"
+        puuids:
+          type: array
+          items:
+            type: string
+          description: A list of PUUIDs associated with this board.
+          example:
+            - "puuid1"
+            - "puuid2"
+        updateDate:
+          type: string
+          format: date-time
+          description: The last date and time this board's data was updated.
+          example: "2025-06-29T23:26:26Z"
+        name:
+          type: string
+          description: The name of the board.
+          example: "My Custom Board"
+    LOLMasteriesDTO:
+      type: object
+      properties:
+        puuid:
+          type: string
+          description: Unique identifier for the player.
+          example: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
+        champions:
+          type: array
+          items:
+            $ref: '#/components/schemas/LOLMasteryDTO'
+      required:
+        - puuid
+        - champions
+    LOLMasteryDTO:
+      type: object
+      properties:
+        level:
+          type: integer
+          format: int32
+          description: The mastery level of the champion
+          example: 7
+        points:
+          type: integer
+          format: int32
+          description: The total mastery points for the champion
+          example: 250000
+        champion:
+          type: string
+          description: The ID of the champion
+          example: "Yasuo"
+        lastPlayTime:
+          type: string
+          format: date-time
+          description: The last time the champion was played
+          example: "2024-06-28T10:30:00Z"
+      required:
+        - level
+        - points
+        - champion
+        - lastPlayTime
+    LOLParticipantDTO:
+      type: object
+      properties:
+        champLevel:
+          type: integer
+          format: int32
+          description: The participant's champion level.
+          example: 345
+        kills:
+          type: integer
+          format: int32
+          description: Number of kills by the participant.
+          example: 12
+        assists:
+          type: integer
+          format: int32
+          description: Number of assists by the participant.
+          example: 4
+        deaths:
+          type: integer
+          format: int32
+          description: Number of deaths by the participant.
+          example: 2
+        role:
+          type: string
+          description: The participant's role in the game.
+          example: "jungle"
+        visionScore:
+          type: integer
+          format: int32
+          description: The participant's vision score.
+          example: 40
+        minions:
+          type: integer
+          format: int32
+          description: Total minions killed by the participant.
+          example: 203
+        neutralMinions:
+          type: integer
+          format: int32
+          description: Total neutral minions (jungle monsters) killed by the participant.
+          example: 110
+        doubleKills:
+          type: integer
+          format: int32
+          description: Number of double kills.
+          example: 2
+        tripleKills:
+          type: integer
+          format: int32
+          description: Number of triple kills.
+          example: 1
+        quadraKills:
+          type: integer
+          format: int32
+          description: Number of quadra kills.
+          example: 1
+        pentaKills:
+          type: integer
+          format: int32
+          description: Number of penta kills.
+          example: 1
+        physicalDamageDealtToChampions:
+          type: integer
+          format: int32
+          description: Physical damage dealt to champions.
+          example: 45020
+        magicDamageDealtToChampions:
+          type: integer
+          format: int32
+          description: Magic damage dealt to champions.
+          example: 12789
+        trueDamageDealtToChampions:
+          type: integer
+          format: int32
+          description: True damage dealt to champions.
+          example: 490
+        physicalDamageTaken:
+          type: integer
+          format: int32
+          description: Physical damage taken.
+          example: 19493
+        magicDamageTaken:
+          type: integer
+          format: int32
+          description: Magic damage taken.
+          example: 34928
+        trueDamageTaken:
+          type: integer
+          format: int32
+          description: True damage taken.
+          example: 1342
+        golds:
+          type: integer
+          format: int32
+          description: Total gold earned.
+          example: 20194
+        gameEndedInEarlySurrender:
+          type: boolean
+          description: Indicates if the game ended in an early surrender for this participant's team.
+          example: false
+        runes:
+          $ref: '#/components/schemas/LOLRunesDTO'
+        champion:
+          type: string
+          description: The ID or name of the champion played.
+          example: "122"
+        item0:
+          type: string
+          description: ID or name of item slot 0.
+          example: "101"
+        item1:
+          type: string
+          description: ID or name of item slot 1.
+          example: "2870"
+        item2:
+          type: string
+          description: ID or name of item slot 2.
+          example: "1300"
+        item3:
+          type: string
+          description: ID or name of item slot 3.
+          example: "4900"
+        item4:
+          type: string
+          description: ID or name of item slot 4.
+          example: "3170"
+        item5:
+          type: string
+          description: ID or name of item slot 5.
+          example: "5600"
+        ward:
+          type: string
+          description: ID or name of the ward item.
+          example: "120"
+        summoner:
+          $ref: '#/components/schemas/RIOTSummonerDTO'
+        summonerSpell1:
+          type: string
+          description: ID or name of the first summoner spell.
+          example: "4"
+        summonerSpell2:
+          type: string
+          description: ID or name of the second summoner spell.
+          example: "12"
+        placement:
+          type: integer
+          format: int32
+          description: Participant's placement.
+          example: 2
+        augment1:
+          type: string
+          description: ID or name of the first augment.
+          example: "24"
+        augment2:
+          type: string
+          description: ID or name of the second augment.
+          example: "53"
+        augment3:
+          type: string
+          description: ID or name of the third augment.
+          example: "28"
+        augment4:
+          type: string
+          description: ID or name of the fourth augment.
+          example: "144"
+        augment5:
+          type: string
+          description: ID or name of the fifth augment.
+          example: "160"
+        augment6:
+          type: string
+          description: ID or name of the sixth augment.
+          example: "120"
+    LOLObjectivesDTO:
+      type: object
+      properties:
+        baronKills:
+          type: integer
+          format: int32
+          description: Number of Baron Nashor kills.
+          example: 1
+        championKills:
+          type: integer
+          format: int32
+          description: Number of champion kills.
+          example: 34
+        dragonKills:
+          type: integer
+          format: int32
+          description: Number of Dragon kills.
+          example: 4
+        hordeKills:
+          type: integer
+          format: int32
+          description: Number of Void Grub kills.
+          example: 5
+        inhibitorKills:
+          type: integer
+          format: int32
+          description: Number of Inhibitor kills.
+          example: 3
+        riftHeraldKills:
+          type: integer
+          format: int32
+          description: Number of Rift Herald kills.
+          example: 1
+        towerKills:
+          type: integer
+          format: int32
+          description: Number of Tower kills.
+          example: 7
+        atakhanKills:
+          type: integer
+          format: int32
+          description: Number of Atakhan kills.
+          example: 1
+    LOLTeamDTO:
+      type: object
+      properties:
+        objectives:
+          $ref: '#/components/schemas/LOLObjectivesDTO'
+        hasWin:
+          type: boolean
+          description: Indicates if the team won the game.
+          example: true
+        id:
+          type: string
+          description: The ID of the team.
+          example: "1"
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/LOLParticipantDTO'
+          description: List of individual participants in the match.
+        bans:
+          type: array
+          items:
+            type: string
+          description: List of champion IDs or names banned by this team.
+          example:
+            - "Yasuo"
+            - "Zed"
+            - "LeeSin"
+            - "Aatrox"
+        placement:
+          type: integer
+          format: int32
+          description: The team's final placement in the game.
+          example: 1
+    LOLMatchDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the match.
+          example: "EUW1_694207890"
+        version:
+          type: string
+          description: The game version the match was played on.
+          example: "14.12.569.8398"
+        datetime:
+          type: string
+          format: date-time
+          description: Date and time when the match started.
+          example: "2025-06-30T16:00:00Z"
+        duration:
+          type: integer
+          format: int64
+          description: Duration of the game in seconds.
+          example: 2450
+        teams:
+          type: array
+          items:
+            $ref: '#/components/schemas/LOLTeamDTO'
+          description: List of teams participating in the match.
+        remake:
+          type: boolean
+          description: Indicates if the game was a remake.
+          example: false
+        queue:
+          type: string
+          description: The ID or name of the game queue.
+          example: "420"
+    TFTUnitDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the unit.
+          example: "TFT9_Akali"
+        rarity:
+          type: integer
+          format: int32
+          description: The rarity level of the unit.
+          example: 4
+        tier:
+          type: integer
+          format: int32
+          description: The star level of the unit.
+          example: 2
+        items:
+          type: array
+          items:
+            type: string
+          description: List of items equipped on the unit.
+          example:
+            - "TFT_Item_Deathblade"
+            - "TFT_Item_TitansResolve"
+            - "TFT_Item_HandOfJustice"
+    TFTTraitDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier or name of the trait.
+          example: "TFT9_Slayer"
+        tier:
+          type: integer
+          format: int32
+          description: The current active tier of the trait.
+          example: 3
+        maxTier:
+          type: integer
+          format: int32
+          description: The maximum possible tier for this trait.
+          example: 4
+        unitsNb:
+          type: integer
+          format: int32
+          description: The number of units contributing to this trait.
+          example: 6
+        style:
+          type: integer
+          format: int32
+          description: Visual style or level of the trait's activation.
+          example: 3
+    TFTMatchDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the Teamfight Tactics match.
+          example: "EUW1_1234567890"
+        version:
+          type: string
+          description: The game version the match was played on.
+          example: "14.12.569.8398"
+        datetime:
+          type: string
+          format: date-time
+          description: Date and time when the match started.
+          example: "2025-06-30T22:02:20Z"
+        duration:
+          type: integer
+          format: int64
+          description: Duration of the game in seconds.
+          example: 2200
+        set:
+          type: integer
+          format: int32
+          description: The TFT set number the match was played on.
+          example: 12
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/TFTParticipantDTO'
+          description: List of individual participants in the match.
+        queue:
+          type: string
+          description: The ID or name of the game queue.
+          example: "1100"
+    TFTParticipantDTO:
+      type: object
+      properties:
+        summoner:
+          $ref: '#/components/schemas/RIOTSummonerDTO'
+        lastRound:
+          type: integer
+          format: int32
+          description: The last round the participant was in.
+          example: 36
+        level:
+          type: integer
+          format: int32
+          description: The participant's player level.
+          example: 9
+        goldLeft:
+          type: integer
+          format: int32
+          description: Amount of gold the participant had left at the end of the game.
+          example: 25
+        placement:
+          type: integer
+          format: int32
+          description: The participant's final placement in the game.
+          example: 1
+        playersEliminated:
+          type: integer
+          format: int32
+          description: Number of players this participant eliminated.
+          example: 3
+        timeEliminated:
+          type: integer
+          format: int32
+          description: The time in seconds when the participant was eliminated from the game.
+          example: 1800
+        damageToPlayers:
+          type: integer
+          format: int32
+          description: Total damage dealt to other players by this participant.
+          example: 15000
+        units:
+          type: array
+          items:
+            $ref: '#/components/schemas/TFTUnitDTO'
+          description: List of units on the participant's board.
+        traits:
+          type: array
+          items:
+            $ref: '#/components/schemas/TFTTraitDTO'
+          description: List of traits active for the participant.
+        augments:
+          type: array
+          items:
+            type: string
+          description: List of augments chosen by the participant.
+          example:
+            - "TFT9_Augment_BuiltDifferent1"
+            - "TFT9_Augment_CyberneticBulk2"
+            - "TFT9_Augment_GoldenTicket"
+        hasWin:
+          type: boolean
+          description: Indicates if the participant won the game.
+          example: true
+    LOLRunesDTO:
+      type: object
+      description: Represents all selected runes.
+      properties:
+        style:
+          type: object
+          description: Represents the style id of the style category.
+          example: "Précision"
+          additionalProperties:
+            type: integer
+        runeCategories:
+          type: array
+          description: Represents all selected runes categories.
+          items:
+            $ref: '#/components/schemas/LOLRuneCategoryDTO'
+      required:
+        - stats
+        - runeCategories
+    LOLRuneCategoryDTO:
+      type: object
+      description: Represents a selected rune category.
+      properties:
+        style:
+          type: string
+          description: Represents the style id of the style category.
+          example: "Précision"
+        perks:
+          type: array
+          description: A list of all selected perks.
+          items:
+            type: string
+      required:
+        - style
+        - perks

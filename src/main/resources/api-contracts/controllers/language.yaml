@@ -1,0 +1,21 @@
+getAllSupportedLanguages:
+  get:
+    summary: Retrieve all supported languages.
+    operationId: getAllSupportedLanguages
+    tags:
+      - Language
+    responses:
+      '200':
+        description: Supported languages successfully retrieved.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../api-contracts.yaml#/components/schemas/LanguageDTO'
+      '500':
+        description: Internal Server Error.
+        content:
+          application/json:
+            schema:
+              $ref: '../api-contracts.yaml#/components/schemas/ApiError'

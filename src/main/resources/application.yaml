@@ -5,14 +5,15 @@ spring:
     user:
       name: krazytop
       password: password
+  web:
+    resources:
+      add-mappings: false
   data:
     mongodb:
       tft:
         uri: ${MONGO_DATABASE_URL}TeamfightTactics
       lol:
         uri: ${MONGO_DATABASE_URL}LeagueOfLegends
-      riot:
-        uri: ${MONGO_DATABASE_URL}Riot
       clash-royal:
         uri: ${MONGO_DATABASE_URL}ClashRoyal
       api-key:

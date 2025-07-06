@@ -5,7 +5,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ApplicationContextProvider implements ApplicationContextAware {
+public class ApplicationContextProvider implements ApplicationContextAware {//TODO delete
 
     private static ApplicationContext context;
 

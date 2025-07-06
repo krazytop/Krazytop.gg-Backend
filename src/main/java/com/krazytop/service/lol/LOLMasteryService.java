@@ -3,9 +3,11 @@ package com.krazytop.service.lol;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.krazytop.config.CustomHTTPException;
-import com.krazytop.entity.lol.LOLMasteriesEntity;
-import com.krazytop.http_responses.RIOTHTTPErrorResponsesEnum;
+import com.krazytop.api_gateway.model.generated.LOLMasteriesDTO;
+import com.krazytop.entity.lol.LOLMasteries;
+import com.krazytop.exception.CustomException;
+import com.krazytop.exception.ApiErrorEnum;
+import com.krazytop.mapper.lol.LOLMasteryMapper;
 import com.krazytop.nomenclature.GameEnum;
 import com.krazytop.repository.api_key.ApiKeyRepository;
 import com.krazytop.repository.lol.LOLMasteryRepository;
@@ -16,34 +18,42 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class LOLMasteryService {
 
     private final ApiKeyRepository apiKeyRepository;
     private final LOLMasteryRepository masteryRepository;
+    private final LOLSummonerService summonerService;
+    private final LOLMasteryMapper masteryMapper;
 
     @Autowired
-    public LOLMasteryService(ApiKeyRepository apiKeyRepository, LOLMasteryRepository masteryRepository) {
+    public LOLMasteryService(ApiKeyRepository apiKeyRepository, LOLMasteryRepository masteryRepository, LOLSummonerService summonerService, LOLMasteryMapper masteryMapper) {
         this.apiKeyRepository = apiKeyRepository;
         this.masteryRepository = masteryRepository;
+        this.summonerService = summonerService;
+        this.masteryMapper = masteryMapper;
     }
 
-    public Optional<LOLMasteriesEntity> getMasteries(String puuid) {
-        return masteryRepository.findByPuuid(puuid);
+    public LOLMasteries getMasteries(String puuid) {
+        return masteryRepository.findByPuuid(puuid).orElseThrow(() -> new CustomException(ApiErrorEnum.SUMMONER_NEED_IMPORT_FIRST));
     }
 
-    public void updateMasteries(String region, String puuid) {
+    public LOLMasteriesDTO getMasteriesDTO(String puuid) {
+        return masteryMapper.toDTO(getMasteries(puuid));
+    }
+
+    public void updateMasteries(String puuid) {
         try {
-            String stringUrl = String.format("https://euw1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/%s?api_key=%s", puuid, apiKeyRepository.findFirstByGame(GameEnum.LOL).getKey());
+            String region = summonerService.getLocalSummoner(puuid).orElseThrow(() -> new CustomException(ApiErrorEnum.SUMMONER_NEED_IMPORT_FIRST)).getRegion();
+            String stringUrl = String.format("https://%s.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/%s?api_key=%s", region, puuid, apiKeyRepository.findFirstByGame(GameEnum.LOL).getKey());
             ObjectMapper mapper = new ObjectMapper();
             List<JsonNode> nodes = mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()), new TypeReference<>() {});
-            LOLMasteriesEntity masteries = new LOLMasteriesEntity(nodes.get(0).get("puuid").asText());
-            nodes.forEach(node -> masteries.getChampions().add(mapper.convertValue(node, LOLMasteriesEntity.LOLMasteryEntity.class)));
+            LOLMasteries masteries = new LOLMasteries(nodes.getFirst().get("puuid").asText());
+            nodes.forEach(node -> masteries.getChampions().add(mapper.convertValue(node, LOLMasteries.LOLMastery.class)));
             masteryRepository.save(masteries);
-        } catch (IOException | URISyntaxException e) {
-            throw new CustomHTTPException(RIOTHTTPErrorResponsesEnum.MASTERIES_CANT_BE_UPDATED);
+        } catch (IOException | URISyntaxException ex) {
+            throw new CustomException(ApiErrorEnum.MASTERY_UPDATE_ERROR, ex);
         }
     }
 

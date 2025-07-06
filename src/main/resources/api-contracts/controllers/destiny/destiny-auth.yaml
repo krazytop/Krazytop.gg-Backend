@@ -1,0 +1,53 @@
+getPlayerTokens:
+  get:
+    summary: Retrieve Bungie player tokens
+    operationId: getPlayerTokens
+    tags:
+      - Destiny Authentification
+    parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+        description: The authorization code received from Bungie.net.
+    responses:
+      '200':
+        description: Player tokens successfully retrieved.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/DestinyAuthTokensDTO'
+      '500':
+        description: Internal Server Error or IO Error when communicating with Bungie.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
+
+updatePlayerTokens:
+  post:
+    summary: Update Bungie player tokens.
+    operationId: updatePlayerTokens
+    tags:
+      - Destiny Authentification
+    requestBody:
+      required: true
+      description: Player tokens to refresh.
+      content:
+        application/json:
+          schema:
+            $ref: '../../api-contracts.yaml#/components/schemas/DestinyAuthTokensDTO'
+    responses:
+      '200':
+        description: Player tokens successfully refreshed.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/DestinyAuthTokensDTO'
+      '500':
+        description: Internal Server Error or IO Error when communicating with Bungie.
+        content:
+          application/json:
+            schema:
+              $ref: '../../api-contracts.yaml#/components/schemas/ApiError'
