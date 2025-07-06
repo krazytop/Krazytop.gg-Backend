@@ -49,7 +49,7 @@ public class LOLMasteryService {
             String stringUrl = String.format("https://%s.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/%s?api_key=%s", region, puuid, apiKeyRepository.findFirstByGame(GameEnum.LOL).getKey());
             ObjectMapper mapper = new ObjectMapper();
             List<JsonNode> nodes = mapper.convertValue(mapper.readTree(new URI(stringUrl).toURL()), new TypeReference<>() {});
-            LOLMasteries masteries = new LOLMasteries(nodes.get(0).get("puuid").asText());
+            LOLMasteries masteries = new LOLMasteries(nodes.getFirst().get("puuid").asText());
             nodes.forEach(node -> masteries.getChampions().add(mapper.convertValue(node, LOLMasteries.LOLMastery.class)));
             masteryRepository.save(masteries);
         } catch (IOException | URISyntaxException ex) {

@@ -61,11 +61,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.modelmapper</groupId>
-            <artifactId>modelmapper</artifactId>
-            <version>${modelmapper.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>${httpclient.version}</version>
@@ -74,12 +69,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
             <version>${commons-collections4.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${junit-jupiter.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
@@ -96,6 +85,12 @@
             <artifactId>openapi-generator</artifactId>
             <version>${openapi-generator.version}</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>jakarta.annotation</groupId>
@@ -154,12 +149,6 @@
                         <generateApiTests>false</generateApiTests>
                         <generateApiDocumentation>false</generateApiDocumentation>
                         <generateSupportingFiles>false</generateSupportingFiles>
-                        <typeMappings>
-                            <typeMapping>OffsetDateTime=LocalDateTime</typeMapping>
-                        </typeMappings>
-                        <importMappings>
-                            <importMapping>java.time.OffsetDateTime=java.time.LocalDateTime</importMapping>
-                        </importMappings>
                         <configOptions>
                             <sourceFolder>src/main/java</sourceFolder>
                             <dateLibrary>java8</dateLibrary>

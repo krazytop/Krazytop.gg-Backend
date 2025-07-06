@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 
 
 @Configuration
-public class MongoDbConfig {
+public class MongoConfig {
 
     @Primary
     @Bean(name = "tftMongoProperties")
@@ -23,13 +23,6 @@ public class MongoDbConfig {
     @Bean(name = "lolMongoProperties")
     @ConfigurationProperties(prefix = "spring.data.mongodb.lol")
     public MongoProperties getLolMongoProperties() {
-        return new MongoProperties();
-    }
-
-
-    @Bean(name = "riotMongoProperties")
-    @ConfigurationProperties(prefix = "spring.data.mongodb.riot")
-    public MongoProperties getRiotMongoProperties() {
         return new MongoProperties();
     }
 
@@ -56,11 +49,6 @@ public class MongoDbConfig {
         return new MongoTemplate(lolMongoDatabaseFactory(getLolMongoProperties()));
     }
 
-    @Bean(name = "riotMongoTemplate")
-    public MongoTemplate riotMongoTemplate() {
-        return new MongoTemplate(riotMongoDatabaseFactory(getRiotMongoProperties()));
-    }
-
     @Bean(name = "clashRoyalMongoTemplate")
     public MongoTemplate clashRoyalMongoTemplate() {
         return new MongoTemplate(clashRoyalMongoDatabaseFactory(getClashRoyalMongoProperties()));
@@ -81,13 +69,6 @@ public class MongoDbConfig {
 
     @Bean
     public MongoDatabaseFactory lolMongoDatabaseFactory(MongoProperties mongo) {
-        return new SimpleMongoClientDatabaseFactory(
-                mongo.getUri()
-        );
-    }
-
-    @Bean
-    public MongoDatabaseFactory riotMongoDatabaseFactory(MongoProperties mongo) {
         return new SimpleMongoClientDatabaseFactory(
                 mongo.getUri()
         );

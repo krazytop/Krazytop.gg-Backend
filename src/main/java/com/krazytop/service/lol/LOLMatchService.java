@@ -75,7 +75,7 @@ public class LOLMatchService {
                             match.dispatchParticipantsInTeamsArena();
                         } else {
                             match.dispatchParticipantsInTeamsNormalGame();
-                            match.setRemake(match.getTeams().get(0).getParticipants().get(0).getGameEndedInEarlySurrender());
+                            match.setRemake(match.getTeams().getFirst().getParticipants().getFirst().getGameEndedInEarlySurrender());
                         }
                         saveMatch(match, puuid);
                         Thread.sleep(2000);
