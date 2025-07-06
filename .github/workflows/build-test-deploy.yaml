@@ -17,7 +17,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: 20
+          java-version: 21
           distribution: 'adopt'
 
       - name: Build with Maven
@@ -40,7 +40,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: 20
+          java-version: 21
           distribution: 'adopt'
 
       - name: Cache SonarCloud packages
